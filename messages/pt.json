@@ -1,0 +1,203 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Simplifique Sua",
+      "titleHighlight": "Pratica de Imigracao",
+      "subtitle": "Complete {highlight} em minutos, nao em horas. EZMig ajuda advogados de imigracao a gerenciar casos, preencher formularios com precisao e rastrear status automaticamente.",
+      "highlight": "Formularios USCIS",
+      "cta": "Comecar Teste Gratis",
+      "demo": "Assistir Demo"
+    },
+    "stats": {
+      "forms": "Formularios USCIS",
+      "timeSaved": "Tempo Economizado",
+      "rfeRate": "Taxa de RFE",
+      "trial": "Teste Gratis",
+      "formsValue": "5+",
+      "timeSavedValue": "70%",
+      "rfeRateValue": "Zero",
+      "trialValue": "7 Dias"
+    },
+    "problem": {
+      "badge": "O Problema",
+      "title": "A burocracia de imigracao e avassaladora",
+      "item1": "Horas gastas em entrada de dados repetitiva em multiplos formularios",
+      "item2": "RFEs custosos devido a campos faltantes e informacoes inconsistentes",
+      "item3": "Rastreamento manual de casos desperica horas faturaveis valiosas"
+    },
+    "solution": {
+      "badge": "A Solucao",
+      "title": "EZMig automatiza e valida",
+      "item1": "Insira dados uma vez, auto-preencha em todos os formularios relacionados",
+      "item2": "Validacao em tempo real detecta erros antes do envio",
+      "item3": "Rastreamento automatico de status USCIS e notificacoes instantaneas"
+    },
+    "features": {
+      "title": "Tudo que voce precisa para gerenciar casos de imigracao",
+      "subtitle": "Do preenchimento de formularios ao rastreamento de casos, EZMig cuida de tudo.",
+      "forms": {
+        "title": "Formularios USCIS Simplificados",
+        "description": "Complete formularios I-130, I-485, I-589, I-765 e I-539 com auto-preenchimento inteligente e validacao em tempo real. Nunca mais esqueca um campo obrigatorio."
+      },
+      "clients": {
+        "title": "Gestao de Clientes e Casos",
+        "description": "Organize todos os seus casos de imigracao em um so lugar. Rastreie prazos, gerencie documentos e mantenha clientes informados automaticamente."
+      },
+      "eFiling": {
+        "title": "Pronto para e-Filing",
+        "description": "Gere pacotes PDF compativeis com USCIS prontos para envio eletronico. Economize horas em cada submissao de caso."
+      },
+      "tracker": {
+        "title": "Rastreador de Status de Casos",
+        "description": "Monitoramento automatico do status de casos USCIS. Receba notificacoes instantaneas quando os status mudarem."
+      },
+      "ai": {
+        "title": "Assistente IA",
+        "description": "IA contextual ajuda clientes a preencher formularios corretamente. Reduz dramaticamente o vai-e-vem e RFEs."
+      },
+      "evidence": {
+        "title": "Gerenciador Dinamico de Evidencias",
+        "description": "Lista de verificacao inteligente que se adapta a cada tipo de caso. Nunca mais esqueca um documento de suporte."
+      }
+    },
+    "howItWorks": {
+      "title": "Como o EZMig funciona",
+      "subtitle": "Tres passos simples para transformar sua pratica de imigracao",
+      "step": "Passo",
+      "step1": {
+        "title": "Criar Perfil do Cliente",
+        "description": "Adicione informacoes do cliente uma vez. EZMig auto-preenche em todos os formularios."
+      },
+      "step2": {
+        "title": "Preencher Formularios",
+        "description": "Preencha formularios USCIS com assistencia inteligente e validacao em tempo real."
+      },
+      "step3": {
+        "title": "Gerar e Enviar",
+        "description": "Exporte PDFs prontos para USCIS ou envie diretamente via e-Filing."
+      }
+    },
+    "pricing": {
+      "title": "Precos simples e transparentes",
+      "subtitle": "Pague apenas pelo que usar. 1 credito = 1 formulario completo.",
+      "starter": {
+        "name": "Inicial",
+        "price": "$29",
+        "credits": "/ 10 creditos",
+        "feature1": "Todos os formularios USCIS",
+        "feature2": "Gestao de clientes",
+        "feature3": "Exportacao PDF"
+      },
+      "growth": {
+        "name": "Crescimento",
+        "price": "$99",
+        "credits": "/ 50 creditos",
+        "badge": "Mais Popular",
+        "feature1": "Tudo do Inicial",
+        "feature2": "Assistente IA",
+        "feature3": "Rastreamento de status",
+        "feature4": "Colaboracao em equipe"
+      },
+      "enterprise": {
+        "name": "Empresarial",
+        "price": "$249",
+        "credits": "/ 150 creditos",
+        "feature1": "Tudo do Crescimento",
+        "feature2": "Suporte prioritario",
+        "feature3": "Integracoes personalizadas",
+        "feature4": "Gerente de conta dedicado"
+      },
+      "getStarted": "Comecar",
+      "contactSales": "Contatar Vendas"
+    },
+    "testimonials": {
+      "title": "Confiado por advogados de imigracao",
+      "subtitle": "Veja o que profissionais juridicos dizem sobre EZMig",
+      "items": [
+        {
+          "quote": "EZMig reduziu nosso tempo de processamento do I-130 em 70%. Apenas a deteccao de erros nos economizou inumeros RFEs. Meu paralegal agora pode lidar com o dobro de casos.",
+          "name": "Maria Gonzalez",
+          "designation": "Advogada de Imigracao, Miami FL"
+        },
+        {
+          "quote": "Finalmente, um sistema que entende a lei de imigracao. A validacao inteligente de formularios detecta problemas antes do envio. Ferramenta essencial para qualquer pratica seria.",
+          "name": "James Chen",
+          "designation": "Socio em Chen & Associates, Los Angeles CA"
+        },
+        {
+          "quote": "O assistente IA ajuda meus clientes a preencher formularios corretamente na primeira vez. Mudou completamente minha pratica individual. Dobrei minha capacidade de casos sem adicionar pessoal.",
+          "name": "Sarah Williams",
+          "designation": "Praticante Individual, Houston TX"
+        },
+        {
+          "quote": "Documentos prontos para e-Filing diretamente no formato USCIS? Eu nao achava possivel. EZMig entrega exatamente o que advogados de imigracao precisam.",
+          "name": "David Park",
+          "designation": "Advogado Principal, New York NY"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Pronto para transformar sua pratica?",
+      "subtitle": "Junte-se a centenas de advogados de imigracao que economizam horas toda semana com EZMig. Comece seu teste gratuito de 7 dias hoje.",
+      "button": "Comecar Teste Gratis",
+      "demo": "Agendar uma Demo"
+    },
+    "footer": {
+      "description": "Gestao de Casos de Imigracao Simplificada. Complete formularios USCIS em minutos, nao horas. Confiado por advogados em todo o pais.",
+      "product": "Produto",
+      "features": "Recursos",
+      "pricing": "Precos",
+      "integrations": "Integracoes",
+      "updates": "Atualizacoes",
+      "company": "Empresa",
+      "about": "Sobre",
+      "blog": "Blog",
+      "careers": "Carreiras",
+      "contact": "Contato",
+      "copyright": "EZMig. Todos os direitos reservados.",
+      "privacy": "Politica de Privacidade",
+      "terms": "Termos de Servico",
+      "cookies": "Politica de Cookies"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Bem-vindo de volta",
+    "createAccount": "Crie sua conta",
+    "signInSubtitle": "Entre para gerenciar seus casos de imigracao",
+    "signUpSubtitle": "Comece seu teste gratuito de 7 dias hoje",
+    "email": "E-mail",
+    "emailPlaceholder": "voce@escritorio.com",
+    "password": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "signIn": "Entrar",
+    "signUp": "Comecar Teste Gratis",
+    "loading": "Carregando...",
+    "newToEZMig": "Novo no EZMig?",
+    "alreadyHaveAccount": "Ja tem uma conta?",
+    "createAccountLink": "Criar uma conta",
+    "signInLink": "Entrar em conta existente",
+    "termsText": "Ao se registrar, voce concorda com nossos",
+    "termsLink": "Termos de Servico",
+    "andText": "e",
+    "privacyLink": "Politica de Privacidade"
+  },
+  "dashboard": {
+    "title": "Painel de Controle",
+    "general": "Geral",
+    "activity": "Atividade",
+    "security": "Seguranca",
+    "pricing": "Precos",
+    "signOut": "Sair"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "signUp": "Cadastrar"
+  },
+  "header": {
+    "pricing": "Precos",
+    "signUp": "Cadastrar",
+    "dashboard": "Painel de Controle",
+    "signOut": "Sair"
+  }
+}

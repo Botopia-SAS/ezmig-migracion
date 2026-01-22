@@ -1,44 +1,28 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Manrope } from 'next/font/google';
-import { getUser, getTeamForUser } from '@/lib/db/queries';
-import { SWRConfig } from 'swr';
+import { Inter } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'Next.js SaaS Starter',
-  description: 'Get started quickly with Next.js, Postgres, and Stripe.'
+  title: 'EZMig - Immigration Case Management Made Simple',
+  description: 'Complete USCIS forms in minutes, not hours. EZMig helps immigration attorneys manage cases, fill forms accurately, and track USCIS status automatically.',
+  keywords: ['immigration', 'USCIS', 'I-130', 'I-485', 'I-589', 'I-765', 'case management', 'immigration attorney'],
+  openGraph: {
+    title: 'EZMig - Immigration Case Management Made Simple',
+    description: 'Complete USCIS forms in minutes, not hours.',
+    type: 'website',
+  }
 };
 
 export const viewport: Viewport = {
   maximumScale: 1
 };
 
-const manrope = Manrope({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html
-      lang="en"
-      className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
-    >
-      <body className="min-h-[100dvh] bg-gray-50">
-        <SWRConfig
-          value={{
-            fallback: {
-              // We do NOT await here
-              // Only components that read this data will suspend
-              '/api/user': getUser(),
-              '/api/team': getTeamForUser()
-            }
-          }}
-        >
-          {children}
-        </SWRConfig>
-      </body>
-    </html>
-  );
+  return children;
 }

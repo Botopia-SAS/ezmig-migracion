@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ezmig-db
+    environment:
+      POSTGRES_USER: ezmig
+      POSTGRES_PASSWORD: ezmig123
+      POSTGRES_DB: ezmig
+    ports:
+      - "5434:5432"
+    volumes:
+      - ezmig_data:/var/lib/postgresql/data
+
+volumes:
+  ezmig_data:

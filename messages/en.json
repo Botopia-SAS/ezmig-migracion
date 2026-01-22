@@ -1,0 +1,203 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Simplify Your",
+      "titleHighlight": "Immigration Practice",
+      "subtitle": "Complete {highlight} in minutes, not hours. EZMig helps immigration attorneys manage cases, fill forms accurately, and track status automatically.",
+      "highlight": "USCIS Forms",
+      "cta": "Start Free Trial",
+      "demo": "Watch Demo"
+    },
+    "stats": {
+      "forms": "USCIS Forms",
+      "timeSaved": "Time Saved",
+      "rfeRate": "RFE Rate",
+      "trial": "Free Trial",
+      "formsValue": "5+",
+      "timeSavedValue": "70%",
+      "rfeRateValue": "Zero",
+      "trialValue": "7-Day"
+    },
+    "problem": {
+      "badge": "The Problem",
+      "title": "Immigration paperwork is overwhelming",
+      "item1": "Hours spent on repetitive data entry across multiple forms",
+      "item2": "Costly RFEs due to missed fields and inconsistent information",
+      "item3": "Manual case status tracking wastes valuable billable hours"
+    },
+    "solution": {
+      "badge": "The Solution",
+      "title": "EZMig automates and validates",
+      "item1": "Enter data once, auto-populate across all related forms",
+      "item2": "Real-time validation catches errors before submission",
+      "item3": "Automatic USCIS status tracking and instant notifications"
+    },
+    "features": {
+      "title": "Everything you need to manage immigration cases",
+      "subtitle": "From form completion to case tracking, EZMig handles it all.",
+      "forms": {
+        "title": "USCIS Forms Made Easy",
+        "description": "Complete I-130, I-485, I-589, I-765, and I-539 forms with intelligent auto-fill and real-time validation. Never miss a required field again."
+      },
+      "clients": {
+        "title": "Client & Case Management",
+        "description": "Organize all your immigration cases in one place. Track deadlines, manage documents, and keep clients informed automatically."
+      },
+      "eFiling": {
+        "title": "e-Filing Ready",
+        "description": "Generate USCIS-compliant PDF packages ready for electronic filing. Save hours on every case submission."
+      },
+      "tracker": {
+        "title": "Case Status Tracker",
+        "description": "Automatic USCIS case status monitoring. Get instant notifications when case statuses change."
+      },
+      "ai": {
+        "title": "AI Assistant",
+        "description": "Context-aware AI helps clients fill forms correctly. Reduces back-and-forth and RFEs dramatically."
+      },
+      "evidence": {
+        "title": "Dynamic Evidence Manager",
+        "description": "Smart evidence checklist adapts to each case type. Never forget a supporting document again."
+      }
+    },
+    "howItWorks": {
+      "title": "How EZMig works",
+      "subtitle": "Three simple steps to transform your immigration practice",
+      "step": "Step",
+      "step1": {
+        "title": "Create Client Profile",
+        "description": "Add client information once. EZMig auto-populates across all forms."
+      },
+      "step2": {
+        "title": "Complete Forms",
+        "description": "Fill USCIS forms with intelligent assistance and real-time validation."
+      },
+      "step3": {
+        "title": "Generate & File",
+        "description": "Export USCIS-ready PDFs or submit directly through e-Filing."
+      }
+    },
+    "pricing": {
+      "title": "Simple, transparent pricing",
+      "subtitle": "Pay only for what you use. 1 credit = 1 completed form.",
+      "starter": {
+        "name": "Starter",
+        "price": "$29",
+        "credits": "/ 10 credits",
+        "feature1": "All USCIS forms",
+        "feature2": "Client management",
+        "feature3": "PDF export"
+      },
+      "growth": {
+        "name": "Growth",
+        "price": "$99",
+        "credits": "/ 50 credits",
+        "badge": "Most Popular",
+        "feature1": "Everything in Starter",
+        "feature2": "AI Assistant",
+        "feature3": "Case status tracking",
+        "feature4": "Team collaboration"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "$249",
+        "credits": "/ 150 credits",
+        "feature1": "Everything in Growth",
+        "feature2": "Priority support",
+        "feature3": "Custom integrations",
+        "feature4": "Dedicated account manager"
+      },
+      "getStarted": "Get Started",
+      "contactSales": "Contact Sales"
+    },
+    "testimonials": {
+      "title": "Trusted by immigration attorneys",
+      "subtitle": "See what legal professionals say about EZMig",
+      "items": [
+        {
+          "quote": "EZMig reduced our I-130 processing time by 70%. The error detection alone has saved us countless RFEs. My paralegal can now handle twice the caseload.",
+          "name": "Maria Gonzalez",
+          "designation": "Immigration Attorney, Miami FL"
+        },
+        {
+          "quote": "Finally, a system that understands immigration law. The smart form validation catches issues before submission. Essential tool for any serious practice.",
+          "name": "James Chen",
+          "designation": "Partner at Chen & Associates, Los Angeles CA"
+        },
+        {
+          "quote": "The AI assistant helps my clients fill forms correctly the first time. Game changer for my solo practice. I've doubled my case capacity without adding staff.",
+          "name": "Sarah Williams",
+          "designation": "Solo Practitioner, Houston TX"
+        },
+        {
+          "quote": "e-Filing ready documents directly to USCIS format? I didn't think it was possible. EZMig delivers exactly what immigration attorneys need.",
+          "name": "David Park",
+          "designation": "Managing Attorney, New York NY"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to transform your practice?",
+      "subtitle": "Join hundreds of immigration attorneys who save hours every week with EZMig. Start your free 7-day trial today.",
+      "button": "Start Free Trial",
+      "demo": "Schedule a Demo"
+    },
+    "footer": {
+      "description": "Immigration Case Management Made Simple. Complete USCIS forms in minutes, not hours. Trusted by attorneys nationwide.",
+      "product": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "integrations": "Integrations",
+      "updates": "Updates",
+      "company": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "contact": "Contact",
+      "copyright": "EZMig. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create your account",
+    "signInSubtitle": "Sign in to manage your immigration cases",
+    "signUpSubtitle": "Start your 7-day free trial today",
+    "email": "Email",
+    "emailPlaceholder": "you@lawfirm.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signIn": "Sign in",
+    "signUp": "Start Free Trial",
+    "loading": "Loading...",
+    "newToEZMig": "New to EZMig?",
+    "alreadyHaveAccount": "Already have an account?",
+    "createAccountLink": "Create an account",
+    "signInLink": "Sign in to existing account",
+    "termsText": "By signing up, you agree to our",
+    "termsLink": "Terms of Service",
+    "andText": "and",
+    "privacyLink": "Privacy Policy"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "general": "General",
+    "activity": "Activity",
+    "security": "Security",
+    "pricing": "Pricing",
+    "signOut": "Sign out"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "signUp": "Sign Up"
+  },
+  "header": {
+    "pricing": "Pricing",
+    "signUp": "Sign Up",
+    "dashboard": "Dashboard",
+    "signOut": "Sign out"
+  }
+}
