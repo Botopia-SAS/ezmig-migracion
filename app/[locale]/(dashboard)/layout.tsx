@@ -35,7 +35,7 @@ function UserMenu() {
   if (!user) {
     return (
       <>
-        <Button asChild variant="ghost" className="hidden sm:inline-flex text-base font-medium text-black">
+        <Button asChild variant="ghost" className="text-sm sm:text-base font-medium text-black">
           <Link href="/sign-in">{t('signIn')}</Link>
         </Button>
         <Button asChild className="rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base px-3 sm:px-4">

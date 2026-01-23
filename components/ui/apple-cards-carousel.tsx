@@ -237,7 +237,7 @@ export const Card = ({
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
         onClick={handleOpen}
-        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 md:h-[40rem] md:w-96 dark:bg-neutral-900"
+        className="relative z-10 flex h-80 w-56 shrink-0 flex-col items-start justify-start overflow-hidden rounded-3xl bg-neutral-200 md:h-[40rem] md:w-96 dark:bg-neutral-900"
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-full bg-gradient-to-b from-black/50 via-transparent to-transparent" />
         <div className="relative z-40 p-8">
@@ -277,13 +277,13 @@ export const BlurImage = ({
   return (
     <img
       className={cn(
-        "h-full w-full transition duration-300",
-        isLoading ? "blur-sm" : "blur-0",
+        "h-full w-full transition-opacity duration-300",
+        isLoading ? "opacity-0" : "opacity-100",
         className,
       )}
       onLoad={() => setLoading(false)}
       src={src}
-      loading="lazy"
+      loading="eager"
       decoding="async"
       alt={alt}
     />
