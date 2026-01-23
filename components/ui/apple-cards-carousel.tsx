@@ -273,15 +273,9 @@ export const BlurImage = ({
   className?: string;
   alt: string;
 }) => {
-  const [isLoading, setLoading] = useState(true);
   return (
     <img
-      className={cn(
-        "h-full w-full transition-opacity duration-300",
-        isLoading ? "opacity-0" : "opacity-100",
-        className,
-      )}
-      onLoad={() => setLoading(false)}
+      className={cn("h-full w-full object-cover", className)}
       src={src}
       loading="eager"
       decoding="async"
