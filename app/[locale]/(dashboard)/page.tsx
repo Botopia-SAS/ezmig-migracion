@@ -4,7 +4,6 @@ import { MacbookScroll } from '@/components/ui/macbook-scroll';
 import { NoiseBackground } from '@/components/ui/noise-background';
 import { Carousel, Card } from '@/components/ui/apple-cards-carousel';
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
-import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
 import { PricingSection } from '@/components/pricing-section';
 import { TypewriterEffect } from '@/components/ui/typewriter-effect';
 import { useTranslations } from 'next-intl';
@@ -93,12 +92,8 @@ export default function HomePage() {
   return (
     <main className="overflow-hidden bg-white dark:bg-[#0B0B0F]">
       {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <BackgroundRippleEffect />
-        </div>
-        <div className="relative z-10">
-          <MacbookScroll
+      <section className="w-full">
+        <MacbookScroll
             src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80"
             showGradient={false}
             title={
@@ -127,7 +122,6 @@ export default function HomePage() {
               </NoiseBackground>
             }
           />
-        </div>
       </section>
 
       {/* Features Carousel */}
