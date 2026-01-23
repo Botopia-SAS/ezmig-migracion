@@ -54,7 +54,9 @@ export function TypewriterEffect({
 
   return (
     <span className={cn('inline-block', className)}>
-      {currentText}
+      <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">
+        {currentText}
+      </span>
       <span className="inline-block w-[3px] h-[1em] ml-1 align-middle bg-violet-400 animate-[blink_1s_step-end_infinite]" />
     </span>
   );

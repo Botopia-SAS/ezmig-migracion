@@ -104,14 +104,12 @@ export default function HomePage() {
             title={
               <span>
                 {t('hero.title')} <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">
-                  <TypewriterEffect
-                    words={t.raw('hero.typewriterWords') as string[]}
-                    typingSpeed={80}
-                    deletingSpeed={40}
-                    delayBetweenWords={2500}
-                  />
-                </span>
+                <TypewriterEffect
+                  words={t.raw('hero.typewriterWords') as string[]}
+                  typingSpeed={80}
+                  deletingSpeed={40}
+                  delayBetweenWords={2500}
+                />
               </span>
             }
             cta={
