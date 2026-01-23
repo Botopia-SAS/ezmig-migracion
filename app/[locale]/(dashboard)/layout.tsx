@@ -35,10 +35,10 @@ function UserMenu() {
   if (!user) {
     return (
       <>
-        <Button asChild variant="ghost" className="text-base font-medium text-black">
+        <Button asChild variant="ghost" className="hidden sm:inline-flex text-base font-medium text-black">
           <Link href="/sign-in">{t('signIn')}</Link>
         </Button>
-        <Button asChild className="rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-base">
+        <Button asChild className="rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base px-3 sm:px-4">
           <Link href="/sign-up">{t('signUp')}</Link>
         </Button>
       </>
@@ -91,14 +91,14 @@ function Header() {
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md dark:bg-neutral-950/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         {/* Logo + Navigation */}
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
+        <div className="flex items-center gap-4 md:gap-8">
+          <Link href="/" className="flex items-center gap-1 sm:gap-2 shrink-0">
             <img
               src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
               alt="EZMig Logo"
-              className="h-12 w-auto"
+              className="h-8 sm:h-12 w-auto"
             />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">EZMig</span>
+            <span className="hidden sm:inline text-2xl font-bold text-gray-900 dark:text-white">EZMig</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -115,7 +115,7 @@ function Header() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <LanguageSwitcher />
           <Suspense fallback={<div className="h-9" />}>
             <UserMenu />

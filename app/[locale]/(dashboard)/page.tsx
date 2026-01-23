@@ -131,7 +131,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Carousel */}
-      <section id="features" className="w-full pt-96 pb-10">
+      <section id="features" className="w-full pt-20 sm:pt-40 md:pt-96 pb-10">
         <h2 className="max-w-7xl pl-4 mx-auto text-xl md:text-5xl font-bold text-neutral-800 dark:text-neutral-200 font-sans">
           {t('carousel.title')}
         </h2>

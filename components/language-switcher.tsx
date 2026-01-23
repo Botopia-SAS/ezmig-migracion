@@ -33,9 +33,9 @@ export function LanguageSwitcher() {
   // Render placeholder during SSR to avoid Radix UI hydration mismatch
   if (!mounted) {
     return (
-      <Button variant="outline" className="flex items-center gap-1.5 border-gray-300 text-black text-base" disabled>
-        <span>{localeNames[locale]}</span>
-        <ChevronDown className="h-4 w-4" />
+      <Button variant="outline" className="flex items-center gap-1 sm:gap-1.5 border-gray-300 text-black text-sm sm:text-base px-2 sm:px-3" disabled>
+        <span className="uppercase">{locale}</span>
+        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
       </Button>
     );
   }
@@ -45,11 +45,11 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-1.5 border-gray-300 text-black hover:bg-gray-50 text-base"
+          className="flex items-center gap-1 sm:gap-1.5 border-gray-300 text-black hover:bg-gray-50 text-sm sm:text-base px-2 sm:px-3"
           disabled={isPending}
         >
-          <span>{localeNames[locale]}</span>
-          <ChevronDown className="h-4 w-4" />
+          <span className="uppercase">{locale}</span>
+          <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
