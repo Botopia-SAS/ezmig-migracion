@@ -52,7 +52,7 @@ export function MovingBorder({
             rx={rx}
             ry={ry}
             strokeWidth="2"
-            className={cn("stroke-teal-500", borderClassName)}
+            className={cn("stroke-violet-400", borderClassName)}
           />
         </MovingBorderSVG>
       </div>
@@ -129,7 +129,7 @@ export function MovingBorderSVG({
           transform,
         }}
       >
-        <div className="h-4 w-4 rounded-full bg-[radial-gradient(#0f766e_40%,transparent_60%)]" />
+        <div className="h-4 w-4 rounded-full bg-[radial-gradient(#a78bfa_40%,transparent_60%)]" />
       </motion.div>
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -23,11 +23,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   );
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-teal-50 to-blue-50">
+    <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-violet-50 to-indigo-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-teal-600 to-blue-600 flex items-center justify-center shadow-lg">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-violet-400 to-indigo-400 flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-2xl">E</span>
             </div>
           </Link>
@@ -66,7 +66,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   defaultValue={state.email}
                   required
                   maxLength={50}
-                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-400 focus:border-violet-400 focus:z-10 sm:text-sm"
                   placeholder={t('emailPlaceholder')}
                 />
               </div>
@@ -91,7 +91,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   required
                   minLength={8}
                   maxLength={100}
-                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-400 focus:border-violet-400 focus:z-10 sm:text-sm"
                   placeholder={t('passwordPlaceholder')}
                 />
               </div>
@@ -104,7 +104,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             <div>
               <Button
                 type="submit"
-                className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all"
+                className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-violet-400 to-indigo-400 hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 transition-all"
                 disabled={pending}
               >
                 {pending ? (
@@ -140,7 +140,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 href={`${mode === 'signin' ? '/sign-up' : '/sign-in'}${
                   redirect ? `?redirect=${redirect}` : ''
                 }${priceId ? `&priceId=${priceId}` : ''}`}
-                className="w-full flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all"
+                className="w-full flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 transition-all"
               >
                 {mode === 'signin'
                   ? t('createAccountLink')
@@ -152,9 +152,9 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
         <p className="mt-6 text-center text-xs text-gray-500">
           {t('termsText')}{' '}
-          <a href="#" className="text-teal-600 hover:text-teal-500">{t('termsLink')}</a>
+          <a href="#" className="text-violet-500 hover:text-violet-400">{t('termsLink')}</a>
           {' '}{t('andText')}{' '}
-          <a href="#" className="text-teal-600 hover:text-teal-500">{t('privacyLink')}</a>
+          <a href="#" className="text-violet-500 hover:text-violet-400">{t('privacyLink')}</a>
         </p>
       </div>
     </div>

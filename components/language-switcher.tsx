@@ -9,15 +9,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
-import { locales, localeNames, localeFlags, type Locale } from '@/i18n/config';
-import { useTransition } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { locales, localeNames, type Locale } from '@/i18n/config';
+import { useTransition, useState, useEffect } from 'react';
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function handleLocaleChange(newLocale: Locale) {
     startTransition(() => {
@@ -25,18 +30,26 @@ export function LanguageSwitcher() {
     });
   }
 
+  // Render placeholder during SSR to avoid Radix UI hydration mismatch
+  if (!mounted) {
+    return (
+      <Button variant="outline" className="flex items-center gap-1.5 border-gray-300 text-black text-base" disabled>
+        <span>{localeNames[locale]}</span>
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2"
+          variant="outline"
+          className="flex items-center gap-1.5 border-gray-300 text-black hover:bg-gray-50 text-base"
           disabled={isPending}
         >
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{localeFlags[locale]} {localeNames[locale]}</span>
-          <span className="sm:hidden">{localeFlags[locale]}</span>
+          <span>{localeNames[locale]}</span>
+          <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -46,7 +59,6 @@ export function LanguageSwitcher() {
             onClick={() => handleLocaleChange(loc)}
             className={`cursor-pointer ${locale === loc ? 'bg-gray-100' : ''}`}
           >
-            <span className="mr-2">{localeFlags[loc]}</span>
             {localeNames[loc]}
           </DropdownMenuItem>
         ))}

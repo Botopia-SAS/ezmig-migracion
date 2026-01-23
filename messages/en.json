@@ -3,6 +3,7 @@
     "hero": {
       "title": "Simplify Your",
       "titleHighlight": "Immigration Practice",
+      "typewriterWords": ["Immigration Practice", "Case Management", "Legal Workflow"],
       "subtitle": "Complete {highlight} in minutes, not hours. EZMig helps immigration attorneys manage cases, fill forms accurately, and track status automatically.",
       "highlight": "USCIS Forms",
       "cta": "Start Free Trial",
@@ -31,6 +32,38 @@
       "item1": "Enter data once, auto-populate across all related forms",
       "item2": "Real-time validation catches errors before submission",
       "item3": "Automatic USCIS status tracking and instant notifications"
+    },
+    "carousel": {
+      "title": "Everything you need to manage immigration cases.",
+      "cta": "Explore All Features",
+      "contentTitle": "Streamline your immigration workflow.",
+      "contentDescription": "Automate form filling, track case progress, and manage client documents all in one place. EZMig handles the complexity so you can focus on your clients.",
+      "cards": {
+        "formAutomation": {
+          "category": "Form Automation",
+          "title": "Auto-fill USCIS forms in seconds."
+        },
+        "caseManagement": {
+          "category": "Case Management",
+          "title": "Track every case status."
+        },
+        "i130": {
+          "category": "I-130",
+          "title": "Petition for Alien Relative."
+        },
+        "i485": {
+          "category": "I-485",
+          "title": "Adjustment of Status made easy."
+        },
+        "i765": {
+          "category": "I-765",
+          "title": "Employment Authorization Documents."
+        },
+        "clientPortal": {
+          "category": "Client Portal",
+          "title": "Keep clients informed 24/7."
+        }
+      }
     },
     "features": {
       "title": "Everything you need to manage immigration cases",
@@ -113,6 +146,7 @@
     "testimonials": {
       "title": "Trusted by immigration attorneys",
       "subtitle": "See what legal professionals say about EZMig",
+      "cta": "Join Our Clients",
       "items": [
         {
           "quote": "EZMig reduced our I-130 processing time by 70%. The error detection alone has saved us countless RFEs. My paralegal can now handle twice the caseload.",
@@ -195,7 +229,10 @@
     "signUp": "Sign Up"
   },
   "header": {
+    "features": "Features",
+    "testimonials": "Testimonials",
     "pricing": "Pricing",
+    "signIn": "Sign In",
     "signUp": "Sign Up",
     "dashboard": "Dashboard",
     "signOut": "Sign out"

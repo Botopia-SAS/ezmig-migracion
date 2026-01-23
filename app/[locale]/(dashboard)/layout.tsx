@@ -16,6 +16,7 @@ import { User } from '@/lib/db/schema';
 import useSWR, { mutate } from 'swr';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Footer } from '@/components/footer';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -34,13 +35,10 @@ function UserMenu() {
   if (!user) {
     return (
       <>
-        <Link
-          href="/pricing"
-          className="text-sm font-medium text-gray-700 hover:text-gray-900"
-        >
-          {t('pricing')}
-        </Link>
-        <Button asChild className="rounded-full">
+        <Button asChild variant="ghost" className="text-base font-medium text-black">
+          <Link href="/sign-in">{t('signIn')}</Link>
+        </Button>
+        <Button asChild className="rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-base">
           <Link href="/sign-up">{t('signUp')}</Link>
         </Button>
       </>
@@ -81,16 +79,43 @@ function UserMenu() {
 }
 
 function Header() {
+  const t = useTranslations('header');
+
+  const navLinks = [
+    { href: '/#features', label: t('features') },
+    { href: '/#testimonials', label: t('testimonials') },
+    { href: '/#pricing', label: t('pricing') },
+  ];
+
   return (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-teal-600 to-blue-600 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">E</span>
-          </div>
-          <span className="text-xl font-bold text-gray-900">EZMig</span>
-        </Link>
-        <div className="flex items-center space-x-4">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md dark:bg-neutral-950/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+        {/* Logo + Navigation */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2">
+            <img
+              src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
+              alt="EZMig Logo"
+              className="h-12 w-auto"
+            />
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">EZMig</span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-base font-medium text-black hover:text-violet-500 dark:text-white dark:hover:text-violet-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3">
           <LanguageSwitcher />
           <Suspense fallback={<div className="h-9" />}>
             <UserMenu />
@@ -105,7 +130,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <section className="flex flex-col min-h-screen">
       <Header />
-      {children}
+      <div className="flex-1">{children}</div>
+      <Footer />
     </section>
   );
 }

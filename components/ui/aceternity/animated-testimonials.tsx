@@ -56,10 +56,10 @@ export const AnimatedTestimonials = ({
                 <img
                   src={testimonials[active].image}
                   alt={testimonials[active].name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-teal-500"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-violet-400"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-blue-500 flex items-center justify-center text-white text-xl font-bold">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-400 to-indigo-400 flex items-center justify-center text-white text-xl font-bold">
                   {testimonials[active].name.charAt(0)}
                 </div>
               )}
@@ -109,7 +109,7 @@ export const AnimatedTestimonials = ({
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-300",
                 active === index
-                  ? "bg-teal-500 w-8"
+                  ? "bg-violet-400 w-8"
                   : "bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
               )}
               aria-label={`Go to testimonial ${index + 1}`}

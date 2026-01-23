@@ -42,7 +42,7 @@ export const BackgroundGradient = ({
         }}
         className={cn(
           "absolute inset-0 rounded-3xl z-[1] opacity-60 group-hover:opacity-100 blur-xl transition duration-500 will-change-transform",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#0f766e,transparent),radial-gradient(circle_farthest-side_at_100%_0,#3b82f6,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#0d9488,transparent),radial-gradient(circle_farthest-side_at_0_0,#0ea5e9,#0f766e)]"
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#a78bfa,transparent),radial-gradient(circle_farthest-side_at_100%_0,#818cf8,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#c4b5fd,transparent),radial-gradient(circle_farthest-side_at_0_0,#a5b4fc,#a78bfa)]"
         )}
       />
       <motion.div
@@ -63,7 +63,7 @@ export const BackgroundGradient = ({
         }}
         className={cn(
           "absolute inset-0 rounded-3xl z-[1] will-change-transform",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#0f766e,transparent),radial-gradient(circle_farthest-side_at_100%_0,#3b82f6,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#0d9488,transparent),radial-gradient(circle_farthest-side_at_0_0,#0ea5e9,#0f766e)]"
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#a78bfa,transparent),radial-gradient(circle_farthest-side_at_100%_0,#818cf8,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#c4b5fd,transparent),radial-gradient(circle_farthest-side_at_0_0,#a5b4fc,#a78bfa)]"
         )}
       />
 
@@ -82,7 +82,7 @@ export const BackgroundGradientAnimation = ({
   return (
     <div className={cn("relative overflow-hidden", className)}>
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-indigo-50" />
         <motion.div
           initial={{ opacity: 0.5, scale: 0.8 }}
           animate={{
@@ -94,7 +94,7 @@ export const BackgroundGradientAnimation = ({
             repeat: Infinity,
             repeatType: "reverse",
           }}
-          className="absolute -top-40 -right-40 w-80 h-80 bg-teal-200/40 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-violet-200/40 rounded-full blur-3xl"
         />
         <motion.div
           initial={{ opacity: 0.5, scale: 0.8 }}
@@ -108,7 +108,7 @@ export const BackgroundGradientAnimation = ({
             repeatType: "reverse",
             delay: 1,
           }}
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/40 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/40 rounded-full blur-3xl"
         />
       </div>
       <div className="relative z-10">{children}</div>

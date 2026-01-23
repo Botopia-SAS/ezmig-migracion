@@ -3,6 +3,7 @@
     "hero": {
       "title": "Simplifique Sua",
       "titleHighlight": "Pratica de Imigracao",
+      "typewriterWords": ["Pratica de Imigracao", "Gestao de Casos", "Fluxo de Trabalho"],
       "subtitle": "Complete {highlight} em minutos, nao em horas. EZMig ajuda advogados de imigracao a gerenciar casos, preencher formularios com precisao e rastrear status automaticamente.",
       "highlight": "Formularios USCIS",
       "cta": "Comecar Teste Gratis",
@@ -31,6 +32,38 @@
       "item1": "Insira dados uma vez, auto-preencha em todos os formularios relacionados",
       "item2": "Validacao em tempo real detecta erros antes do envio",
       "item3": "Rastreamento automatico de status USCIS e notificacoes instantaneas"
+    },
+    "carousel": {
+      "title": "Tudo que você precisa para gerenciar casos de imigração.",
+      "cta": "Explorar Recursos",
+      "contentTitle": "Otimize seu fluxo de trabalho de imigração.",
+      "contentDescription": "Automatize o preenchimento de formulários, rastreie o progresso de casos e gerencie documentos de clientes em um só lugar. EZMig cuida da complexidade para que você possa focar em seus clientes.",
+      "cards": {
+        "formAutomation": {
+          "category": "Automação de Formulários",
+          "title": "Auto-preencha formulários USCIS em segundos."
+        },
+        "caseManagement": {
+          "category": "Gestão de Casos",
+          "title": "Rastreie o status de cada caso."
+        },
+        "i130": {
+          "category": "I-130",
+          "title": "Petição para Parente Estrangeiro."
+        },
+        "i485": {
+          "category": "I-485",
+          "title": "Ajuste de Status simplificado."
+        },
+        "i765": {
+          "category": "I-765",
+          "title": "Documentos de Autorização de Emprego."
+        },
+        "clientPortal": {
+          "category": "Portal do Cliente",
+          "title": "Mantenha seus clientes informados 24/7."
+        }
+      }
     },
     "features": {
       "title": "Tudo que voce precisa para gerenciar casos de imigracao",
@@ -113,6 +146,7 @@
     "testimonials": {
       "title": "Confiado por advogados de imigracao",
       "subtitle": "Veja o que profissionais juridicos dizem sobre EZMig",
+      "cta": "Junte-se aos Nossos Clientes",
       "items": [
         {
           "quote": "EZMig reduziu nosso tempo de processamento do I-130 em 70%. Apenas a deteccao de erros nos economizou inumeros RFEs. Meu paralegal agora pode lidar com o dobro de casos.",
@@ -195,7 +229,10 @@
     "signUp": "Cadastrar"
   },
   "header": {
+    "features": "Recursos",
+    "testimonials": "Depoimentos",
     "pricing": "Precos",
+    "signIn": "Entrar",
     "signUp": "Cadastrar",
     "dashboard": "Painel de Controle",
     "signOut": "Sair"
