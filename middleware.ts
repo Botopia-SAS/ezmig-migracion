@@ -7,13 +7,26 @@ import { routing } from '@/i18n/routing';
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Routes that require authentication (without locale prefix)
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/admin'];
+
+// Routes that require admin role
+const adminRoutes = ['/admin'];
+
+// Remove locale prefix from path
+function getPathWithoutLocale(pathname: string): string {
+  return pathname.replace(/^\/(en|es|pt)/, '') || '/';
+}
 
 // Check if path matches protected routes (handles locale prefix)
 function isProtectedPath(pathname: string): boolean {
-  // Remove locale prefix if present (e.g., /en/dashboard -> /dashboard)
-  const pathWithoutLocale = pathname.replace(/^\/(en|es|pt)/, '') || '/';
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
   return protectedRoutes.some(route => pathWithoutLocale.startsWith(route));
+}
+
+// Check if path requires admin role
+function isAdminPath(pathname: string): boolean {
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
+  return adminRoutes.some(route => pathWithoutLocale.startsWith(route));
 }
 
 // Get the locale-aware sign-in URL
@@ -48,9 +61,23 @@ export async function middleware(request: NextRequest) {
   // Check if trying to access protected route
   const sessionCookie = request.cookies.get('session');
   const isProtectedRoute = isProtectedPath(pathname);
+  const isAdminRoute = isAdminPath(pathname);
 
   if (isProtectedRoute && !sessionCookie) {
     return NextResponse.redirect(getSignInUrl(request, locale));
+  }
+
+  // Check admin access
+  if (isAdminRoute && sessionCookie) {
+    try {
+      const parsed = await verifyToken(sessionCookie.value);
+      if (parsed.user?.role !== 'admin') {
+        // Redirect non-admins to dashboard
+        return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
+      }
+    } catch {
+      return NextResponse.redirect(getSignInUrl(request, locale));
+    }
   }
 
   // Session refresh logic for GET requests

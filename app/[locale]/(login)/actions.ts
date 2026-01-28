@@ -14,17 +14,21 @@ import {
   type NewTeamMember,
   type NewActivityLog,
   ActivityType,
-  invitations
+  invitations,
+  type TenantRoleType,
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
+import { createWalletForTeam } from '@/lib/tokens/service';
 import { getUser, getUserWithTeam } from '@/lib/db/queries';
 import {
-  validatedAction,
-  validatedActionWithUser
+  validatedActionWithUser,
+  type ActionState,
 } from '@/lib/auth/middleware';
+import { getTranslations } from 'next-intl/server';
+import { defaultLocale, locales, type Locale } from '@/i18n/config';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -49,7 +53,47 @@ const signInSchema = z.object({
   password: z.string().min(8).max(100)
 });
 
-export const signIn = validatedAction(signInSchema, async (data, formData) => {
+function isSupportedLocale(value: string | null | undefined): value is Locale {
+  return !!value && locales.includes(value as Locale);
+}
+
+async function resolveLocale(formData?: FormData): Promise<Locale> {
+  const fromForm = formData?.get('locale');
+  if (typeof fromForm === 'string' && isSupportedLocale(fromForm)) {
+    return fromForm as Locale;
+  }
+
+  const cookieLocale = (await cookies()).get('NEXT_LOCALE')?.value;
+  if (isSupportedLocale(cookieLocale)) {
+    return cookieLocale as Locale;
+  }
+
+  return defaultLocale;
+}
+
+function validatedActionWithLocale<S extends z.ZodType<any, any>, T>(
+  schema: S,
+  action: (
+    data: z.infer<S>,
+    formData: FormData,
+    locale: Locale,
+    t: Awaited<ReturnType<typeof getTranslations>>
+  ) => Promise<T>
+) {
+  return async (prevState: ActionState, formData: FormData) => {
+    const locale = await resolveLocale(formData);
+    const t = await getTranslations({ locale, namespace: 'auth' });
+    const result = schema.safeParse(Object.fromEntries(formData));
+
+    if (!result.success) {
+      return { error: t('invalidForm') };
+    }
+
+    return action(result.data, formData, locale, t);
+  };
+}
+
+export const signIn = validatedActionWithLocale(signInSchema, async (data, formData, locale, t) => {
   const { email, password } = data;
 
   const userWithTeam = await db
@@ -65,7 +109,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 
   if (userWithTeam.length === 0) {
     return {
-      error: 'Invalid email or password. Please try again.',
+      error: t('invalidCredentials'),
       email,
       password
     };
@@ -80,7 +124,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 
   if (!isPasswordValid) {
     return {
-      error: 'Invalid email or password. Please try again.',
+      error: t('invalidCredentials'),
       email,
       password
     };
@@ -97,7 +141,12 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
     return createCheckoutSession({ team: foundTeam, priceId });
   }
 
-  redirect('/dashboard');
+  // Redirect admin users to /admin, others to /dashboard
+  if (foundUser.role === 'admin') {
+    redirect(`/${locale}/admin`);
+  }
+
+  redirect(`/${locale}/dashboard`);
 });
 
 const signUpSchema = z.object({
@@ -106,7 +155,7 @@ const signUpSchema = z.object({
   inviteId: z.string().optional()
 });
 
-export const signUp = validatedAction(signUpSchema, async (data, formData) => {
+export const signUp = validatedActionWithLocale(signUpSchema, async (data, formData, locale, t) => {
   const { email, password, inviteId } = data;
 
   const existingUser = await db
@@ -117,7 +166,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
   if (existingUser.length > 0) {
     return {
-      error: 'Failed to create user. Please try again.',
+      error: t('userAlreadyExists'),
       email,
       password
     };
@@ -128,21 +177,21 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const newUser: NewUser = {
     email,
     passwordHash,
-    role: 'owner' // Default role, will be overridden if there's an invitation
+    role: 'attorney' // Default global role for new users
   };
 
   const [createdUser] = await db.insert(users).values(newUser).returning();
 
   if (!createdUser) {
     return {
-      error: 'Failed to create user. Please try again.',
+      error: t('createUserFailed'),
       email,
       password
     };
   }
 
   let teamId: number;
-  let userRole: string;
+  let userRole: TenantRoleType;
   let createdTeam: typeof teams.$inferSelect | null = null;
 
   if (inviteId) {
@@ -176,7 +225,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
         .where(eq(teams.id, teamId))
         .limit(1);
     } else {
-      return { error: 'Invalid or expired invitation.', email, password };
+      return { error: t('invalidInvitation'), email, password };
     }
   } else {
     // Create a new team if there's no invitation
@@ -188,7 +237,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
     if (!createdTeam) {
       return {
-        error: 'Failed to create team. Please try again.',
+        error: t('createTeamFailed'),
         email,
         password
       };
@@ -196,6 +245,9 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
     teamId = createdTeam.id;
     userRole = 'owner';
+
+    // Create wallet for the new team
+    await createWalletForTeam(teamId);
 
     await logActivity(teamId, createdUser.id, ActivityType.CREATE_TEAM);
   }
@@ -218,7 +270,12 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     return createCheckoutSession({ team: createdTeam, priceId });
   }
 
-  redirect('/dashboard');
+  // Redirect admin users to /admin, others to /dashboard
+  if (createdUser.role === 'admin') {
+    redirect(`/${locale}/admin`);
+  }
+
+  redirect(`/${locale}/dashboard`);
 });
 
 export async function signOut() {
@@ -226,6 +283,8 @@ export async function signOut() {
   const userWithTeam = await getUserWithTeam(user.id);
   await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
   (await cookies()).delete('session');
+  const locale = await resolveLocale();
+  redirect(`/${locale}/sign-in`);
 }
 
 const updatePasswordSchema = z.object({
@@ -334,7 +393,8 @@ export const deleteAccount = validatedActionWithUser(
     }
 
     (await cookies()).delete('session');
-    redirect('/sign-in');
+    const locale = await resolveLocale();
+    redirect(`/${locale}/sign-in`);
   }
 );
 
@@ -372,6 +432,33 @@ export const removeTeamMember = validatedActionWithUser(
       return { error: 'User is not part of a team' };
     }
 
+    // Verify user is team owner
+    const [membership] = await db
+      .select({ role: teamMembers.role })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.userId, user.id),
+          eq(teamMembers.teamId, userWithTeam.teamId)
+        )
+      )
+      .limit(1);
+
+    if (!membership || membership.role !== 'owner') {
+      return { error: 'Only team owners can remove members' };
+    }
+
+    // Prevent owner from removing themselves
+    const [targetMember] = await db
+      .select({ userId: teamMembers.userId })
+      .from(teamMembers)
+      .where(eq(teamMembers.id, memberId))
+      .limit(1);
+
+    if (targetMember?.userId === user.id) {
+      return { error: 'Cannot remove yourself from the team' };
+    }
+
     await db
       .delete(teamMembers)
       .where(
@@ -393,7 +480,7 @@ export const removeTeamMember = validatedActionWithUser(
 
 const inviteTeamMemberSchema = z.object({
   email: z.string().email('Invalid email address'),
-  role: z.enum(['member', 'owner'])
+  role: z.enum(['staff', 'owner'])
 });
 
 export const inviteTeamMember = validatedActionWithUser(
@@ -404,6 +491,22 @@ export const inviteTeamMember = validatedActionWithUser(
 
     if (!userWithTeam?.teamId) {
       return { error: 'User is not part of a team' };
+    }
+
+    // Verify user is team owner
+    const [membership] = await db
+      .select({ role: teamMembers.role })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.userId, user.id),
+          eq(teamMembers.teamId, userWithTeam.teamId)
+        )
+      )
+      .limit(1);
+
+    if (!membership || membership.role !== 'owner') {
+      return { error: 'Only team owners can invite members' };
     }
 
     const existingMember = await db

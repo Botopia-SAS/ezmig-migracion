@@ -64,6 +64,16 @@ export async function updateTeamSubscription(
     .where(eq(teams.id, teamId));
 }
 
+export async function updateTeamStripeCustomerId(teamId: number, stripeCustomerId: string) {
+  await db
+    .update(teams)
+    .set({
+      stripeCustomerId,
+      updatedAt: new Date()
+    })
+    .where(eq(teams.id, teamId));
+}
+
 export async function getUserWithTeam(userId: number) {
   const result = await db
     .select({

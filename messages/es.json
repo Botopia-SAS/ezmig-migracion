@@ -4,17 +4,33 @@
       "title": "Simplifica Tu",
       "titleHighlight": "Practica de Inmigracion",
       "typewriterWords": ["Practica de Inmigracion", "Gestion de Casos", "Flujo de Trabajo"],
-      "subtitle": "Completa {highlight} en minutos, no en horas. EZMig ayuda a abogados de inmigracion a gestionar casos, llenar formularios con precision y rastrear estados automaticamente.",
-      "subtitleLine2": "Control total, historial de auditoria y cumplimiento legal integrados.",
+      "subtitle": "La plataforma con IA que automatiza {highlight} y gestión de casos para abogados de inmigración.",
+      "subtitleLine2": "",
       "highlight": "Formularios USCIS",
       "cta": "Comenzar Prueba Gratis",
       "demo": "Ver como funciona",
-      "badge": "Formularios de Inmigracion con IA"
+      "badge": "Formularios de Inmigración con IA",
+      "mockup": {
+        "browserTitle": "EZMig - Gestión de Casos",
+        "activeCase": "Caso Activo",
+        "caseSubtitle": "I-130 Petición Familiar",
+        "forms": "Formularios",
+        "formTitle": "Formulario I-130",
+        "uscisReady": "Listo para USCIS",
+        "formSubtitle": "Petición para Familiar Extranjero • Parte 1: Peticionario",
+        "aiAutofill": "Auto-llenado IA",
+        "familyName": "Apellido",
+        "givenName": "Nombre",
+        "alienNumber": "Número de Registro de Extranjero (A-Number)",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "address": "Dirección Física Actual",
+        "validationMessage": "Todos los campos requeridos validados • Listo para enviar"
+      }
     },
     "trust": {
-      "title": "Confiado por abogados de inmigracion en todo el pais",
-      "uscis": "Compatible con USCIS",
-      "aila": "Soporte para Miembros AILA",
+      "title": "Confiado por abogados de inmigración en todo el país",
+      "uscis": "Cumple con USCIS",
+      "aila": "Soporte AILA",
       "soc2": "Seguridad SOC 2",
       "hipaa": "Listo para HIPAA"
     },
@@ -75,9 +91,16 @@
       }
     },
     "features": {
-      "badge": "Funciones",
+      "badge": "Características",
       "title": "Todo lo que necesitas para gestionar casos de inmigracion",
       "subtitle": "Desde completar formularios hasta rastrear casos, EZMig lo maneja todo.",
+      "learnMore": "Saber más",
+      "searchForms": "Buscar formularios...",
+      "i130": "Petición I-130",
+      "i485": "Ajuste I-485",
+      "i765": "EAD I-765",
+      "i589": "Asilo I-589",
+      "i539": "Extensión I-539",
       "forms": {
         "title": "Formularios USCIS Simplificados",
         "description": "Completa formularios I-130, I-485, I-589, I-765 e I-539 con auto-llenado inteligente y validacion en tiempo real. Nunca mas olvides un campo requerido."
@@ -101,35 +124,28 @@
       "evidence": {
         "title": "Gestor Dinamico de Evidencias",
         "description": "Lista de verificacion inteligente que se adapta a cada tipo de caso. Nunca mas olvides un documento de respaldo."
-      },
-      "learnMore": "Mas informacion",
-      "searchForms": "Buscar formularios...",
-      "i130": "Peticion I-130",
-      "i485": "Ajuste I-485",
-      "i765": "EAD I-765",
-      "i589": "Asilo I-589",
-      "i539": "Extension I-539"
+      }
     },
     "howItWorks": {
-      "badge": "Como Funciona",
-      "title": "Cuatro simples pasos hacia el exito migratorio",
-      "subtitle": "Sigue estos simples pasos para completar, validar y presentar tus casos.",
+      "badge": "Cómo Funciona",
+      "title": "Como funciona EZMig",
+      "subtitle": "Tres simples pasos para transformar tu practica de inmigracion",
       "step": "Paso",
       "step1": {
         "title": "Crear Perfil de Cliente",
-        "description": "Agrega la informacion del cliente una vez. EZMig auto-completa en todos los formularios relacionados. Sube documentos de respaldo y los organizaremos automaticamente."
+        "description": "Agrega la informacion del cliente una vez. EZMig auto-completa en todos los formularios."
       },
       "step2": {
         "title": "Completar Formularios",
-        "description": "Llena formularios USCIS con asistencia inteligente y validacion en tiempo real. Nuestra IA detecta errores antes de que se conviertan en RFEs."
+        "description": "Llena formularios USCIS con asistencia inteligente y validacion en tiempo real."
       },
       "step3": {
-        "title": "Revisar y Validar",
-        "description": "Nuestra validacion inteligente verifica cada campo contra los requisitos de USCIS. Recibe retroalimentacion instantanea sobre informacion faltante o inconsistencias."
+        "title": "Generar y Presentar",
+        "description": "Exporta PDFs listos para USCIS o envia directamente mediante e-Filing."
       },
       "step4": {
-        "title": "Generar y Presentar",
-        "description": "Exporta paquetes PDF listos para USCIS o envia directamente mediante e-Filing. Incluye todos los documentos de respaldo en el orden correcto."
+        "title": "Rastrear y Notificar",
+        "description": "Monitorea el estado del caso y recibe actualizaciones automáticas."
       }
     },
     "pricing": {
@@ -193,40 +209,43 @@
       ]
     },
     "cta": {
-      "title": "Confianza",
-      "titleHighlight": "Mundial",
-      "subtitle": "Unete a cientos de abogados de inmigracion que ahorran horas cada semana con EZMig.",
-      "button": "Comienza Tu Prueba Gratis",
+      "title": "Listo para transformar tu practica?",
+      "titleHighlight": "tu practica",
+      "subtitle": "Unete a cientos de abogados de inmigracion que ahorran horas cada semana con EZMig. Comienza tu prueba gratuita de 7 dias hoy.",
+      "button": "Comenzar Prueba Gratis",
       "demo": "Programar una Demo"
     },
     "faq": {
       "badge": "FAQ",
-      "stillQuestions": "Aun tienes preguntas?",
-      "contactSupport": "Contactar Soporte",
+      "title": "Preguntas frecuentes",
+      "subtitle": "Respuestas sobre automatizacion de flujos USCIS, validacion y cumplimiento.",
+      "cta": "Leer respuesta",
+      "stillQuestions": "¿Aún tienes preguntas?",
+      "contactSupport": "Contacta nuestro equipo de soporte para ayuda personalizada con tu caso de uso.",
       "items": [
         {
-          "question": "Que formularios USCIS soporta EZMig?",
-          "answer": "EZMig soporta todos los principales formularios de inmigracion familiar incluyendo I-130, I-485, I-765, I-131, I-864 e I-539. Constantemente agregamos nuevos formularios basados en comentarios de abogados."
+          "title": "¿Cómo reduce EZMig las RFEs?",
+          "subtitle": "Validación en tiempo real en formularios USCIS",
+          "answer": "Validamos campos obligatorios, cruzamos respuestas relacionadas y marcamos patrones de riesgo (como falta de patrocinador conjunto) antes de exportar o presentar. Los despachos reportan menos RFEs en paquetes I-130/I-485.",
+          "image": "https://images.unsplash.com/photo-1554224154-22dec7ec8818?q=80&w=900&auto=format&fit=crop"
         },
         {
-          "question": "Los formularios son aceptados por USCIS?",
-          "answer": "Si! Todos los formularios generados por EZMig cumplen con USCIS y usan las versiones oficiales mas recientes. Nuestra validacion asegura que cada campo requerido este correctamente completado."
+          "title": "¿Pueden los clientes llenar formularios solos?",
+          "subtitle": "Portal de clientes con guía de IA",
+          "answer": "Sí. Invita a clientes a un portal seguro donde la IA les guía para completar intake y datos de formularios correctamente a la primera. Tú mantienes control para revisar y bloquear secciones antes de presentar.",
+          "image": "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=900&auto=format&fit=crop"
         },
         {
-          "question": "Como funciona la asistencia de IA?",
-          "answer": "Nuestra IA analiza la informacion de tu cliente y sugiere respuestas, detecta errores potenciales y asegura consistencia entre formularios relacionados. Aprende de miles de presentaciones exitosas."
+          "title": "¿Hacen seguimiento al estatus USCIS?",
+          "subtitle": "Monitoreo automático de estatus",
+          "answer": "EZMig consulta cambios de estatus en USCIS y envía notificaciones al despacho y al cliente. Las tareas y vencimientos pueden atarse a los cambios para que el caso avance.",
+          "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=900&auto=format&fit=crop"
         },
         {
-          "question": "Puedo rastrear el estado de casos automaticamente?",
-          "answer": "Si! EZMig monitorea el estado USCIS de todos tus casos activos y envia notificaciones instantaneas cuando los estados cambian. No mas verificacion manual requerida."
-        },
-        {
-          "question": "Que tan seguros estan los datos de mis clientes?",
-          "answer": "La seguridad es nuestra maxima prioridad. Todos los datos estan encriptados en transito y en reposo. Tenemos certificacion SOC 2 y cumplimos con HIPAA. Los datos de tus clientes nunca salen de nuestros servidores seguros."
-        },
-        {
-          "question": "Ofrecen planes para equipos o empresas?",
-          "answer": "Si! Nuestros planes Growth y Enterprise incluyen funciones de colaboracion en equipo, espacios de trabajo compartidos y soporte prioritario. Contacta a nuestro equipo de ventas para precios personalizados."
+          "title": "¿Cómo protegen los datos?",
+          "subtitle": "Cifrado y bitácora de auditoría",
+          "answer": "Datos cifrados en tránsito y reposo. Acceso por roles, bitácora por acción y controles alineados a SOC2 para proteger información sensible de inmigración.",
+          "image": "https://images.unsplash.com/photo-1556155092-490a1ba16284?q=80&w=900&auto=format&fit=crop"
         }
       ]
     },
@@ -270,38 +289,610 @@
     "privacyLink": "Politica de Privacidad",
     "backToHome": "Volver al inicio",
     "openApp": "Abrir App",
-    "forgotPassword": "Olvidaste tu contrasena?",
-    "forgotPasswordTitle": "Olvidaste tu contrasena?",
-    "forgotPasswordSubtitle": "No te preocupes, te enviaremos un codigo de verificacion.",
-    "sendVerificationCode": "Enviar codigo de verificacion",
-    "sendingCode": "Enviando codigo...",
-    "rememberPassword": "Recuerdas tu contrasena?",
-    "backToSignIn": "Volver a iniciar sesion",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordTitle": "Restablecer contraseña",
+    "forgotPasswordSubtitle": "Ingresa tu correo y te enviaremos un código de verificación",
+    "sendingCode": "Enviando código...",
+    "sendVerificationCode": "Enviar código de verificación",
+    "rememberPassword": "¿Recuerdas tu contraseña?",
+    "backToSignIn": "Volver a iniciar sesión",
     "checkYourEmail": "Revisa tu correo",
-    "codeSentTo": "Enviamos un codigo de 6 digitos a",
-    "verificationCode": "Codigo de verificacion",
-    "didntReceiveCode": "No recibiste el codigo?",
-    "resendCode": "Reenviar codigo",
+    "codeSentTo": "Enviamos un código de verificación a",
+    "verificationCode": "Código de verificación",
+    "didntReceiveCode": "¿No recibiste el código?",
     "resendIn": "Reenviar en",
+    "resendCode": "Reenviar código",
     "continue": "Continuar",
-    "setNewPassword": "Establece una nueva contrasena",
-    "createStrongPassword": "Crea una contrasena segura para tu cuenta.",
-    "newPassword": "Nueva contrasena",
-    "confirmPassword": "Confirmar contrasena",
-    "minCharacters": "Min. 8 caracteres",
-    "confirmYourPassword": "Confirma tu contrasena",
-    "resetPassword": "Restablecer contrasena",
-    "resettingPassword": "Restableciendo contrasena...",
-    "passwordResetSuccess": "Contrasena restablecida exitosamente!",
-    "passwordResetSuccessMessage": "Tu contrasena ha sido cambiada exitosamente."
+    "setNewPassword": "Establecer nueva contraseña",
+    "createStrongPassword": "Crea una contraseña segura de al menos 8 caracteres",
+    "newPassword": "Nueva contraseña",
+    "minCharacters": "Mínimo 8 caracteres",
+    "confirmPassword": "Confirmar contraseña",
+    "confirmYourPassword": "Confirma tu nueva contraseña",
+    "resettingPassword": "Restableciendo contraseña...",
+    "resetPassword": "Restablecer contraseña",
+    "passwordResetSuccess": "Contraseña restablecida",
+    "passwordResetSuccessMessage": "Tu contraseña ha sido restablecida. Ahora puedes iniciar sesión con tu nueva contraseña.",
+    "invalidForm": "Revisa los campos e inténtalo de nuevo.",
+    "invalidCredentials": "Correo o contraseña inválidos. Inténtalo nuevamente.",
+    "userAlreadyExists": "Ya existe una cuenta con este correo.",
+    "createUserFailed": "No se pudo crear el usuario. Inténtalo de nuevo.",
+    "createTeamFailed": "No se pudo crear el equipo. Inténtalo de nuevo.",
+    "invalidInvitation": "Invitación inválida o expirada.",
+    "genericAuthError": "Algo salió mal. Inténtalo de nuevo.",
+    "heroTitle": "Inmigración, pero sencilla",
+    "heroSubtitle": "Únete a miles de abogados de inmigración que usan herramientas con IA para completar formularios USCIS más rápido y con menos RFEs.",
+    "heroStatFormsLabel": "Formularios",
+    "heroStatFormsValue": "5+",
+    "heroStatTimeSavedLabel": "Tiempo ahorrado",
+    "heroStatTimeSavedValue": "70%",
+    "heroStatComplianceLabel": "SOC 2",
+    "heroStatComplianceValue": "SOC 2",
+    "heroCardMainTitle": "Petición I-130",
+    "heroCardMainSubtitle": "Inmigración familiar",
+    "heroCardStatusReady": "Listo para USCIS",
+    "heroCardAccuracy": "precisión",
+    "heroBadgeCompliant": "Cumple con USCIS",
+    "heroActiveCases": "Casos activos",
+    "heroProcessed": "procesados"
   },
   "dashboard": {
     "title": "Panel de Control",
-    "general": "General",
-    "activity": "Actividad",
-    "security": "Seguridad",
-    "pricing": "Precios",
-    "signOut": "Cerrar sesion"
+    "signOut": "Cerrar sesión",
+
+    "sidebar": {
+      "settings": "Configuración",
+      "team": "Equipo",
+      "general": "General",
+      "activity": "Actividad",
+      "security": "Seguridad",
+      "billing": "Facturación",
+      "overview": "Resumen",
+      "buyTokens": "Comprar Tokens",
+      "history": "Historial",
+      "autoReload": "Recarga Automática",
+      "legal": "Legal",
+      "clients": "Clientes",
+      "cases": "Casos",
+      "referrals": "Enlaces de Referencia"
+    },
+
+    "team": {
+      "title": "Configuración del Equipo",
+      "subscription": {
+        "title": "Suscripción del Equipo",
+        "description": "Administra la suscripción y facturación de tu equipo",
+        "plan": "Plan",
+        "status": "Estado",
+        "noSubscription": "Sin suscripción activa",
+        "managePlan": "Administrar plan"
+      },
+      "members": {
+        "title": "Miembros del Equipo",
+        "description": "Administra los miembros de tu equipo y sus roles",
+        "owner": "Propietario",
+        "member": "Miembro",
+        "staff": "Personal",
+        "remove": "Eliminar"
+      },
+      "invite": {
+        "title": "Invitar Miembro",
+        "description": "Invita a un nuevo miembro por correo electrónico",
+        "email": "Correo electrónico",
+        "emailPlaceholder": "Ingresa el correo electrónico",
+        "role": "Rol",
+        "roleMember": "Miembro - Puede ver y gestionar casos",
+        "roleOwner": "Propietario - Acceso completo a toda la configuración",
+        "button": "Enviar Invitación",
+        "sending": "Enviando..."
+      },
+      "pendingInvitations": {
+        "title": "Invitaciones Pendientes",
+        "description": "Administra las invitaciones pendientes de tu equipo",
+        "noInvitations": "No hay invitaciones pendientes",
+        "cancel": "Cancelar"
+      }
+    },
+
+    "general": {
+      "title": "Configuración General",
+      "account": {
+        "title": "Información de la Cuenta",
+        "name": "Nombre",
+        "namePlaceholder": "Ingresa tu nombre",
+        "email": "Correo electrónico",
+        "emailPlaceholder": "Ingresa tu correo electrónico",
+        "save": "Guardar Cambios",
+        "saving": "Guardando..."
+      }
+    },
+
+    "activity": {
+      "title": "Registro de Actividad",
+      "description": "Ver actividad reciente en tu equipo",
+      "noActivity": "Sin actividad aún",
+      "actions": {
+        "SIGN_UP": "Se registró",
+        "SIGN_IN": "Inició sesión",
+        "SIGN_OUT": "Cerró sesión",
+        "UPDATE_PASSWORD": "Actualizó contraseña",
+        "DELETE_ACCOUNT": "Eliminó cuenta",
+        "UPDATE_ACCOUNT": "Actualizó cuenta",
+        "CREATE_TEAM": "Creó equipo",
+        "REMOVE_TEAM_MEMBER": "Eliminó miembro del equipo",
+        "INVITE_TEAM_MEMBER": "Invitó miembro al equipo",
+        "ACCEPT_INVITATION": "Aceptó invitación",
+        "PURCHASE_TOKENS": "Compró tokens",
+        "CONSUME_TOKEN": "Consumió token"
+      }
+    },
+
+    "security": {
+      "title": "Configuración de Seguridad",
+      "password": {
+        "title": "Cambiar Contraseña",
+        "description": "Ingresa tu contraseña actual y una nueva contraseña para actualizar tus credenciales.",
+        "current": "Contraseña Actual",
+        "new": "Nueva Contraseña",
+        "confirm": "Confirmar Nueva Contraseña",
+        "update": "Actualizar Contraseña",
+        "updating": "Actualizando..."
+      },
+      "deleteAccount": {
+        "title": "Eliminar Cuenta",
+        "description": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+        "warning": "Advertencia: Esto eliminará todos tus datos, membresías de equipo y no se puede revertir.",
+        "button": "Eliminar Cuenta",
+        "deleting": "Eliminando..."
+      }
+    },
+
+    "billing": {
+      "title": "Facturación y Tokens",
+      "balance": {
+        "title": "Balance de Tokens",
+        "description": "Tokens disponibles para envío de formularios",
+        "tokens": "tokens",
+        "info": "1 token = 1 envío de formulario"
+      },
+      "quickActions": {
+        "buyTokens": {
+          "title": "Comprar Tokens",
+          "description": "Compra paquetes de tokens para seguir enviando formularios"
+        },
+        "history": {
+          "title": "Historial de Transacciones",
+          "description": "Ver tus compras de tokens e historial de uso"
+        },
+        "autoReload": {
+          "title": "Recarga Automática",
+          "description": "Configura la recarga automática de tokens cuando el balance esté bajo"
+        }
+      },
+      "status": {
+        "success": "¡Tokens comprados exitosamente! Tu balance ha sido actualizado.",
+        "paymentFailed": "Pago fallido. Por favor intenta de nuevo.",
+        "error": "Ocurrió un error. Por favor intenta de nuevo."
+      },
+      "packages": {
+        "title": "Comprar Tokens",
+        "subtitle": "Selecciona un paquete de tokens para comprar",
+        "tokens": "tokens",
+        "perToken": "por token",
+        "mostPopular": "Más Popular",
+        "bestValue": "Mejor Valor",
+        "buy": "Comprar Ahora",
+        "processing": "Procesando...",
+        "back": "Volver a Facturación"
+      },
+      "historyPage": {
+        "title": "Historial de Transacciones",
+        "subtitle": "Ver tus transacciones de tokens",
+        "noTransactions": "Sin transacciones aún",
+        "noTransactionsDescription": "Tus compras y uso de tokens aparecerán aquí",
+        "buyFirst": "Compra tus primeros tokens",
+        "table": {
+          "date": "Fecha",
+          "type": "Tipo",
+          "amount": "Cantidad",
+          "balance": "Balance",
+          "description": "Descripción"
+        },
+        "types": {
+          "purchase": "Compra",
+          "consumption": "Uso",
+          "refund": "Reembolso",
+          "auto_reload": "Recarga Automática",
+          "bonus": "Bonificación"
+        },
+        "back": "Volver a Facturación"
+      },
+      "settings": {
+        "title": "Configuración de Recarga Automática",
+        "subtitle": "Configura la recarga automática de tokens",
+        "enable": {
+          "title": "Habilitar Recarga Automática",
+          "description": "Comprar tokens automáticamente cuando tu balance caiga por debajo de un umbral"
+        },
+        "threshold": {
+          "title": "Umbral de Recarga",
+          "description": "Cuando tu balance caiga por debajo de este número, recargaremos automáticamente"
+        },
+        "package": {
+          "title": "Paquete de Recarga",
+          "description": "El paquete a comprar cuando se active la recarga automática"
+        },
+        "save": "Guardar Configuración",
+        "saving": "Guardando...",
+        "ownerOnly": "Solo los propietarios del equipo pueden modificar la configuración de recarga automática",
+        "noPaymentMethod": "Necesitas hacer una compra primero para habilitar la recarga automática",
+        "back": "Volver a Facturación"
+      }
+    },
+    "clients": {
+      "title": "Clientes",
+      "subtitle": "Administra tus clientes de inmigración",
+      "newClient": "Nuevo Cliente",
+      "editClient": "Editar Cliente",
+      "searchPlaceholder": "Buscar clientes...",
+      "noClients": "Aún no hay clientes",
+      "noClientsDescription": "Comienza agregando tu primer cliente",
+      "addFirst": "Agregar tu primer cliente",
+      "table": {
+        "name": "Nombre",
+        "email": "Correo Electrónico",
+        "phone": "Teléfono",
+        "status": "Estado",
+        "cases": "Casos",
+        "createdAt": "Creado",
+        "actions": "Acciones"
+      },
+      "form": {
+        "personalInfo": "Información Personal",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo Electrónico",
+        "phone": "Teléfono",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "countryOfBirth": "País de Nacimiento",
+        "nationality": "Nacionalidad",
+        "immigrationInfo": "Información de Inmigración",
+        "alienNumber": "Número A",
+        "uscisOnlineAccount": "Cuenta en Línea de USCIS",
+        "currentStatus": "Estado Actual",
+        "address": "Dirección",
+        "addressLine1": "Dirección",
+        "addressLine2": "Apt, Suite, Unidad (opcional)",
+        "city": "Ciudad",
+        "state": "Estado",
+        "zipCode": "Código Postal",
+        "country": "País",
+        "notes": "Notas",
+        "notesPlaceholder": "Agrega notas adicionales sobre este cliente..."
+      },
+      "actions": {
+        "view": "Ver",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "detail": {
+        "overview": "Resumen",
+        "cases": "Casos",
+        "documents": "Documentos",
+        "activity": "Actividad",
+        "noCases": "Aún no hay casos",
+        "noCasesDescription": "Crea un caso para este cliente para comenzar",
+        "createCase": "Crear Caso"
+      },
+      "save": "Guardar Cliente",
+      "saving": "Guardando...",
+      "create": "Crear Cliente",
+      "creating": "Creando...",
+      "cancel": "Cancelar",
+      "back": "Volver a Clientes",
+      "deleteConfirm": {
+        "title": "Eliminar Cliente",
+        "description": "¿Estás seguro de que quieres eliminar este cliente? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "toast": {
+        "created": "Cliente creado exitosamente",
+        "updated": "Cliente actualizado exitosamente",
+        "deleted": "Cliente eliminado exitosamente",
+        "error": "Ha ocurrido un error"
+      },
+      "statuses": {
+        "H1B": "Visa H-1B",
+        "F1": "Estudiante F-1",
+        "B2": "Turista B-2",
+        "L1": "Visa L-1",
+        "None": "Sin Estado"
+      }
+    },
+    "cases": {
+      "title": "Casos",
+      "subtitle": "Administra casos de inmigración",
+      "newCase": "Nuevo Caso",
+      "editCase": "Editar Caso",
+      "searchPlaceholder": "Buscar casos...",
+      "noCases": "Aún no hay casos",
+      "noCasesDescription": "Crea tu primer caso de inmigración",
+      "addFirst": "Crear tu primer caso",
+      "table": {
+        "caseNumber": "Caso #",
+        "client": "Cliente",
+        "type": "Tipo",
+        "status": "Estado",
+        "priority": "Prioridad",
+        "assignedTo": "Asignado A",
+        "deadline": "Fecha Límite",
+        "createdAt": "Creado",
+        "actions": "Acciones"
+      },
+      "form": {
+        "selectClient": "Seleccionar Cliente",
+        "selectClientPlaceholder": "Elige un cliente...",
+        "caseType": "Tipo de Caso",
+        "priority": "Prioridad",
+        "filingDeadline": "Fecha Límite de Presentación",
+        "assignedTo": "Asignado A",
+        "assignedToPlaceholder": "Seleccionar miembro del equipo...",
+        "uscisReceiptNumber": "Número de Recibo USCIS",
+        "internalNotes": "Notas Internas",
+        "notesPlaceholder": "Agrega notas internas sobre este caso..."
+      },
+      "types": {
+        "family_based": "Basado en Familia",
+        "employment": "Empleo",
+        "asylum": "Asilo",
+        "naturalization": "Naturalización",
+        "adjustment": "Ajuste de Estado",
+        "removal_defense": "Defensa de Remoción",
+        "visa": "Visa",
+        "other": "Otro"
+      },
+      "statuses": {
+        "intake": "Recepción",
+        "in_progress": "En Progreso",
+        "submitted": "Enviado",
+        "approved": "Aprobado",
+        "denied": "Denegado",
+        "closed": "Cerrado"
+      },
+      "priorities": {
+        "low": "Baja",
+        "normal": "Normal",
+        "high": "Alta",
+        "urgent": "Urgente"
+      },
+      "actions": {
+        "view": "Ver",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "detail": {
+        "overview": "Resumen",
+        "forms": "Formularios",
+        "evidences": "Evidencias",
+        "timeline": "Cronología",
+        "settings": "Configuración",
+        "caseInfo": "Información del Caso",
+        "clientInfo": "Información del Cliente",
+        "noForms": "Aún no hay formularios",
+        "noFormsDescription": "Agrega un formulario para comenzar a trabajar en este caso",
+        "addForm": "Agregar Formulario"
+      },
+      "save": "Guardar Caso",
+      "saving": "Guardando...",
+      "create": "Crear Caso",
+      "creating": "Creando...",
+      "cancel": "Cancelar",
+      "back": "Volver a Casos",
+      "deleteConfirm": {
+        "title": "Eliminar Caso",
+        "description": "¿Estás seguro de que quieres eliminar este caso? Esto también eliminará todos los formularios y evidencias asociados. Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "toast": {
+        "created": "Caso creado exitosamente",
+        "updated": "Caso actualizado exitosamente",
+        "deleted": "Caso eliminado exitosamente",
+        "error": "Ha ocurrido un error"
+      }
+    },
+    "forms": {
+      "title": "Formularios",
+      "subtitle": "Plantillas de formularios USCIS",
+      "backToCase": "Volver al Caso",
+      "formNotFound": "Formulario no encontrado",
+      "invalidFormSchema": "Esquema de formulario inválido",
+      "formSubmittedReadOnly": "Este formulario ha sido enviado y ahora es de solo lectura.",
+      "addForm": "Agregar Formulario",
+      "selectForm": "Seleccionar Formulario",
+      "selectFormPlaceholder": "Elige un formulario para agregar...",
+      "noFormsAvailable": "No hay formularios disponibles",
+      "progress": "Progreso",
+      "status": "Estado",
+      "startedAt": "Iniciado",
+      "completedAt": "Completado",
+      "submittedAt": "Enviado",
+      "statuses": {
+        "not_started": "No Iniciado",
+        "in_progress": "En Progreso",
+        "completed": "Completado",
+        "submitted": "Enviado"
+      },
+      "actions": {
+        "fill": "Llenar Formulario",
+        "continue": "Continuar",
+        "view": "Ver",
+        "delete": "Eliminar"
+      },
+      "deleteConfirm": {
+        "title": "Eliminar Formulario",
+        "description": "¿Estás seguro de que deseas eliminar este formulario del caso? Se perderán todos los datos guardados.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "toast": {
+        "saved": "Formulario guardado exitosamente",
+        "saveError": "Error al guardar el formulario",
+        "added": "Formulario agregado al caso",
+        "removed": "Formulario eliminado del caso",
+        "error": "Ha ocurrido un error"
+      }
+    },
+    "referrals": {
+      "title": "Enlaces de Referencia",
+      "subtitle": "Crea y gestiona enlaces de referencia para clientes",
+      "newLink": "Crear Enlace",
+      "searchPlaceholder": "Buscar enlaces...",
+      "noLinks": "Sin enlaces de referencia",
+      "noLinksDescription": "Crea un enlace de referencia para invitar clientes a completar formularios",
+      "addFirst": "Crea tu primer enlace",
+      "table": {
+        "code": "Codigo",
+        "client": "Cliente",
+        "case": "Caso",
+        "status": "Estado",
+        "uses": "Usos",
+        "createdAt": "Creado",
+        "expiresAt": "Expira",
+        "actions": "Acciones"
+      },
+      "statuses": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "expired": "Expirado",
+        "maxReached": "Limite Alcanzado"
+      },
+      "actions": {
+        "view": "Ver Detalles",
+        "copy": "Copiar Enlace",
+        "deactivate": "Desactivar",
+        "delete": "Eliminar"
+      },
+      "form": {
+        "title": "Crear Enlace de Referencia",
+        "selectCase": "Seleccionar Caso (opcional)",
+        "selectCasePlaceholder": "Elige un caso...",
+        "selectClient": "Seleccionar Cliente (opcional)",
+        "selectClientPlaceholder": "Elige un cliente...",
+        "expiresAt": "Fecha de Expiracion (opcional)",
+        "maxUses": "Usos Maximos",
+        "allowedForms": "Formularios Permitidos",
+        "allowedFormsPlaceholder": "Todos los formularios permitidos"
+      },
+      "detail": {
+        "title": "Detalles del Enlace de Referencia",
+        "linkUrl": "URL del Enlace",
+        "usageHistory": "Historial de Uso",
+        "noUsage": "Sin registros de uso",
+        "usageTable": {
+          "action": "Accion",
+          "user": "Usuario",
+          "date": "Fecha",
+          "ipAddress": "Direccion IP"
+        },
+        "usageActions": {
+          "visited": "Visitado",
+          "registered": "Registrado",
+          "form_started": "Formulario Iniciado",
+          "form_completed": "Formulario Completado"
+        }
+      },
+      "toast": {
+        "created": "Enlace de referencia creado",
+        "copied": "Enlace copiado al portapapeles",
+        "deactivated": "Enlace desactivado",
+        "deleted": "Enlace eliminado",
+        "error": "Ha ocurrido un error"
+      },
+      "deleteConfirm": {
+        "title": "Eliminar Enlace de Referencia",
+        "description": "Estas seguro de que deseas eliminar este enlace de referencia? Esta accion no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      }
+    },
+    "evidences": {
+      "title": "Documentos de Evidencia",
+      "subtitle": "Sube y gestiona documentos de soporte",
+      "upload": "Subir Documento",
+      "noEvidences": "Sin documentos de evidencia",
+      "noEvidencesDescription": "Sube documentos para respaldar este caso.",
+      "fileName": "Nombre del Archivo",
+      "category": "Categoría",
+      "subcategory": "Subcategoría",
+      "documentDate": "Fecha del Documento",
+      "uploadedBy": "Subido Por",
+      "uploadedAt": "Subido",
+      "fileSize": "Tamaño del Archivo",
+      "validation": "Validación",
+      "categories": {
+        "identity": "Identidad",
+        "financial": "Financiero",
+        "relationship": "Relación",
+        "employment": "Empleo",
+        "education": "Educación",
+        "medical": "Médico",
+        "immigration": "Historial Migratorio",
+        "other": "Otro"
+      },
+      "statuses": {
+        "pending": "Pendiente de Revisión",
+        "valid": "Validado",
+        "invalid": "Inválido",
+        "needs_review": "Necesita Revisión"
+      },
+      "actions": {
+        "view": "Ver",
+        "download": "Descargar",
+        "validate": "Validar",
+        "markValid": "Marcar Válido",
+        "markInvalid": "Marcar Inválido",
+        "needsReview": "Necesita Revisión",
+        "delete": "Eliminar"
+      },
+      "deleteConfirm": {
+        "title": "Eliminar Evidencia",
+        "description": "¿Está seguro de que desea eliminar este documento? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "validateDialog": {
+        "title": "Validar Documento",
+        "status": "Estado de Validación",
+        "notes": "Notas de Validación",
+        "notesPlaceholder": "Agregar notas sobre esta validación...",
+        "confirm": "Guardar Validación",
+        "cancel": "Cancelar"
+      },
+      "uploadDialog": {
+        "title": "Subir Evidencia",
+        "dragDrop": "Arrastra y suelta archivos aquí, o haz clic para navegar",
+        "maxSize": "Tamaño máximo: 10MB",
+        "allowedTypes": "Tipos permitidos: PDF, JPG, PNG",
+        "selectCategory": "Seleccionar categoría",
+        "uploading": "Subiendo...",
+        "confirm": "Subir",
+        "cancel": "Cancelar"
+      },
+      "toast": {
+        "uploaded": "Documento subido exitosamente",
+        "validated": "Documento validado",
+        "deleted": "Documento eliminado",
+        "error": "Ha ocurrido un error"
+      },
+      "stats": {
+        "total": "Total de Documentos",
+        "validated": "Validados",
+        "pending": "Pendientes",
+        "invalid": "Inválidos"
+      }
+    }
   },
   "common": {
     "loading": "Cargando...",
@@ -312,9 +903,289 @@
     "features": "Funciones",
     "testimonials": "Testimonios",
     "pricing": "Precios",
+    "faq": "FAQ",
+    "logIn": "Iniciar sesión",
+    "getStarted": "Comenzar",
     "signIn": "Iniciar Sesion",
     "signUp": "Registrarse",
     "dashboard": "Panel de Control",
     "signOut": "Cerrar sesion"
+  },
+  "legal": {
+    "terms": {
+      "title": "Términos de Servicio",
+      "lastUpdated": "Última actualización: Enero 2026",
+      "sections": {
+        "acceptance": {
+          "title": "1. Aceptación de Términos",
+          "content": "Al acceder o utilizar los servicios de EZMig, aceptas estar sujeto a estos Términos de Servicio. Si no estás de acuerdo con estos términos, por favor no utilices nuestros servicios."
+        },
+        "services": {
+          "title": "2. Descripción de Servicios",
+          "content": "EZMig proporciona software de gestión de casos de inmigración, incluyendo automatización de formularios, seguimiento de casos y herramientas de gestión de documentos para abogados de inmigración y bufetes."
+        },
+        "accounts": {
+          "title": "3. Cuentas de Usuario",
+          "content": "Eres responsable de mantener la confidencialidad de tus credenciales de cuenta y de todas las actividades que ocurran bajo tu cuenta. Debes notificarnos inmediatamente de cualquier uso no autorizado."
+        },
+        "payment": {
+          "title": "4. Términos de Pago",
+          "content": "Los servicios pagos se facturan según el plan de precios seleccionado. Los tokens no son reembolsables una vez comprados. Las tarifas de suscripción se facturan por adelantado de forma recurrente."
+        },
+        "intellectual": {
+          "title": "5. Propiedad Intelectual",
+          "content": "Todo el contenido, características y funcionalidades de EZMig son de nuestra propiedad y están protegidos por leyes internacionales de derechos de autor, marcas registradas y otras leyes de propiedad intelectual."
+        },
+        "limitation": {
+          "title": "6. Limitación de Responsabilidad",
+          "content": "EZMig no será responsable de ningún daño indirecto, incidental, especial, consecuente o punitivo resultante de tu uso o incapacidad para usar nuestros servicios."
+        },
+        "changes": {
+          "title": "7. Cambios en los Términos",
+          "content": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Notificaremos a los usuarios de cualquier cambio material por correo electrónico o a través de nuestra plataforma."
+        },
+        "contact": {
+          "title": "8. Contáctanos",
+          "content": "Si tienes alguna pregunta sobre estos Términos de Servicio, por favor contáctanos en legal@ezmig.com."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "lastUpdated": "Última actualización: Enero 2026",
+      "sections": {
+        "collection": {
+          "title": "1. Información que Recopilamos",
+          "content": "Recopilamos información que proporcionas directamente, incluyendo nombre, correo electrónico, detalles del bufete e información de casos. También recopilamos datos de uso e información del dispositivo automáticamente."
+        },
+        "use": {
+          "title": "2. Cómo Usamos tu Información",
+          "content": "Utilizamos tu información para proporcionar y mejorar nuestros servicios, procesar transacciones, comunicarnos contigo y garantizar la seguridad y cumplimiento de la plataforma."
+        },
+        "sharing": {
+          "title": "3. Compartir Información",
+          "content": "No vendemos tu información personal. Podemos compartir datos con proveedores de servicios que asisten en la operación de nuestra plataforma, sujeto a acuerdos de confidencialidad."
+        },
+        "security": {
+          "title": "4. Seguridad de Datos",
+          "content": "Implementamos medidas de seguridad estándar de la industria, incluyendo encriptación, controles de acceso y auditorías de seguridad regulares para proteger tu información."
+        },
+        "cookies": {
+          "title": "5. Cookies y Rastreo",
+          "content": "Utilizamos cookies y tecnologías similares para mejorar la experiencia del usuario, analizar patrones de uso y personalizar contenido. Puedes gestionar las preferencias de cookies en tu navegador."
+        },
+        "rights": {
+          "title": "6. Tus Derechos",
+          "content": "Tienes derecho a acceder, corregir o eliminar tu información personal. También puedes solicitar la portabilidad de datos u oponerte a ciertas actividades de procesamiento."
+        },
+        "changes": {
+          "title": "7. Cambios a Esta Política",
+          "content": "Podemos actualizar esta Política de Privacidad periódicamente. Te notificaremos de cambios significativos por correo electrónico o a través de nuestra plataforma."
+        },
+        "contact": {
+          "title": "8. Contáctanos",
+          "content": "Para consultas relacionadas con privacidad, por favor contáctanos en privacy@ezmig.com."
+        }
+      }
+    }
+  },
+  "admin": {
+    "layout": {
+      "logoAlt": "Logo de EZMig",
+      "nav": {
+        "dashboard": "Panel",
+        "tenants": "Equipos",
+        "users": "Usuarios",
+        "transactions": "Transacciones",
+        "packages": "Paquetes",
+        "stats": "Estadísticas"
+      },
+      "fallback": {
+        "userName": "Usuario admin",
+        "userEmail": "admin@ejemplo.com"
+      },
+      "actions": {
+        "signOut": "Cerrar sesión"
+      },
+      "mobile": {
+        "openMenu": "Abrir menú",
+        "title": "Admin"
+      }
+    },
+    "dashboard": {
+      "title": "Panel de administración",
+      "subtitle": "Monitorea equipos, uso, ingresos y salud del sistema.",
+      "stats": {
+        "totalTenants": {
+          "label": "Equipos",
+          "sub": "Organizaciones activas"
+        },
+        "totalUsers": {
+          "label": "Usuarios",
+          "sub": "En todos los equipos"
+        },
+        "tokensUsed": {
+          "label": "Tokens usados",
+          "sub": "Últimos 30 días"
+        },
+        "revenue": {
+          "label": "Ingresos est.",
+          "sub": "Basado en ventas de tokens"
+        }
+      },
+      "currency": "{value, number, ::currency/USD}"
+    },
+    "users": {
+      "title": "Usuarios",
+      "total": "Usuarios totales: {count}",
+      "empty": "No hay usuarios aún.",
+      "noTeam": "Sin equipo",
+      "details": "Ver detalles"
+    },
+    "tenants": {
+      "title": "Equipos",
+      "total": "Equipos totales: {count}",
+      "empty": "No hay equipos registrados.",
+      "members": "{count} miembros",
+      "tokens": "{count} tokens",
+      "autoReload": "Recarga automática",
+      "unknown": "Desconocido",
+      "details": "Detalles"
+    },
+    "transactions": {
+      "title": "Transacciones",
+      "subtitle": "Últimos 100 movimientos de tokens",
+      "history": "Historial",
+      "empty": "Aún no hay transacciones."
+    },
+    "packages": {
+      "title": "Paquetes de tokens",
+      "activeCount": "Paquetes activos: {count}",
+      "money": "{value, number, ::currency/USD}",
+      "create": {
+        "title": "Crear paquete",
+        "submit": "Crear"
+      },
+      "fields": {
+        "name": "Nombre",
+        "tokens": "Tokens",
+        "price": "Precio (USD)",
+        "priceShort": "Precio",
+        "pricePerToken": "Precio por token",
+        "sort": "Orden",
+        "active": "Activo"
+      },
+      "placeholders": {
+        "name": "Ej. Paquete Inicial"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      },
+      "update": {
+        "save": "Guardar",
+        "deactivate": "Desactivar"
+      },
+      "help": {
+        "title": "Cómo funciona",
+        "body": "Los paquetes se sincronizan con Stripe. Actualizar precio o tokens crea nuevos precios en Stripe para el checkout.",
+        "tip": "Mantén el orden alineado con tu página de precios para evitar confusión."
+      }
+    },
+    "stats": {
+      "title": "Analíticas",
+      "cards": {
+        "revenue": {
+          "title": "Ingresos (est.)",
+          "subtitle": "Compras: {count}"
+        },
+        "sold": {
+          "title": "Tokens vendidos"
+        },
+        "consumed": {
+          "title": "Tokens consumidos",
+          "subtitle": "Tokens netos usados"
+        },
+        "wallets": {
+          "title": "Wallets",
+          "subtitle": "{count} tokens en circulación"
+        }
+      },
+      "allTime": "Todo el tiempo",
+      "sections": {
+        "usersByRole": "Usuarios por rol",
+        "tenantsByType": "Equipos por tipo",
+        "transactions": "Transacciones por tipo"
+      },
+      "table": {
+        "type": "Tipo",
+        "count": "Cantidad",
+        "total": "Total"
+      }
+    }
+  },
+  "portal": {
+    "welcome": {
+      "validLink": "Enlace de referencia válido",
+      "title": "Bienvenido a {teamName}",
+      "subtitle": "Complete sus formularios de inmigración de forma segura en línea",
+      "clientWelcome": "Bienvenido de nuevo, {name}",
+      "caseInfo": "Caso #{caseNumber}"
+    },
+    "forms": {
+      "title": "Formularios Disponibles",
+      "description": "Complete los siguientes formularios para su caso",
+      "startForm": "Iniciar Formulario",
+      "continueForm": "Continuar",
+      "status": {
+        "not_started": "No Iniciado",
+        "in_progress": "En Progreso",
+        "completed": "Completado",
+        "submitted": "Enviado"
+      }
+    },
+    "register": {
+      "title": "Crear Cuenta",
+      "subtitle": "Cree su cuenta para acceder al portal de {teamName}",
+      "name": "Nombre Completo",
+      "namePlaceholder": "Ingrese su nombre completo",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "Ingrese su correo electrónico",
+      "emailPrefilled": "Este correo está asociado a su caso",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Cree una contraseña",
+      "passwordHint": "Al menos 8 caracteres",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirme su contraseña",
+      "submit": "Crear Cuenta",
+      "submitting": "Creando cuenta...",
+      "success": "¡Cuenta creada exitosamente!",
+      "successTitle": "¡Bienvenido!",
+      "successDescription": "Su cuenta ha sido creada. Redirigiendo al portal...",
+      "continueToPortal": "Continuar al Portal",
+      "back": "Volver al Portal",
+      "alreadyHaveAccount": "¿Ya tiene una cuenta?",
+      "signIn": "Iniciar sesión",
+      "termsText": "Al crear una cuenta, acepta nuestros",
+      "termsLink": "Términos de Servicio",
+      "andText": "y",
+      "privacyLink": "Política de Privacidad",
+      "errors": {
+        "passwordMismatch": "Las contraseñas no coinciden",
+        "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+        "invalidLink": "Este enlace de referencia es inválido o ha expirado",
+        "generic": "Ocurrió un error. Por favor intente de nuevo."
+      }
+    },
+    "invalid": {
+      "title": "Enlace Inválido",
+      "description": "Este enlace de referencia es inválido o ha expirado.",
+      "backHome": "Volver al Inicio"
+    },
+    "footer": {
+      "securedBy": "Protegido por EZMig",
+      "terms": "Términos",
+      "privacy": "Privacidad"
+    }
   }
 }

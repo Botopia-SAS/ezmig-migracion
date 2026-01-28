@@ -1,16 +1,20 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Inter } from 'next/font/google';
 import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 import { locales, type Locale } from '@/i18n/config';
-
-const inter = Inter({ subsets: ['latin'] });
+import { BackgroundGrid } from '@/components/background-grid';
+import { Toaster } from '@/components/ui/sonner';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
+
+// Serialize data for SWR fallback - must use JSON to convert Date objects to ISO strings
+// Note: structuredClone preserves Dates which causes SWR serialization errors
+const serializeForSWR = <T,>(data: T): T =>
+  data == null ? data : JSON.parse(JSON.stringify(data));
 
 export default async function LocaleLayout({
   children,
@@ -29,28 +33,29 @@ export default async function LocaleLayout({
   // Enable static rendering
   setRequestLocale(locale);
 
-  // Get messages for the current locale
-  const messages = await getMessages();
+  // Get messages and user data
+  const [messages, user, team] = await Promise.all([
+    getMessages(),
+    getUser(),
+    getTeamForUser(),
+  ]);
 
   return (
-    <html
-      lang={locale}
-      className={`bg-white dark:bg-gray-950 text-black dark:text-white ${inter.className}`}
-    >
-      <body className="min-h-[100dvh] bg-gray-50">
-        <NextIntlClientProvider messages={messages}>
-          <SWRConfig
-            value={{
-              fallback: {
-                '/api/user': getUser(),
-                '/api/team': getTeamForUser()
-              }
-            }}
-          >
-            {children}
-          </SWRConfig>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <div className="min-h-[100dvh] bg-white dark:bg-gray-950 text-black dark:text-white bg-grid-soft">
+      <BackgroundGrid />
+      <NextIntlClientProvider messages={messages} locale={locale}>
+        <SWRConfig
+          value={{
+            fallback: {
+              '/api/user': serializeForSWR(user),
+              '/api/team': serializeForSWR(team),
+            }
+          }}
+        >
+          {children}
+        </SWRConfig>
+        <Toaster position="top-right" richColors closeButton />
+      </NextIntlClientProvider>
+    </div>
   );
 }

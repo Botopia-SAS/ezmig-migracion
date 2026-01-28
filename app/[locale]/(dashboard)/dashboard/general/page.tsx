@@ -10,6 +10,7 @@ import { updateAccount } from '@/app/[locale]/(login)/actions';
 import { User } from '@/lib/db/schema';
 import useSWR from 'swr';
 import { Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -30,29 +31,30 @@ function AccountForm({
   nameValue = '',
   emailValue = ''
 }: AccountFormProps) {
+  const t = useTranslations('dashboard.general.account');
   return (
     <>
       <div>
         <Label htmlFor="name" className="mb-2">
-          Name
+          {t('name')}
         </Label>
         <Input
           id="name"
           name="name"
-          placeholder="Enter your name"
+          placeholder={t('namePlaceholder')}
           defaultValue={state.name || nameValue}
           required
         />
       </div>
       <div>
         <Label htmlFor="email" className="mb-2">
-          Email
+          {t('email')}
         </Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder={t('emailPlaceholder')}
           defaultValue={emailValue}
           required
         />
@@ -73,6 +75,8 @@ function AccountFormWithData({ state }: { state: ActionState }) {
 }
 
 export default function GeneralPage() {
+  const t = useTranslations('dashboard.general');
+  const tAccount = useTranslations('dashboard.general.account');
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(
     updateAccount,
     {}
@@ -81,12 +85,12 @@ export default function GeneralPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
       <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        General Settings
+        {t('title')}
       </h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
+          <CardTitle>{tAccount('title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" action={formAction}>
@@ -101,16 +105,16 @@ export default function GeneralPage() {
             )}
             <Button
               type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
               disabled={isPending}
             >
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {tAccount('saving')}
                 </>
               ) : (
-                'Save Changes'
+                tAccount('save')
               )}
             </Button>
           </form>

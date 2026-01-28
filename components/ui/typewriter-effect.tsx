@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TypewriterEffectProps {
@@ -21,6 +21,11 @@ export function TypewriterEffect({
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const longestWord = useMemo(
+    () => words.reduce((longest, word) => (word.length > longest.length ? word : longest), ''),
+    [words]
+  );
 
   useEffect(() => {
     const currentWord = words[currentWordIndex];
@@ -53,11 +58,19 @@ export function TypewriterEffect({
   }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, delayBetweenWords]);
 
   return (
-    <span className={cn('inline-block', className)}>
-      <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">
-        {currentText}
+    <span className={cn('relative inline-flex items-baseline justify-center', className)}>
+      {/* Invisible word to reserve width and avoid layout shift */}
+      <span className="invisible pointer-events-none select-none whitespace-pre">
+        {longestWord}
       </span>
-      <span className="inline-block w-[3px] h-[1em] ml-1 align-middle bg-violet-400 animate-[blink_1s_step-end_infinite]" />
+
+      {/* Actual text + cursor overlayed to keep cursor next to last character */}
+      <span className="absolute inset-0 flex items-baseline justify-center">
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 whitespace-pre">
+          {currentText}
+        </span>
+        <span className="inline-block w-[3px] h-[0.85em] ml-0.5 bg-gradient-to-b from-violet-600 to-indigo-600 animate-[blink_1s_step-end_infinite] rounded-sm" />
+      </span>
     </span>
   );
 }

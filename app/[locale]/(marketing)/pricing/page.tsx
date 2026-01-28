@@ -3,8 +3,18 @@ import { Check } from 'lucide-react';
 import { getStripePrices, getStripeProducts } from '@/lib/payments/stripe';
 import { SubmitButton } from './submit-button';
 
-// Make this page dynamic to avoid Stripe API calls during build
-export const dynamic = 'force-dynamic';
+// Prices are fresh for five minutes max
+export const revalidate = 300;
+
+function pickLatestPrice(
+  prices: Array<Awaited<ReturnType<typeof getStripePrices>>[number]>,
+  productId?: string
+) {
+  if (!productId) return undefined;
+  return prices
+    .filter((price) => price.productId === productId)
+    .sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0];
+}
 
 export default async function PricingPage() {
   const [prices, products] = await Promise.all([
@@ -15,8 +25,8 @@ export default async function PricingPage() {
   const basePlan = products.find((product) => product.name === 'Base');
   const plusPlan = products.find((product) => product.name === 'Plus');
 
-  const basePrice = prices.find((price) => price.productId === basePlan?.id);
-  const plusPrice = prices.find((price) => price.productId === plusPlan?.id);
+  const basePrice = pickLatestPrice(prices, basePlan?.id);
+  const plusPrice = pickLatestPrice(prices, plusPlan?.id);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -80,7 +90,7 @@ function PricingCard({
       <ul className="space-y-4 mb-8">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start">
-            <Check className="h-5 w-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" />
+            <Check className="h-5 w-5 text-violet-500 mr-2 mt-0.5 flex-shrink-0" />
             <span className="text-gray-700">{feature}</span>
           </li>
         ))}

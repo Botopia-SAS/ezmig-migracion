@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
+import { handleSubscriptionChange, handleTokenPurchaseSuccess, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -22,10 +22,28 @@ export async function POST(request: NextRequest) {
 
   switch (event.type) {
     case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
+    case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription;
       await handleSubscriptionChange(subscription);
       break;
+    }
+
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session;
+      // Only process token purchases (one-time payments with token_purchase metadata)
+      if (session.mode === 'payment' && session.metadata?.type === 'token_purchase') {
+        console.log('Webhook: Processing token purchase for session', session.id);
+        try {
+          await handleTokenPurchaseSuccess(session.id);
+          console.log('Webhook: Token purchase processed successfully');
+        } catch (error) {
+          // Log error but don't fail - the redirect handler might have already processed it
+          console.error('Webhook: Error processing token purchase:', error);
+        }
+      }
+      break;
+    }
+
     default:
       console.log(`Unhandled event type ${event.type}`);
   }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import useSWR from 'swr';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,8 +15,25 @@ import {
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type PlanPrice = {
+  amount: number;
+  currency: string;
+  interval: string;
+};
+
+type PricingResponse = {
+  base: PlanPrice | null;
+  plus: PlanPrice | null;
+};
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function PricingSection() {
   const t = useTranslations('landing.pricing');
+  const locale = useLocale();
+  const { data } = useSWR<PricingResponse>('/api/pricing', fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const plans = [
     {
@@ -34,6 +52,20 @@ export function PricingSection() {
       popular: false,
     },
   ];
+
+  const planPriceMap: Record<string, PlanPrice | null | undefined> = {
+    starter: data?.base,
+    growth: data?.plus,
+  };
+
+  const formatPrice = (price?: PlanPrice | null) => {
+    if (!price) return null;
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: price.currency.toUpperCase(),
+      maximumFractionDigits: 2,
+    }).format(price.amount / 100);
+  };
 
   return (
     <section id="pricing" className="w-full py-24 bg-gray-50/50 dark:bg-neutral-900/50">
@@ -62,8 +94,8 @@ export function PricingSection() {
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-violet-400 to-indigo-400 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-sm">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center justify-center bg-gradient-to-r from-violet-400 to-indigo-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm whitespace-nowrap">
                     {t(`${plan.key}.badge`)}
                   </span>
                 </div>
@@ -75,10 +107,12 @@ export function PricingSection() {
                 </CardTitle>
                 <CardDescription className="mt-2">
                   <span className="text-4xl font-bold text-neutral-900 dark:text-white">
-                    {t(`${plan.key}.price`)}
+                    {formatPrice(planPriceMap[plan.key]) || t(`${plan.key}.price`)}
                   </span>
                   <span className="text-neutral-500 dark:text-neutral-400 ml-1">
-                    {t(`${plan.key}.credits`)}
+                    {planPriceMap[plan.key]?.interval
+                      ? `/ ${planPriceMap[plan.key]?.interval}`
+                      : t(`${plan.key}.credits`)}
                   </span>
                 </CardDescription>
               </CardHeader>

@@ -8,6 +8,27 @@
       "when": 1726443359662,
       "tag": "0000_soft_the_anarchist",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769259368710,
+      "tag": "0001_talented_rick_jones",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769299200000,
+      "tag": "0002_admin_package_stripe_product",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769552253096,
+      "tag": "0003_mute_klaw",
+      "breakpoints": true
     }
   ]
 }

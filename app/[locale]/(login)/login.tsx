@@ -5,14 +5,16 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle, ArrowLeft, ArrowUpRight, Eye, EyeOff, X, Mail, KeyRound, RefreshCw } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, Eye, EyeOff, X, Mail, KeyRound, RefreshCw } from 'lucide-react';
 import { signIn, signUp } from './actions';
 import { ActionState } from '@/lib/auth/middleware';
 import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const t = useTranslations('auth');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const priceId = searchParams.get('priceId');
@@ -114,6 +116,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               <input type="hidden" name="redirect" value={redirect || ''} />
               <input type="hidden" name="priceId" value={priceId || ''} />
               <input type="hidden" name="inviteId" value={inviteId || ''} />
+              <input type="hidden" name="locale" value={locale} />
 
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -238,14 +241,10 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
       {/* Right side - Premium Visual */}
       <div className="hidden lg:flex lg:w-[58%] xl:w-[62%] bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 items-center justify-center p-16 relative overflow-hidden">
-        {/* Open App Button - Top Right */}
-        <Link
-          href="/sign-in"
-          className="absolute top-8 right-8 z-20 flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium transition-all border border-white/20"
-        >
-          {t('openApp')}
-          <ArrowUpRight className="w-4 h-4" />
-        </Link>
+        {/* Language Switcher - Top Right */}
+        <div className="absolute top-8 right-8 z-20">
+          <LanguageSwitcher theme="dark" />
+        </div>
 
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-30">
@@ -269,8 +268,8 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">I-130 Petition</p>
-                  <p className="text-xs text-gray-500">Family Immigration</p>
+                  <p className="text-sm font-semibold text-gray-900">{t('heroCardMainTitle')}</p>
+                  <p className="text-xs text-gray-500">{t('heroCardMainSubtitle')}</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -278,7 +277,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   <div className="h-full w-full bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full" />
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-green-600 font-medium">USCIS Ready</span>
+                  <span className="text-green-600 font-medium">{t('heroCardStatusReady')}</span>
                   <span className="text-gray-400">100%</span>
                 </div>
               </div>
@@ -290,11 +289,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <CheckCircle className="w-4 h-4 text-emerald-600" />
                 </div>
-                <span className="text-xs font-medium text-gray-700">USCIS Compliant</span>
+                <span className="text-xs font-medium text-gray-700">{t('heroBadgeCompliant')}</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-gray-900">99.8%</span>
-                <span className="text-xs text-gray-500">accuracy</span>
+                <span className="text-xs text-gray-500">{t('heroCardAccuracy')}</span>
               </div>
             </div>
 
@@ -302,11 +301,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             <div className="absolute -right-4 bottom-4 w-44 bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-4 transform rotate-6 hover:rotate-0 transition-transform duration-500">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-xs text-gray-500">Active cases</span>
+                <span className="text-xs text-gray-500">{t('heroActiveCases')}</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl font-bold text-gray-900">50K+</span>
-                <span className="text-xs text-gray-500">processed</span>
+                <span className="text-xs text-gray-500">{t('heroProcessed')}</span>
               </div>
             </div>
           </div>
@@ -314,26 +313,25 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           {/* Text Content */}
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">
-              Immigration made simple
+              {t('heroTitle')}
             </h2>
             <p className="text-indigo-200 text-lg leading-relaxed mb-8">
-              Join thousands of immigration attorneys using AI-powered tools to
-              complete USCIS forms faster and with fewer RFEs.
+              {t('heroSubtitle')}
             </p>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                <p className="text-2xl font-bold text-white">5+</p>
-                <p className="text-xs text-indigo-300">Forms</p>
+                <p className="text-2xl font-bold text-white">{t('heroStatFormsValue')}</p>
+                <p className="text-xs text-indigo-300">{t('heroStatFormsLabel')}</p>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                <p className="text-2xl font-bold text-white">70%</p>
-                <p className="text-xs text-indigo-300">Time Saved</p>
+                <p className="text-2xl font-bold text-white">{t('heroStatTimeSavedValue')}</p>
+                <p className="text-xs text-indigo-300">{t('heroStatTimeSavedLabel')}</p>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                <p className="text-2xl font-bold text-white">SOC 2</p>
-                <p className="text-xs text-indigo-300">Certified</p>
+                <p className="text-2xl font-bold text-white">{t('heroStatComplianceValue')}</p>
+                <p className="text-xs text-indigo-300">{t('heroStatComplianceLabel')}</p>
               </div>
             </div>
           </div>

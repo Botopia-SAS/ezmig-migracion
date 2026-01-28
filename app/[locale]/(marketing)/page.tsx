@@ -8,6 +8,7 @@ import { MagicBadge } from '@/components/ui/magic-badge';
 import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { BackgroundGrid } from '@/components/background-grid';
 
 // Lazy load heavy components that use framer-motion
 const BorderBeam = dynamic(() => import('@/components/ui/border-beam').then(m => ({ default: m.BorderBeam })), { ssr: false });
@@ -15,6 +16,7 @@ const BentoGrid = dynamic(() => import('@/components/ui/bento-grid').then(m => (
 const BentoCard = dynamic(() => import('@/components/ui/bento-grid').then(m => ({ default: m.BentoCard })), { ssr: false });
 const Timeline = dynamic(() => import('@/components/ui/timeline').then(m => ({ default: m.Timeline })), { ssr: false });
 const WorldMap = dynamic(() => import('@/components/ui/world-map'), { ssr: false });
+const TypewriterEffect = dynamic(() => import('@/components/ui/typewriter-effect').then(m => ({ default: m.TypewriterEffect })), { ssr: false });
 
 import {
   FileText,
@@ -74,118 +76,184 @@ export default function HomePage() {
   const [isYearly, setIsYearly] = useState(true);
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden scrollbar-hide relative">
-      {/* Grid Pattern Background - Base */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-      />
+    <div className="min-h-screen bg-grid-soft overflow-x-hidden scrollbar-hide relative">
+      {/* Interactive background that follows cursor */}
+      <BackgroundGrid />
 
       {/* Hero Section */}
-      <section className="pt-28 pb-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Text content */}
-            <AnimationContainer className="order-1 lg:order-1 flex flex-col items-start text-left">
-              <button className="group relative grid overflow-hidden rounded-full px-4 py-1 shadow-[0_1000px_0_0_hsl(0_0%_85%)_inset] transition-colors duration-200 mb-6">
-                <span>
-                  <span className="spark mask-gradient absolute inset-0 h-[100%] w-[100%] animate-flip overflow-hidden rounded-full [mask:linear-gradient(white,_transparent_50%)] before:absolute before:aspect-square before:w-[200%] before:rotate-[-90deg] before:animate-rotate before:bg-[conic-gradient(from_0deg,transparent_0_340deg,#6366f1_360deg)] before:content-[''] before:[inset:0_auto_auto_50%] before:[translate:-50%_-15%]" />
-                </span>
-                <span className="backdrop absolute inset-[1px] rounded-full bg-white transition-colors duration-200 group-hover:bg-gray-50" />
-                <span className="h-full w-full blur-md absolute bottom-0 inset-x-0 bg-gradient-to-tr from-indigo-500/10"></span>
-                <span className="z-10 py-0.5 text-sm text-gray-700 flex items-center justify-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                  {t('hero.badge')}
-                  <ArrowRight className="ml-1 w-3 h-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-                </span>
-              </button>
+      <section className="pt-28 pb-12 px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Centered Text Content */}
+          <AnimationContainer className="flex flex-col items-center text-center">
+            <h1 className="text-gray-900 text-center py-4 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight !leading-[1.1]">
+              {t('hero.title')}
+              <br />
+              <TypewriterEffect
+                words={t.raw('hero.typewriterWords') as string[]}
+                typingSpeed={80}
+                deletingSpeed={40}
+                delayBetweenWords={2500}
+              />
+            </h1>
 
-              <h1 className="text-gray-900 text-left py-4 text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight !leading-[1.1]">
-                {t('hero.title')}{' '}
-                <span className="text-transparent bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text">
-                  {t('hero.titleHighlight')}
-                </span>
-              </h1>
+            <p className="mb-8 text-sm sm:text-lg tracking-tight text-gray-600 md:text-xl max-w-2xl text-center">
+              {t('hero.subtitle', { highlight: t('hero.highlight') })}
+            </p>
 
-              <p className="mb-8 text-lg tracking-tight text-gray-600 md:text-xl max-w-xl">
-                {t('hero.subtitle', { highlight: t('hero.highlight') })}
-                <br className="hidden md:block" />
-                <span className="hidden md:block mt-2">
-                  {t('hero.subtitleLine2')}
-                </span>
-              </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full px-4 sm:px-0">
+              <Link href="/sign-up" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 sm:px-8 h-12">
+                  {t('hero.cta')}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link href="#how-it-works" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-6 sm:px-8 h-12 border-gray-200 bg-white text-gray-900">
+                  {t('hero.demo')}
+                </Button>
+              </Link>
+            </div>
+          </AnimationContainer>
 
-              <div className="flex items-center whitespace-nowrap gap-4">
-                <Link href="/sign-up">
-                  <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-8 h-12">
-                    {t('hero.cta')}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-                <Link href="#how-it-works">
-                  <Button size="lg" variant="outline" className="rounded-full px-8 h-12 border-gray-200 bg-white">
-                    {t('hero.demo')}
-                  </Button>
-                </Link>
+          {/* USCIS Form Dashboard Mockup */}
+          <AnimationContainer delay={0.2} className="mt-16">
+            <div className="relative max-w-4xl mx-auto">
+              {/* Multi-layer glow effect behind mockup */}
+              <div className="absolute -inset-4 -top-16">
+                {/* Primary glow - larger, softer */}
+                <div className="absolute inset-0 blur-[6rem] opacity-40 bg-gradient-to-br from-violet-300 via-indigo-300 to-purple-300 animate-image-glow"></div>
+                {/* Secondary glow - smaller, more intense */}
+                <div className="absolute inset-8 blur-[4rem] opacity-30 bg-gradient-to-tr from-indigo-400 via-violet-400 to-fuchsia-300 animate-image-glow" style={{ animationDelay: '-1.5s' }}></div>
+                {/* Accent glow - subtle sparkle effect */}
+                <div className="absolute inset-16 blur-[3rem] opacity-20 bg-gradient-to-b from-blue-300 via-indigo-400 to-violet-500 animate-image-glow" style={{ animationDelay: '-0.75s' }}></div>
               </div>
-            </AnimationContainer>
-
-            {/* Right side - Image/Mockup */}
-            <AnimationContainer delay={0.1} className="order-2 lg:order-2">
-              <div className="relative">
-                <div className="absolute -top-10 -left-10 w-3/4 h-3/4 blur-[5rem] animate-image-glow opacity-50 bg-gradient-to-br from-indigo-400 via-blue-400 to-indigo-500"></div>
-                <div className="relative rounded-xl p-2 ring-1 ring-inset ring-indigo-200 lg:rounded-2xl bg-white/80 backdrop-blur-sm">
-                  <BorderBeam size={250} duration={12} delay={9} colorFrom="#6366f1" colorTo="#3b82f6" borderWidth={2} />
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-                      <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                      </div>
-                      <div className="flex-1 text-center">
-                        <span className="text-xs text-gray-400">EZMig - Immigration Case Workspace</span>
-                      </div>
+              <div className="relative rounded-xl p-2 ring-1 ring-inset ring-indigo-200/60 lg:rounded-2xl bg-white/90 backdrop-blur-sm shadow-2xl shadow-indigo-200/30">
+                <BorderBeam size={250} duration={12} delay={9} colorFrom="#8b5cf6" colorTo="#6366f1" borderWidth={2} />
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                  {/* Browser Chrome */}
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
-                    <div className="grid md:grid-cols-2 divide-x divide-gray-100">
-                      <div className="p-8 bg-gray-50/50">
-                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-5">Client Information</div>
-                        <div className="space-y-4">
-                          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full"></div>
-                          <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                          <div className="h-3 bg-gray-200 rounded w-4/5 mt-5"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full"></div>
-                          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                    <div className="flex-1 text-center">
+                      <span className="text-xs text-gray-400">{t('hero.mockup.browserTitle')}</span>
+                    </div>
+                  </div>
+
+                  {/* App Content */}
+                  <div className="flex">
+                    {/* Sidebar - Case Info */}
+                    <div className="hidden md:block w-56 bg-gray-50 border-r border-gray-100 p-4">
+                      <div className="mb-4">
+                        <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2">{t('hero.mockup.activeCase')}</div>
+                        <div className="bg-white rounded-lg p-3 border border-gray-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold">MG</div>
+                            <div>
+                              <div className="text-xs font-medium text-gray-900">Maria Garcia</div>
+                              <div className="text-[10px] text-gray-500">{t('hero.mockup.caseSubtitle')}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="h-full w-3/4 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full"></div>
+                            </div>
+                            <span className="text-[10px] font-medium text-violet-600">75%</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="p-8">
-                        <div className="text-xs font-medium text-indigo-600 uppercase tracking-wider mb-5">USCIS Form Preview</div>
-                        <div className="space-y-4">
-                          <div className="h-3 bg-indigo-100 rounded w-3/4"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-full"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-5/6"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-2/3"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-4/5 mt-5"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-full"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-3/4"></div>
-                          <div className="h-3 bg-indigo-100 rounded w-5/6"></div>
+
+                      <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2">{t('hero.mockup.forms')}</div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2 px-2 py-1.5 bg-violet-100 rounded-md">
+                          <FileText className="w-3.5 h-3.5 text-violet-600" />
+                          <span className="text-xs font-medium text-violet-700">I-130</span>
+                          <CheckCircle className="w-3 h-3 text-green-500 ml-auto" />
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded-md">
+                          <FileText className="w-3.5 h-3.5 text-gray-400" />
+                          <span className="text-xs text-gray-600">I-485</span>
+                          <div className="w-3 h-3 border border-gray-300 rounded-full ml-auto"></div>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded-md">
+                          <FileText className="w-3.5 h-3.5 text-gray-400" />
+                          <span className="text-xs text-gray-600">I-765</span>
+                          <div className="w-3 h-3 border border-gray-300 rounded-full ml-auto"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Main Form Area */}
+                    <div className="flex-1 p-5">
+                      {/* Form Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">{t('hero.mockup.formTitle')}</span>
+                            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-medium rounded">{t('hero.mockup.uscisReady')}</span>
+                          </div>
+                          <div className="text-[10px] text-gray-500 mt-0.5">{t('hero.mockup.formSubtitle')}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-violet-500" />
+                          <span className="text-[10px] text-violet-600 font-medium">{t('hero.mockup.aiAutofill')}</span>
+                        </div>
+                      </div>
+
+                      {/* Form Fields */}
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 mb-1 block">{t('hero.mockup.familyName')}</label>
+                            <div className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 flex items-center">
+                              <span className="text-xs text-gray-900">Garcia</span>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 mb-1 block">{t('hero.mockup.givenName')}</label>
+                            <div className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 flex items-center">
+                              <span className="text-xs text-gray-900">Maria</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="col-span-2">
+                            <label className="text-[10px] font-medium text-gray-500 mb-1 block">{t('hero.mockup.alienNumber')}</label>
+                            <div className="h-8 bg-violet-50 border border-violet-200 rounded-md px-2 flex items-center justify-between">
+                              <span className="text-xs text-gray-900">A-123-456-789</span>
+                              <Sparkles className="w-3 h-3 text-violet-500" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 mb-1 block">{t('hero.mockup.dateOfBirth')}</label>
+                            <div className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 flex items-center">
+                              <span className="text-xs text-gray-900">03/15/1985</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-medium text-gray-500 mb-1 block">{t('hero.mockup.address')}</label>
+                          <div className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 flex items-center">
+                            <span className="text-xs text-gray-900">1234 Oak Street, Los Angeles, CA 90001</span>
+                          </div>
+                        </div>
+
+                        {/* Validation Message */}
+                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-[10px] text-green-700">{t('hero.mockup.validationMessage')}</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </AnimationContainer>
-          </div>
+            </div>
+          </AnimationContainer>
         </div>
       </section>
 
@@ -627,8 +695,8 @@ export default function HomePage() {
 
           <AnimationContainer delay={0.2}>
             <div className="max-w-4xl mx-auto space-y-4">
-              {(t.raw('faq.items') as Array<{question: string; answer: string}>).map((faq, index) => (
-                <FaqItem key={index} question={faq.question} answer={faq.answer} index={index} />
+              {(t.raw('faq.items') as Array<{title: string; answer: string}>).map((faq, index) => (
+                <FaqItem key={index} question={faq.title} answer={faq.answer} index={index} />
               ))}
             </div>
           </AnimationContainer>
