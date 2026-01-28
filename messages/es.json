@@ -5,9 +5,18 @@
       "titleHighlight": "Practica de Inmigracion",
       "typewriterWords": ["Practica de Inmigracion", "Gestion de Casos", "Flujo de Trabajo"],
       "subtitle": "Completa {highlight} en minutos, no en horas. EZMig ayuda a abogados de inmigracion a gestionar casos, llenar formularios con precision y rastrear estados automaticamente.",
+      "subtitleLine2": "Control total, historial de auditoria y cumplimiento legal integrados.",
       "highlight": "Formularios USCIS",
       "cta": "Comenzar Prueba Gratis",
-      "demo": "Ver Demo"
+      "demo": "Ver como funciona",
+      "badge": "Formularios de Inmigracion con IA"
+    },
+    "trust": {
+      "title": "Confiado por abogados de inmigracion en todo el pais",
+      "uscis": "Compatible con USCIS",
+      "aila": "Soporte para Miembros AILA",
+      "soc2": "Seguridad SOC 2",
+      "hipaa": "Listo para HIPAA"
     },
     "stats": {
       "forms": "Formularios USCIS",
@@ -66,6 +75,7 @@
       }
     },
     "features": {
+      "badge": "Funciones",
       "title": "Todo lo que necesitas para gestionar casos de inmigracion",
       "subtitle": "Desde completar formularios hasta rastrear casos, EZMig lo maneja todo.",
       "forms": {
@@ -91,23 +101,35 @@
       "evidence": {
         "title": "Gestor Dinamico de Evidencias",
         "description": "Lista de verificacion inteligente que se adapta a cada tipo de caso. Nunca mas olvides un documento de respaldo."
-      }
+      },
+      "learnMore": "Mas informacion",
+      "searchForms": "Buscar formularios...",
+      "i130": "Peticion I-130",
+      "i485": "Ajuste I-485",
+      "i765": "EAD I-765",
+      "i589": "Asilo I-589",
+      "i539": "Extension I-539"
     },
     "howItWorks": {
-      "title": "Como funciona EZMig",
-      "subtitle": "Tres simples pasos para transformar tu practica de inmigracion",
+      "badge": "Como Funciona",
+      "title": "Cuatro simples pasos hacia el exito migratorio",
+      "subtitle": "Sigue estos simples pasos para completar, validar y presentar tus casos.",
       "step": "Paso",
       "step1": {
         "title": "Crear Perfil de Cliente",
-        "description": "Agrega la informacion del cliente una vez. EZMig auto-completa en todos los formularios."
+        "description": "Agrega la informacion del cliente una vez. EZMig auto-completa en todos los formularios relacionados. Sube documentos de respaldo y los organizaremos automaticamente."
       },
       "step2": {
         "title": "Completar Formularios",
-        "description": "Llena formularios USCIS con asistencia inteligente y validacion en tiempo real."
+        "description": "Llena formularios USCIS con asistencia inteligente y validacion en tiempo real. Nuestra IA detecta errores antes de que se conviertan en RFEs."
       },
       "step3": {
+        "title": "Revisar y Validar",
+        "description": "Nuestra validacion inteligente verifica cada campo contra los requisitos de USCIS. Recibe retroalimentacion instantanea sobre informacion faltante o inconsistencias."
+      },
+      "step4": {
         "title": "Generar y Presentar",
-        "description": "Exporta PDFs listos para USCIS o envia directamente mediante e-Filing."
+        "description": "Exporta paquetes PDF listos para USCIS o envia directamente mediante e-Filing. Incluye todos los documentos de respaldo en el orden correcto."
       }
     },
     "pricing": {
@@ -171,10 +193,42 @@
       ]
     },
     "cta": {
-      "title": "Listo para transformar tu practica?",
-      "subtitle": "Unete a cientos de abogados de inmigracion que ahorran horas cada semana con EZMig. Comienza tu prueba gratuita de 7 dias hoy.",
-      "button": "Comenzar Prueba Gratis",
+      "title": "Confianza",
+      "titleHighlight": "Mundial",
+      "subtitle": "Unete a cientos de abogados de inmigracion que ahorran horas cada semana con EZMig.",
+      "button": "Comienza Tu Prueba Gratis",
       "demo": "Programar una Demo"
+    },
+    "faq": {
+      "badge": "FAQ",
+      "stillQuestions": "Aun tienes preguntas?",
+      "contactSupport": "Contactar Soporte",
+      "items": [
+        {
+          "question": "Que formularios USCIS soporta EZMig?",
+          "answer": "EZMig soporta todos los principales formularios de inmigracion familiar incluyendo I-130, I-485, I-765, I-131, I-864 e I-539. Constantemente agregamos nuevos formularios basados en comentarios de abogados."
+        },
+        {
+          "question": "Los formularios son aceptados por USCIS?",
+          "answer": "Si! Todos los formularios generados por EZMig cumplen con USCIS y usan las versiones oficiales mas recientes. Nuestra validacion asegura que cada campo requerido este correctamente completado."
+        },
+        {
+          "question": "Como funciona la asistencia de IA?",
+          "answer": "Nuestra IA analiza la informacion de tu cliente y sugiere respuestas, detecta errores potenciales y asegura consistencia entre formularios relacionados. Aprende de miles de presentaciones exitosas."
+        },
+        {
+          "question": "Puedo rastrear el estado de casos automaticamente?",
+          "answer": "Si! EZMig monitorea el estado USCIS de todos tus casos activos y envia notificaciones instantaneas cuando los estados cambian. No mas verificacion manual requerida."
+        },
+        {
+          "question": "Que tan seguros estan los datos de mis clientes?",
+          "answer": "La seguridad es nuestra maxima prioridad. Todos los datos estan encriptados en transito y en reposo. Tenemos certificacion SOC 2 y cumplimos con HIPAA. Los datos de tus clientes nunca salen de nuestros servidores seguros."
+        },
+        {
+          "question": "Ofrecen planes para equipos o empresas?",
+          "answer": "Si! Nuestros planes Growth y Enterprise incluyen funciones de colaboracion en equipo, espacios de trabajo compartidos y soporte prioritario. Contacta a nuestro equipo de ventas para precios personalizados."
+        }
+      ]
     },
     "footer": {
       "description": "Gestion de Casos de Inmigracion Simplificada. Completa formularios USCIS en minutos, no horas. Confiado por abogados en todo el pais.",
@@ -213,7 +267,33 @@
     "termsText": "Al registrarte, aceptas nuestros",
     "termsLink": "Terminos de Servicio",
     "andText": "y",
-    "privacyLink": "Politica de Privacidad"
+    "privacyLink": "Politica de Privacidad",
+    "backToHome": "Volver al inicio",
+    "openApp": "Abrir App",
+    "forgotPassword": "Olvidaste tu contrasena?",
+    "forgotPasswordTitle": "Olvidaste tu contrasena?",
+    "forgotPasswordSubtitle": "No te preocupes, te enviaremos un codigo de verificacion.",
+    "sendVerificationCode": "Enviar codigo de verificacion",
+    "sendingCode": "Enviando codigo...",
+    "rememberPassword": "Recuerdas tu contrasena?",
+    "backToSignIn": "Volver a iniciar sesion",
+    "checkYourEmail": "Revisa tu correo",
+    "codeSentTo": "Enviamos un codigo de 6 digitos a",
+    "verificationCode": "Codigo de verificacion",
+    "didntReceiveCode": "No recibiste el codigo?",
+    "resendCode": "Reenviar codigo",
+    "resendIn": "Reenviar en",
+    "continue": "Continuar",
+    "setNewPassword": "Establece una nueva contrasena",
+    "createStrongPassword": "Crea una contrasena segura para tu cuenta.",
+    "newPassword": "Nueva contrasena",
+    "confirmPassword": "Confirmar contrasena",
+    "minCharacters": "Min. 8 caracteres",
+    "confirmYourPassword": "Confirma tu contrasena",
+    "resetPassword": "Restablecer contrasena",
+    "resettingPassword": "Restableciendo contrasena...",
+    "passwordResetSuccess": "Contrasena restablecida exitosamente!",
+    "passwordResetSuccessMessage": "Tu contrasena ha sido cambiada exitosamente."
   },
   "dashboard": {
     "title": "Panel de Control",

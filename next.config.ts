@@ -3,11 +3,6 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
-const nextConfig: NextConfig = {
-  experimental: {
-    ppr: true,
-    clientSegmentCache: true
-  }
-};
+const nextConfig: NextConfig = {};
 
 export default withNextIntl(nextConfig);

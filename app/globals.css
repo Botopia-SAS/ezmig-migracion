@@ -291,3 +291,70 @@
     opacity: 0;
   }
 }
+
+/* Border beam animation */
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.animate-border-beam {
+  animation: border-beam calc(var(--duration, 15) * 1s) infinite linear;
+}
+
+/* Image glow animation */
+@keyframes image-glow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-image-glow {
+  animation: image-glow 3s ease-in-out infinite;
+}
+
+/* Gradient animation */
+.gradient {
+  background: conic-gradient(from 230.29deg at 51.63% 52.16%, rgb(99, 102, 241) 0deg, rgb(129, 140, 248) 67.5deg, rgb(165, 180, 252) 198.75deg, rgb(99, 102, 241) 251.25deg, rgb(129, 140, 248) 301.88deg, rgb(99, 102, 241) 360deg);
+}
+
+/* Flip animation for badge spark */
+@keyframes flip {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.animate-flip {
+  animation: flip 2s infinite linear;
+}
+
+/* Rotate animation for badge spark */
+@keyframes rotate {
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.animate-rotate {
+  animation: rotate 1s linear infinite both;
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Selection styling */
+::selection {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: inherit;
+}
