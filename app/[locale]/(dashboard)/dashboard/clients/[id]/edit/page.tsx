@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { COUNTRIES } from '@/lib/constants/countries';
 
 interface Client {
   id: number;
@@ -82,6 +84,8 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<string>('');
+  const [countryOfBirth, setCountryOfBirth] = useState<string>('');
+  const [nationality, setNationality] = useState<string>('');
 
   const { data: client, error, isLoading } = useSWR<Client>(
     `/api/clients/${id}`,
@@ -89,8 +93,16 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
   );
 
   useEffect(() => {
-    if (client?.currentStatus) {
-      setCurrentStatus(client.currentStatus);
+    if (client) {
+      if (client.currentStatus) {
+        setCurrentStatus(client.currentStatus);
+      }
+      if (client.countryOfBirth) {
+        setCountryOfBirth(client.countryOfBirth);
+      }
+      if (client.nationality) {
+        setNationality(client.nationality);
+      }
     }
   }, [client]);
 
@@ -105,8 +117,8 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
       email: formData.get('email') as string,
       phone: formData.get('phone') as string || null,
       dateOfBirth: formData.get('dateOfBirth') as string || null,
-      countryOfBirth: formData.get('countryOfBirth') as string || null,
-      nationality: formData.get('nationality') as string || null,
+      countryOfBirth: countryOfBirth || null,
+      nationality: nationality || null,
       alienNumber: formData.get('alienNumber') as string || null,
       uscisOnlineAccount: formData.get('uscisOnlineAccount') as string || null,
       currentStatus: currentStatus || null,
@@ -143,14 +155,15 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href={`/dashboard/clients/${id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')}
-          </Link>
-        </Button>
-        <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">{t('editClient')}</h1>
+      <section className="flex-1">
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="ghost" size="sm" asChild className="-ml-2">
+            <Link href={`/dashboard/clients/${id}`}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('editClient')}</h1>
+        </div>
         <FormSkeleton />
       </section>
     );
@@ -158,13 +171,15 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
 
   if (error || !client) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href="/dashboard/clients">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')}
-          </Link>
-        </Button>
+      <section className="flex-1">
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="ghost" size="sm" asChild className="-ml-2">
+            <Link href="/dashboard/clients">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('editClient')}</h1>
+        </div>
         <div className="text-center py-12">
           <p className="text-red-500">Client not found</p>
         </div>
@@ -179,12 +194,11 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
+    <section className="flex-1">
+      <div className="flex items-center gap-4 mb-4">
+        <Button variant="ghost" size="sm" asChild className="-ml-2">
           <Link href={`/dashboard/clients/${id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')}
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('editClient')}</h1>
@@ -232,11 +246,11 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">{t('form.phone')}</Label>
-                <Input
+                <PhoneInput
                   id="phone"
                   name="phone"
-                  type="tel"
-                  defaultValue={client.phone || ''}
+                  value={client.phone || ''}
+                  placeholder="(555) 123-4567"
                 />
               </div>
             </div>
@@ -253,19 +267,39 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="space-y-2">
                 <Label htmlFor="countryOfBirth">{t('form.countryOfBirth')}</Label>
-                <Input
-                  id="countryOfBirth"
-                  name="countryOfBirth"
-                  defaultValue={client.countryOfBirth || ''}
-                />
+                <Select
+                  value={countryOfBirth}
+                  onValueChange={setCountryOfBirth}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.filter(c => c.code !== 'DIVIDER').map((country) => (
+                      <SelectItem key={country.code} value={country.name}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nationality">{t('form.nationality')}</Label>
-                <Input
-                  id="nationality"
-                  name="nationality"
-                  defaultValue={client.nationality || ''}
-                />
+                <Select
+                  value={nationality}
+                  onValueChange={setNationality}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select nationality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.filter(c => c.code !== 'DIVIDER').map((country) => (
+                      <SelectItem key={country.code} value={country.nationality}>
+                        {country.nationality}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -410,7 +444,7 @@ export default function EditClientPage({ params }: { params: Promise<{ id: strin
               t('save')
             )}
           </Button>
-          <Button type="button" variant="outline" asChild>
+          <Button type="button" variant="outline" className="bg-transparent border-gray-900 text-gray-900 hover:bg-gray-900/5" asChild>
             <Link href={`/dashboard/clients/${id}`}>{t('cancel')}</Link>
           </Button>
         </div>

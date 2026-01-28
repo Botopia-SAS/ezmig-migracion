@@ -2,6 +2,14 @@ import { db } from '@/lib/db/drizzle';
 import { uscisCaseStatus } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 
+// USCIS API Configuration
+const USCIS_API_BASE = process.env.USCIS_API_URL || 'https://api-int.uscis.gov';
+const USCIS_TOKEN_URL = `${USCIS_API_BASE}/oauth/accesstoken`;
+const USCIS_CASE_STATUS_URL = `${USCIS_API_BASE}/case-status`;
+
+// Token cache
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
 export interface CaseStatusResult {
   receiptNumber: string;
   status: string;
@@ -30,6 +38,56 @@ export function validateReceiptNumber(receiptNumber: string): boolean {
 }
 
 /**
+ * Get OAuth 2.0 access token from USCIS
+ * Uses Client Credentials flow
+ */
+async function getAccessToken(): Promise<string | null> {
+  const clientId = process.env.USCIS_CLIENT_ID;
+  const clientSecret = process.env.USCIS_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    return null;
+  }
+
+  // Check if we have a valid cached token
+  if (cachedToken && cachedToken.expiresAt > Date.now()) {
+    return cachedToken.token;
+  }
+
+  try {
+    const response = await fetch(USCIS_TOKEN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('USCIS OAuth error:', response.status, await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Cache the token (subtract 60 seconds for safety margin)
+    cachedToken = {
+      token: data.access_token,
+      expiresAt: Date.now() + (data.expires_in - 60) * 1000,
+    };
+
+    return data.access_token;
+  } catch (error) {
+    console.error('USCIS OAuth exception:', error);
+    return null;
+  }
+}
+
+/**
  * Format receipt number for display
  */
 export function formatReceiptNumber(receiptNumber: string): string {
@@ -55,7 +113,11 @@ export async function checkCaseStatus(
 
   // First, check if we have a recent cached result (within 1 hour)
   const cached = await getCachedStatus(cleanedReceipt);
-  if (cached && cached.lastCheckedAt && isRecentEnough(cached.lastCheckedAt, 60)) {
+  // Check if cache is valid AND not corrupted (contains [object Object])
+  const isCacheCorrupted = (cached?.currentStatus && cached.currentStatus.includes('[object')) ||
+    (cached?.statusDescription && cached.statusDescription.includes('[object'));
+
+  if (cached && cached.lastCheckedAt && isRecentEnough(cached.lastCheckedAt, 60) && !isCacheCorrupted) {
     return {
       receiptNumber: formatReceiptNumber(cleanedReceipt),
       status: cached.currentStatus || 'Unknown',
@@ -80,28 +142,90 @@ export async function checkCaseStatus(
 }
 
 /**
- * Fetch status from USCIS (placeholder for real API integration)
+ * Fetch status from USCIS API
+ * Requires USCIS_CLIENT_ID and USCIS_CLIENT_SECRET env vars
  */
 async function fetchFromUSCIS(receiptNumber: string): Promise<Omit<CaseStatusResult, 'source' | 'receiptNumber'>> {
-  // TODO: Implement actual USCIS API call
-  // Register at https://developer.uscis.gov to get API access
+  const token = await getAccessToken();
 
-  // This is a placeholder response
-  // In production, replace with actual API call:
-  /*
-  const response = await fetch(`https://api.uscis.gov/case-status/${receiptNumber}`, {
-    headers: {
-      'Authorization': `Bearer ${process.env.USCIS_API_KEY}`,
-    },
-  });
-  const data = await response.json();
-  */
+  // If no credentials configured, return placeholder
+  if (!token) {
+    console.log('USCIS API not configured. Set USCIS_CLIENT_ID and USCIS_CLIENT_SECRET.');
+    return {
+      status: 'PENDING_API_SETUP',
+      statusDescription: 'USCIS API integration pending. Configure USCIS_CLIENT_ID and USCIS_CLIENT_SECRET.',
+      lastCheckedAt: new Date(),
+    };
+  }
 
-  return {
-    status: 'PENDING_API_SETUP',
-    statusDescription: 'USCIS API integration pending. Register at developer.uscis.gov for API access.',
-    lastCheckedAt: new Date(),
-  };
+  try {
+    const response = await fetch(`${USCIS_CASE_STATUS_URL}/${receiptNumber}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('USCIS API error:', response.status, errorText);
+
+      if (response.status === 404) {
+        return {
+          status: 'NOT_FOUND',
+          statusDescription: 'Receipt number not found in USCIS system.',
+          lastCheckedAt: new Date(),
+        };
+      }
+
+      return {
+        status: 'API_ERROR',
+        statusDescription: `USCIS API error: ${response.status}`,
+        lastCheckedAt: new Date(),
+      };
+    }
+
+    const data = await response.json();
+
+    console.log('USCIS API raw response:', JSON.stringify(data, null, 2));
+
+    // Map USCIS API response to our format
+    let statusValue = 'Unknown';
+    let descriptionValue = '';
+
+    // USCIS API returns data in case_status object
+    if (data.case_status) {
+      const cs = data.case_status;
+      // Use the English status text fields
+      statusValue = cs.current_case_status_text_en || cs.case_status || 'Unknown';
+      descriptionValue = cs.current_case_status_desc_en || cs.case_status_desc || '';
+    } else if (typeof data.status === 'object' && data.status !== null) {
+      // Fallback for other API response formats
+      statusValue = data.status.code || data.status.name || data.status.value || JSON.stringify(data.status);
+      descriptionValue = data.status.description || data.status.message || '';
+    } else if (typeof data.status === 'string') {
+      statusValue = data.status;
+      descriptionValue = data.description || data.message || '';
+    }
+
+    // Truncate description to fit database column (varchar 255)
+    if (descriptionValue.length > 250) {
+      descriptionValue = descriptionValue.substring(0, 247) + '...';
+    }
+
+    return {
+      status: statusValue,
+      statusDescription: descriptionValue,
+      lastCheckedAt: new Date(),
+    };
+  } catch (error) {
+    console.error('USCIS API exception:', error);
+    return {
+      status: 'API_ERROR',
+      statusDescription: error instanceof Error ? error.message : 'Unknown error',
+      lastCheckedAt: new Date(),
+    };
+  }
 }
 
 /**
@@ -226,3 +350,17 @@ export const USCIS_STATUSES = {
 } as const;
 
 export type USCISStatus = keyof typeof USCIS_STATUSES;
+
+/**
+ * Check if USCIS API is configured
+ */
+export function isUSCISApiConfigured(): boolean {
+  return !!(process.env.USCIS_CLIENT_ID && process.env.USCIS_CLIENT_SECRET);
+}
+
+/**
+ * Clear cached OAuth token (useful for testing or when credentials change)
+ */
+export function clearTokenCache(): void {
+  cachedToken = null;
+}

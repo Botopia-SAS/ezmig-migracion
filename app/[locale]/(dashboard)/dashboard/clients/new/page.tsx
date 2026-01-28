@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -24,16 +24,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { COUNTRIES } from '@/lib/constants/countries';
+import { useHeaderActions } from '@/components/dashboard/header-actions-context';
 
 const IMMIGRATION_STATUSES = ['H1B', 'F1', 'B2', 'L1', 'J1', 'O1', 'TN', 'None'];
 
 export default function NewClientPage() {
   const t = useTranslations('dashboard.clients');
   const router = useRouter();
+  const { setActions } = useHeaderActions();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track required fields for validation
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+
+  const isFormValid = firstName.trim() !== '' && lastName.trim() !== '' && email.trim() !== '';
+
+  // Set header actions
+  useEffect(() => {
+    setActions(
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="bg-transparent border-gray-900 text-gray-900 hover:bg-gray-900/5"
+          asChild
+        >
+          <Link href="/dashboard/clients">{t('cancel')}</Link>
+        </Button>
+        <Button
+          type="submit"
+          form="client-form"
+          size="lg"
+          disabled={isSubmitting || !isFormValid}
+          className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('creating')}
+            </>
+          ) : (
+            t('create')
+          )}
+        </Button>
+      </div>
+    );
+
+    // Cleanup on unmount
+    return () => setActions(null);
+  }, [setActions, t, isSubmitting, isFormValid]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isFormValid) return;
+
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
@@ -80,18 +129,19 @@ export default function NewClientPage() {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
+    <section className="flex-1">
+      {/* Page title */}
+      <div className="flex items-center gap-4 mb-4">
+        <Button variant="ghost" size="sm" asChild className="-ml-2">
           <Link href="/dashboard/clients">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')}
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('newClient')}</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
+      {/* Form Content */}
+      <form id="client-form" onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
         {/* Personal Information */}
         <Card>
           <CardHeader>
@@ -107,6 +157,8 @@ export default function NewClientPage() {
                   name="firstName"
                   required
                   placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -116,6 +168,8 @@ export default function NewClientPage() {
                   name="lastName"
                   required
                   placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
             </div>
@@ -129,15 +183,16 @@ export default function NewClientPage() {
                   type="email"
                   required
                   placeholder="john@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">{t('form.phone')}</Label>
-                <Input
+                <PhoneInput
                   id="phone"
                   name="phone"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="(555) 123-4567"
                 />
               </div>
             </div>
@@ -153,19 +208,33 @@ export default function NewClientPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="countryOfBirth">{t('form.countryOfBirth')}</Label>
-                <Input
-                  id="countryOfBirth"
-                  name="countryOfBirth"
-                  placeholder="Mexico"
-                />
+                <Select name="countryOfBirth">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.filter(c => c.code !== 'DIVIDER').map((country) => (
+                      <SelectItem key={country.code} value={country.name}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nationality">{t('form.nationality')}</Label>
-                <Input
-                  id="nationality"
-                  name="nationality"
-                  placeholder="Mexican"
-                />
+                <Select name="nationality">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select nationality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.filter(c => c.code !== 'DIVIDER').map((country) => (
+                      <SelectItem key={country.code} value={country.nationality}>
+                        {country.nationality}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -290,27 +359,6 @@ export default function NewClientPage() {
             />
           </CardContent>
         </Card>
-
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('creating')}
-              </>
-            ) : (
-              t('create')
-            )}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/dashboard/clients">{t('cancel')}</Link>
-          </Button>
-        </div>
       </form>
     </section>
   );

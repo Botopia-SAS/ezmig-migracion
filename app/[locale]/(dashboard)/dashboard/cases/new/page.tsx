@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useHeaderActions } from '@/components/dashboard/header-actions-context';
 
 interface Client {
   id: number;
@@ -47,14 +48,14 @@ interface TeamMember {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const CASE_TYPES = [
-  'family_based',
-  'employment',
-  'asylum',
-  'naturalization',
-  'adjustment',
-  'removal_defense',
-  'visa',
-  'other',
+  { key: 'family_based', code: 'I-130' },
+  { key: 'employment', code: 'I-140' },
+  { key: 'asylum', code: 'I-589' },
+  { key: 'naturalization', code: 'N-400' },
+  { key: 'adjustment', code: 'I-485' },
+  { key: 'removal_defense', code: 'EOIR-42' },
+  { key: 'visa', code: 'I-129' },
+  { key: 'other', code: null },
 ] as const;
 
 const PRIORITIES = ['low', 'normal', 'high', 'urgent'] as const;
@@ -62,6 +63,7 @@ const PRIORITIES = ['low', 'normal', 'high', 'urgent'] as const;
 export default function NewCasePage() {
   const t = useTranslations('dashboard.cases');
   const router = useRouter();
+  const { setActions } = useHeaderActions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [caseType, setCaseType] = useState<string>('');
@@ -80,6 +82,43 @@ export default function NewCasePage() {
     fetcher
   );
 
+  const isFormValid = selectedClientId !== '' && caseType !== '';
+
+  // Set header actions
+  useEffect(() => {
+    setActions(
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="bg-transparent border-gray-900 text-gray-900 hover:bg-gray-900/5"
+          asChild
+        >
+          <Link href="/dashboard/cases">{t('cancel')}</Link>
+        </Button>
+        <Button
+          type="submit"
+          form="case-form"
+          size="lg"
+          disabled={isSubmitting || !isFormValid}
+          className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('creating')}
+            </>
+          ) : (
+            t('create')
+          )}
+        </Button>
+      </div>
+    );
+
+    return () => setActions(null);
+  }, [setActions, t, isSubmitting, isFormValid]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -91,6 +130,7 @@ export default function NewCasePage() {
       priority,
       filingDeadline: formData.get('filingDeadline') as string || undefined,
       assignedTo: assignedTo ? parseInt(assignedTo) : undefined,
+      uscisReceiptNumber: formData.get('uscisReceiptNumber') as string || undefined,
       internalNotes: formData.get('internalNotes') as string || undefined,
     };
 
@@ -117,9 +157,9 @@ export default function NewCasePage() {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
+        <Button variant="ghost" asChild className="mb-4 text-gray-900">
           <Link href="/dashboard/cases">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -130,46 +170,50 @@ export default function NewCasePage() {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-        {/* Client Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('form.selectClient')}</CardTitle>
-            <CardDescription>Select the client for this case</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="clientId">{t('form.selectClient')} *</Label>
-              <Select
-                value={selectedClientId}
-                onValueChange={setSelectedClientId}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('form.selectClientPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientsData?.clients?.map((client) => (
-                    <SelectItem key={client.id} value={client.id.toString()}>
-                      {client.firstName} {client.lastName} ({client.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!clientsData?.clients?.length && (
-                <p className="text-sm text-gray-500">
-                  No clients found.{' '}
-                  <Link href="/dashboard/clients/new" className="text-violet-600 hover:underline">
-                    Create a client first
-                  </Link>
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <form id="case-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Client Selection & Case Details - side by side on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Client Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('form.selectClient')}</CardTitle>
+              <CardDescription>Select the client for this case</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="clientId">{t('form.selectClient')} *</Label>
+                  <Select
+                    value={selectedClientId}
+                    onValueChange={setSelectedClientId}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('form.selectClientPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clientsData?.clients?.map((client) => (
+                        <SelectItem key={client.id} value={client.id.toString()}>
+                          {client.firstName} {client.lastName} ({client.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <span>{t('form.clientNotFound')}</span>
+                  <Button variant="link" asChild className="h-auto p-0 text-violet-600">
+                    <Link href="/dashboard/clients/new">
+                      {t('form.createNewClient')}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Case Details */}
-        <Card>
+          {/* Case Details */}
+          <Card>
           <CardHeader>
             <CardTitle>{t('detail.caseInfo')}</CardTitle>
             <CardDescription>Basic information about the case</CardDescription>
@@ -187,11 +231,14 @@ export default function NewCasePage() {
                     <SelectValue placeholder="Select case type..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {CASE_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {t(`types.${type}`)}
-                      </SelectItem>
-                    ))}
+                    {CASE_TYPES.map((type) => {
+                      const typeName = t(`types.${type.key}`);
+                      return (
+                        <SelectItem key={type.key} value={type.key}>
+                          {type.code ? `${typeName} (${type.code})` : typeName}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -243,10 +290,24 @@ export default function NewCasePage() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="uscisReceiptNumber">{t('form.uscisReceiptNumber')}</Label>
+              <Input
+                id="uscisReceiptNumber"
+                name="uscisReceiptNumber"
+                placeholder="EAC2390012345"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t('form.uscisReceiptNumberHint')}
+              </p>
+            </div>
           </CardContent>
         </Card>
+        </div>
 
-        {/* Notes */}
+        {/* Notes - full width */}
         <Card>
           <CardHeader>
             <CardTitle>{t('form.internalNotes')}</CardTitle>
@@ -261,27 +322,6 @@ export default function NewCasePage() {
             />
           </CardContent>
         </Card>
-
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting || !selectedClientId || !caseType}
-            className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('creating')}
-              </>
-            ) : (
-              t('create')
-            )}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/dashboard/cases">{t('cancel')}</Link>
-          </Button>
-        </div>
       </form>
     </section>
   );

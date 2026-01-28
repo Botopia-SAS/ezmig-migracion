@@ -110,7 +110,7 @@ export default function NewReferralPage() {
   // If link was created, show success state
   if (createdLink) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
@@ -165,10 +165,10 @@ export default function NewReferralPage() {
   }
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Button variant="ghost" size="sm" asChild className="mb-4">
+          <Button variant="ghost" size="sm" asChild className="mb-4 text-gray-900">
             <Link href="/dashboard/referrals">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Referral Links
@@ -191,12 +191,12 @@ export default function NewReferralPage() {
               {/* Case Selection */}
               <div className="space-y-2">
                 <Label htmlFor="case">{t('form.selectCase')}</Label>
-                <Select value={caseId} onValueChange={setCaseId}>
+                <Select value={caseId || 'none'} onValueChange={(val) => setCaseId(val === 'none' ? '' : val)}>
                   <SelectTrigger>
                     <SelectValue placeholder={t('form.selectCasePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific case</SelectItem>
+                    <SelectItem value="none">No specific case</SelectItem>
                     {casesData?.cases?.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.caseNumber || c.caseType}
@@ -211,12 +211,12 @@ export default function NewReferralPage() {
               {!caseId && (
                 <div className="space-y-2">
                   <Label htmlFor="client">{t('form.selectClient')}</Label>
-                  <Select value={clientId} onValueChange={setClientId}>
+                  <Select value={clientId || 'none'} onValueChange={(val) => setClientId(val === 'none' ? '' : val)}>
                     <SelectTrigger>
                       <SelectValue placeholder={t('form.selectClientPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No specific client</SelectItem>
+                      <SelectItem value="none">No specific client</SelectItem>
                       {clientsData?.clients?.map((c) => (
                         <SelectItem key={c.id} value={c.id.toString()}>
                           {c.firstName} {c.lastName} ({c.email})

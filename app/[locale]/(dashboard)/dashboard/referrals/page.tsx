@@ -247,7 +247,7 @@ export default function ReferralsPage() {
   });
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('title')}</h1>

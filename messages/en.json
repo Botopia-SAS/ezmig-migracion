@@ -633,12 +633,15 @@
       "form": {
         "selectClient": "Select Client",
         "selectClientPlaceholder": "Choose a client...",
+        "clientNotFound": "Client not in the list?",
+        "createNewClient": "Create new client",
         "caseType": "Case Type",
         "priority": "Priority",
         "filingDeadline": "Filing Deadline",
         "assignedTo": "Assigned To",
         "assignedToPlaceholder": "Select team member...",
         "uscisReceiptNumber": "USCIS Receipt Number",
+        "uscisReceiptNumberHint": "Format: 3 letters + 10 digits (e.g., EAC2390012345). Used to track case status with USCIS.",
         "internalNotes": "Internal Notes",
         "notesPlaceholder": "Add any internal notes about this case..."
       },

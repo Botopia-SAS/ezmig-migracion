@@ -173,7 +173,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/clients">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -187,7 +187,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
   if (error || !client) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/clients">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -202,7 +202,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <Button variant="ghost" asChild className="mb-4">
         <Link href="/dashboard/clients">
           <ArrowLeft className="mr-2 h-4 w-4" />

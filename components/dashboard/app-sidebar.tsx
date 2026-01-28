@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Users,
   CreditCard,
@@ -120,6 +121,11 @@ function UserFooter() {
   const t = useTranslations('header');
   const { data: user } = useSWR<User>('/api/user', fetcher);
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function handleSignOut() {
     await signOut();
@@ -127,7 +133,8 @@ function UserFooter() {
     router.push('/');
   }
 
-  if (!user) {
+  // Wait for client-side mount to avoid hydration mismatch with Radix IDs
+  if (!mounted || !user) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>

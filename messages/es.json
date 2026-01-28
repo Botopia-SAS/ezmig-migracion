@@ -633,12 +633,15 @@
       "form": {
         "selectClient": "Seleccionar Cliente",
         "selectClientPlaceholder": "Elige un cliente...",
+        "clientNotFound": "¿Cliente no está en la lista?",
+        "createNewClient": "Crear nuevo cliente",
         "caseType": "Tipo de Caso",
         "priority": "Prioridad",
         "filingDeadline": "Fecha Límite de Presentación",
         "assignedTo": "Asignado A",
         "assignedToPlaceholder": "Seleccionar miembro del equipo...",
         "uscisReceiptNumber": "Número de Recibo USCIS",
+        "uscisReceiptNumberHint": "Formato: 3 letras + 10 dígitos (ej: EAC2390012345). Se usa para rastrear el estado del caso con USCIS.",
         "internalNotes": "Notas Internas",
         "notesPlaceholder": "Agrega notas internas sobre este caso..."
       },

@@ -92,7 +92,7 @@ export default function SettingsPage() {
   const hasPaymentMethod = settings?.hasPaymentMethod ?? false;
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/dashboard/billing">
           <Button variant="ghost" size="icon">

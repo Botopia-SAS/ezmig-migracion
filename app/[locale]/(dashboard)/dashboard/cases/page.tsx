@@ -161,7 +161,7 @@ export default function CasesPage() {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
@@ -270,7 +270,7 @@ export default function CasesPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>

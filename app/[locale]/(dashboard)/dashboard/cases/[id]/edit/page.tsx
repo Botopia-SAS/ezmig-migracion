@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useHeaderActions } from '@/components/dashboard/header-actions-context';
 
 interface CaseData {
   id: number;
@@ -36,7 +37,8 @@ interface CaseData {
   filingDeadline: string | null;
   uscisReceiptNumber: string | null;
   internalNotes: string | null;
-  assignedTo: {
+  assignedTo: number | null;
+  assignedUser: {
     id: number;
     name: string | null;
     email: string;
@@ -62,14 +64,14 @@ interface TeamMember {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const CASE_TYPES = [
-  'family_based',
-  'employment',
-  'asylum',
-  'naturalization',
-  'adjustment',
-  'removal_defense',
-  'visa',
-  'other',
+  { key: 'family_based', code: 'I-130' },
+  { key: 'employment', code: 'I-140' },
+  { key: 'asylum', code: 'I-589' },
+  { key: 'naturalization', code: 'N-400' },
+  { key: 'adjustment', code: 'I-485' },
+  { key: 'removal_defense', code: 'EOIR-42' },
+  { key: 'visa', code: 'I-129' },
+  { key: 'other', code: null },
 ] as const;
 
 const PRIORITIES = ['low', 'normal', 'high', 'urgent'] as const;
@@ -85,7 +87,7 @@ const STATUSES = [
 
 function FormSkeleton() {
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {[1, 2].map((i) => (
         <Card key={i}>
           <CardHeader>
@@ -111,6 +113,7 @@ export default function EditCasePage({
   const { id } = use(params);
   const t = useTranslations('dashboard.cases');
   const router = useRouter();
+  const { setActions } = useHeaderActions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [caseType, setCaseType] = useState<string>('');
   const [status, setStatus] = useState<string>('');
@@ -121,35 +124,74 @@ export default function EditCasePage({
     data: caseData,
     error,
     isLoading,
-  } = useSWR<CaseData>(`/api/cases/${id}`, fetcher);
+  } = useSWR<CaseData>(`/api/cases/${id}?details=true`, fetcher);
 
   const { data: teamData } = useSWR<{ teamMembers: TeamMember[] }>(
     '/api/team',
     fetcher
   );
 
+  // Initialize form state when case data loads
   useEffect(() => {
     if (caseData) {
-      setCaseType(caseData.caseType);
-      setStatus(caseData.status);
-      setPriority(caseData.priority);
-      setAssignedTo(caseData.assignedTo?.id?.toString() || '');
+      setCaseType(caseData.caseType || '');
+      setStatus(caseData.status || '');
+      setPriority(caseData.priority || '');
+      setAssignedTo(caseData.assignedTo?.toString() || '');
     }
   }, [caseData]);
+
+  const isFormValid = (caseType || caseData?.caseType) && (status || caseData?.status);
+
+  // Set header actions
+  useEffect(() => {
+    setActions(
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="bg-transparent border-gray-900 text-gray-900 hover:bg-gray-900/5"
+          asChild
+        >
+          <Link href={`/dashboard/cases/${id}`}>{t('cancel')}</Link>
+        </Button>
+        <Button
+          type="submit"
+          form="edit-case-form"
+          size="lg"
+          disabled={isSubmitting || !isFormValid}
+          className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('saving')}
+            </>
+          ) : (
+            t('save')
+          )}
+        </Button>
+      </div>
+    );
+
+    return () => setActions(null);
+  }, [setActions, t, isSubmitting, isFormValid, id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
+    const finalAssignedTo = assignedTo || caseData?.assignedTo?.toString() || '';
     const data = {
-      caseType,
-      status,
-      priority,
+      caseType: caseType || caseData?.caseType,
+      status: status || caseData?.status,
+      priority: priority || caseData?.priority,
       filingDeadline: (formData.get('filingDeadline') as string) || null,
       uscisReceiptNumber:
         (formData.get('uscisReceiptNumber') as string) || null,
-      assignedTo: assignedTo ? parseInt(assignedTo) : null,
+      assignedTo: finalAssignedTo && finalAssignedTo !== 'none' ? Number.parseInt(finalAssignedTo) : null,
       internalNotes: (formData.get('internalNotes') as string) || null,
     };
 
@@ -183,16 +225,18 @@ export default function EditCasePage({
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href={`/dashboard/cases/${id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')}
-          </Link>
-        </Button>
-        <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-          {t('editCase')}
-        </h1>
+      <section className="flex-1">
+        <div className="mb-6">
+          <Button variant="ghost" asChild className="mb-4 text-gray-900">
+            <Link href={`/dashboard/cases/${id}`}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t('back')}
+            </Link>
+          </Button>
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
+            {t('editCase')}
+          </h1>
+        </div>
         <FormSkeleton />
       </section>
     );
@@ -200,8 +244,8 @@ export default function EditCasePage({
 
   if (error || !caseData) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
+      <section className="flex-1">
+        <Button variant="ghost" asChild className="mb-4 text-gray-900">
           <Link href="/dashboard/cases">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -215,9 +259,9 @@ export default function EditCasePage({
   }
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
+        <Button variant="ghost" asChild className="mb-4 text-gray-900">
           <Link href={`/dashboard/cases/${id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -234,33 +278,19 @@ export default function EditCasePage({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-        {/* Case Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('detail.caseInfo')}</CardTitle>
-            <CardDescription>Update case information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="caseType">{t('form.caseType')} *</Label>
-                <Select value={caseType} onValueChange={setCaseType} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select case type..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CASE_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {t(`types.${type}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      <form id="edit-case-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Case Status & Case Details - side by side on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Case Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('table.status')}</CardTitle>
+              <CardDescription>Update case status and priority</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="status">{t('table.status')} *</Label>
-                <Select value={status} onValueChange={setStatus} required>
+                <Select value={status || caseData.status} onValueChange={setStatus} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status..." />
                   </SelectTrigger>
@@ -273,12 +303,9 @@ export default function EditCasePage({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="priority">{t('form.priority')}</Label>
-                <Select value={priority} onValueChange={setPriority}>
+                <Select value={priority || caseData.priority} onValueChange={setPriority}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority..." />
                   </SelectTrigger>
@@ -293,12 +320,15 @@ export default function EditCasePage({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="assignedTo">{t('form.assignedTo')}</Label>
-                <Select value={assignedTo} onValueChange={setAssignedTo}>
+                <Select
+                  value={assignedTo || caseData.assignedTo?.toString() || 'none'}
+                  onValueChange={(val) => setAssignedTo(val === 'none' ? '' : val)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder={t('form.assignedToPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {teamData?.teamMembers?.map((member) => (
                       <SelectItem
                         key={member.userId}
@@ -310,13 +340,36 @@ export default function EditCasePage({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Case Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('detail.caseInfo')}</CardTitle>
+              <CardDescription>Basic information about the case</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="filingDeadline">
-                  {t('form.filingDeadline')}
-                </Label>
+                <Label htmlFor="caseType">{t('form.caseType')} *</Label>
+                <Select value={caseType || caseData.caseType} onValueChange={setCaseType} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select case type..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CASE_TYPES.map((type) => {
+                      const typeName = t(`types.${type.key}`);
+                      return (
+                        <SelectItem key={type.key} value={type.key}>
+                          {type.code ? `${typeName} (${type.code})` : typeName}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="filingDeadline">{t('form.filingDeadline')}</Label>
                 <Input
                   id="filingDeadline"
                   name="filingDeadline"
@@ -332,14 +385,18 @@ export default function EditCasePage({
                   id="uscisReceiptNumber"
                   name="uscisReceiptNumber"
                   defaultValue={caseData.uscisReceiptNumber || ''}
-                  placeholder="e.g., NBC-123456789"
+                  placeholder="EAC2390012345"
+                  className="font-mono"
                 />
+                <p className="text-xs text-muted-foreground">
+                  {t('form.uscisReceiptNumberHint')}
+                </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Notes */}
+        {/* Notes - full width */}
         <Card>
           <CardHeader>
             <CardTitle>{t('form.internalNotes')}</CardTitle>
@@ -355,27 +412,6 @@ export default function EditCasePage({
             />
           </CardContent>
         </Card>
-
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('saving')}
-              </>
-            ) : (
-              t('save')
-            )}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href={`/dashboard/cases/${id}`}>{t('cancel')}</Link>
-          </Button>
-        </div>
       </form>
     </section>
   );

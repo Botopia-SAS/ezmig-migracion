@@ -24,6 +24,8 @@ import {
   XCircle,
   Eye,
   AlertCircle,
+  RefreshCw,
+  Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -295,6 +297,9 @@ export default function CaseDetailPage({
   const [validationStatus, setValidationStatus] = useState<string>('');
   const [validationNotes, setValidationNotes] = useState<string>('');
 
+  // USCIS status state
+  const [isCheckingUSCIS, setIsCheckingUSCIS] = useState(false);
+
   const {
     data: caseData,
     error,
@@ -303,10 +308,47 @@ export default function CaseDetailPage({
   } = useSWR<CaseDetails>(`/api/cases/${id}?details=true`, fetcher);
 
   // Fetch available form types
-  const { data: formTypesData } = useSWR<FormType[]>('/api/form-types', fetcher);
+  const { data: formTypesData } = useSWR<{ formTypes: FormType[] }>('/api/form-types', fetcher);
+
+  // Fetch USCIS status
+  const {
+    data: uscisStatusData,
+    mutate: mutateUSCISStatus,
+  } = useSWR(
+    caseData?.uscisReceiptNumber ? `/api/uscis/check-status?caseId=${id}` : null,
+    fetcher
+  );
+
+  const handleCheckUSCISStatus = async () => {
+    if (!caseData?.uscisReceiptNumber) {
+      toast.error('No USCIS receipt number associated with this case');
+      return;
+    }
+    setIsCheckingUSCIS(true);
+    try {
+      const response = await fetch('/api/uscis/check-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caseId: parseInt(id) }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to check USCIS status');
+      }
+
+      toast.success('USCIS status updated');
+      mutateUSCISStatus();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to check USCIS status');
+    } finally {
+      setIsCheckingUSCIS(false);
+    }
+  };
 
   // Get form types that haven't been added yet
-  const availableFormTypes = formTypesData?.filter(
+  const availableFormTypes = formTypesData?.formTypes?.filter(
     (ft) => !caseData?.forms?.some((f) => f.formTypeId === ft.id)
   ) || [];
 
@@ -425,8 +467,8 @@ export default function CaseDetailPage({
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
+      <section className="flex-1">
+        <Button variant="ghost" asChild className="mb-4 text-gray-900">
           <Link href="/dashboard/cases">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -439,8 +481,8 @@ export default function CaseDetailPage({
 
   if (error || !caseData) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
-        <Button variant="ghost" asChild className="mb-4">
+      <section className="flex-1">
+        <Button variant="ghost" asChild className="mb-4 text-gray-900">
           <Link href="/dashboard/cases">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -454,8 +496,8 @@ export default function CaseDetailPage({
   }
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <Button variant="ghost" asChild className="mb-4">
+    <section className="flex-1">
+      <Button variant="ghost" asChild className="mb-4 text-gray-900">
         <Link href="/dashboard/cases">
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('back')}
@@ -596,6 +638,106 @@ export default function CaseDetailPage({
                   )}
                 </CardContent>
               </Card>
+
+              {/* USCIS Case Status Tracker */}
+              {caseData.uscisReceiptNumber && (
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Search className="h-5 w-5 text-violet-600" />
+                        USCIS Case Status
+                      </CardTitle>
+                      <CardDescription>
+                        Track your case status with USCIS
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCheckUSCISStatus}
+                      disabled={isCheckingUSCIS}
+                    >
+                      {isCheckingUSCIS ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Checking...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Check Status
+                        </>
+                      )}
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-xs text-gray-500">Receipt Number</p>
+                          <p className="font-mono font-medium text-lg">
+                            {caseData.uscisReceiptNumber}
+                          </p>
+                        </div>
+                      </div>
+
+                      {uscisStatusData?.data && uscisStatusData.data.length > 0 ? (
+                        <div className="space-y-3">
+                          {uscisStatusData.data.map((status: {
+                            id: number;
+                            currentStatus: string;
+                            statusDescription: string;
+                            lastCheckedAt: string;
+                          }) => (
+                            <div
+                              key={status.id}
+                              className="p-4 border rounded-lg space-y-2"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+                                  status.currentStatus === 'Case Was Approved' || status.currentStatus === 'CASE_APPROVED'
+                                    ? 'bg-green-100 text-green-800'
+                                    : status.currentStatus === 'Case Was Denied' || status.currentStatus === 'CASE_DENIED'
+                                    ? 'bg-red-100 text-red-800'
+                                    : status.currentStatus === 'PENDING_API_SETUP'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {status.currentStatus}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  Last checked: {status.lastCheckedAt ? new Date(status.lastCheckedAt).toLocaleString() : 'Never'}
+                                </span>
+                              </div>
+                              {status.statusDescription && (
+                                <p className="text-sm text-gray-600">
+                                  {status.statusDescription}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                          <p>No status checks yet</p>
+                          <p className="text-sm">Click &quot;Check Status&quot; to query USCIS</p>
+                        </div>
+                      )}
+
+                      {!uscisStatusData?.apiConfigured && (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">
+                            <AlertTriangle className="h-4 w-4 inline mr-1" />
+                            USCIS API not configured. Contact administrator.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Client Sidebar */}

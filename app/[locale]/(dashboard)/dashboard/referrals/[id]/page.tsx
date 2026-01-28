@@ -204,7 +204,7 @@ export default function ReferralDetailPage({
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <Skeleton className="h-8 w-48 mb-4" />
@@ -218,7 +218,7 @@ export default function ReferralDetailPage({
 
   if (error || !data?.link) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
             <p className="text-red-500">Failed to load referral link details</p>
@@ -234,7 +234,7 @@ export default function ReferralDetailPage({
   const { link, usage } = data;
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">

@@ -109,7 +109,7 @@ export default function FormFillingPage({
 
   if (isLoading) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <Button variant="ghost" asChild className="mb-4">
           <Link href={`/dashboard/cases/${caseId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -123,7 +123,7 @@ export default function FormFillingPage({
 
   if (error || !caseForm) {
     return (
-      <section className="flex-1 p-4 lg:p-8">
+      <section className="flex-1">
         <Button variant="ghost" asChild className="mb-4">
           <Link href={`/dashboard/cases/${caseId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -142,7 +142,7 @@ export default function FormFillingPage({
   const isSubmitted = caseForm.status === 'submitted';
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1">
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" asChild className="mb-4">
