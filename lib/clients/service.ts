@@ -1,7 +1,8 @@
 import { db } from '@/lib/db/drizzle';
-import { clients, cases, users, activityLogs } from '@/lib/db/schema';
+import { clients, cases, ActivityType } from '@/lib/db/schema';
 import { eq, and, desc, isNull, or, ilike, sql } from 'drizzle-orm';
-import type { Client, NewClient, Case, ActivityType } from '@/lib/db/schema';
+import type { Client, Case } from '@/lib/db/schema';
+import { logActivity, detectChanges } from '@/lib/activity';
 
 // ============================================
 // TYPES
@@ -97,7 +98,7 @@ export async function createClient(input: CreateClientInput): Promise<Client> {
     .returning();
 
   // Log activity
-  await logClientActivity(input.teamId, input.createdBy, 'CREATE_CLIENT', newClient.id);
+  await logClientActivity(input.teamId, input.createdBy, ActivityType.CREATE_CLIENT, newClient);
 
   return newClient;
 }
@@ -215,6 +216,10 @@ export async function updateClient(
   userId: number,
   input: UpdateClientInput
 ): Promise<Client | null> {
+  // Fetch old client first for change detection
+  const oldClient = await getClientById(clientId, teamId);
+  if (!oldClient) return null;
+
   const [updatedClient] = await db
     .update(clients)
     .set({
@@ -231,7 +236,14 @@ export async function updateClient(
     .returning();
 
   if (updatedClient) {
-    await logClientActivity(teamId, userId, 'UPDATE_CLIENT', clientId);
+    // Detect what changed
+    const changes = detectChanges(oldClient, input, [
+      'firstName', 'lastName', 'email', 'phone', 'dateOfBirth',
+      'countryOfBirth', 'nationality', 'alienNumber', 'uscisOnlineAccount',
+      'currentStatus', 'addressLine1', 'addressLine2', 'city', 'state',
+      'zipCode', 'country', 'notes'
+    ]);
+    await logClientActivity(teamId, userId, ActivityType.UPDATE_CLIENT, updatedClient, changes);
   }
 
   return updatedClient || null;
@@ -261,7 +273,7 @@ export async function deleteClient(
     .returning();
 
   if (deletedClient) {
-    await logClientActivity(teamId, userId, 'DELETE_CLIENT', clientId);
+    await logClientActivity(teamId, userId, ActivityType.DELETE_CLIENT, deletedClient);
     return true;
   }
 
@@ -365,19 +377,23 @@ export async function searchClients(
 }
 
 /**
- * Log client-related activity
+ * Log client-related activity with entity context
  */
 async function logClientActivity(
   teamId: number,
   userId: number,
-  action: string,
-  clientId: number
+  action: ActivityType,
+  client: Client,
+  changes?: Record<string, { old: unknown; new: unknown }> | null
 ) {
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action,
-    ipAddress: null,
+    entityType: 'client',
+    entityId: client.id,
+    entityName: `${client.firstName} ${client.lastName}`,
+    changes: changes || undefined,
   });
 }
 

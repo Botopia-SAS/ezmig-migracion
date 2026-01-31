@@ -6,8 +6,10 @@ import {
   users,
   teamMembers,
   clients,
+  cases,
   type NewUser,
   type NewTeamMember,
+  type NewClient,
 } from '@/lib/db/schema';
 import { hashPassword, setSession } from '@/lib/auth/session';
 import {
@@ -105,17 +107,52 @@ export async function POST(request: NextRequest) {
 
     await db.insert(teamMembers).values(newTeamMember);
 
-    // 6. Link user to the client record if one exists
-    if (linkInfo.clientId) {
+    // 6. Link user to client record or create new client
+    let clientId = linkInfo.clientId;
+
+    if (clientId) {
+      // Case 1: Link has clientId - link user to existing client
       await db
         .update(clients)
         .set({ userId: createdUser.id })
         .where(
           and(
-            eq(clients.id, linkInfo.clientId),
+            eq(clients.id, clientId),
             eq(clients.teamId, linkInfo.teamId)
           )
         );
+    } else if (linkInfo.caseId) {
+      // Case 2: Link has caseId but no clientId - get clientId from case
+      const [caseRecord] = await db
+        .select({ clientId: cases.clientId })
+        .from(cases)
+        .where(eq(cases.id, linkInfo.caseId));
+
+      if (caseRecord?.clientId) {
+        clientId = caseRecord.clientId;
+        await db
+          .update(clients)
+          .set({ userId: createdUser.id })
+          .where(
+            and(
+              eq(clients.id, clientId),
+              eq(clients.teamId, linkInfo.teamId)
+            )
+          );
+      }
+    } else {
+      // Case 3: Link has neither - create a new client record
+      const newClient: NewClient = {
+        teamId: linkInfo.teamId,
+        userId: createdUser.id,
+        firstName,
+        lastName: lastName || firstName,
+        email,
+        createdBy: linkInfo.createdBy,
+      };
+
+      const [createdClient] = await db.insert(clients).values(newClient).returning();
+      clientId = createdClient?.id;
     }
 
     // 7. Record the registration usage

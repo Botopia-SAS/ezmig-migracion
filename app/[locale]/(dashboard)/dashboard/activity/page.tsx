@@ -1,134 +1,172 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import useSWR from 'swr';
+import { useTranslations } from 'next-intl';
+import { History, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
-  Settings,
-  LogOut,
-  UserPlus,
-  Lock,
-  UserCog,
-  AlertCircle,
-  UserMinus,
-  Mail,
-  CheckCircle,
-  Coins,
-  Zap,
-  RefreshCw,
-  Users,
-  Briefcase,
-  FileText,
-  Upload,
-  Trash2,
-  Link,
-  FileCheck,
-  type LucideIcon,
-} from 'lucide-react';
-import { ActivityType } from '@/lib/db/schema';
-import { getActivityLogs } from '@/lib/db/queries';
-import { getTranslations } from 'next-intl/server';
+  ActivityLogList,
+  ActivityLogFilters,
+} from '@/components/activity';
+import type { ActivityLog, ActivityLogFilters as Filters } from '@/lib/activity/types';
 
-const iconMap: Record<ActivityType, LucideIcon> = {
-  [ActivityType.SIGN_UP]: UserPlus,
-  [ActivityType.SIGN_IN]: UserCog,
-  [ActivityType.SIGN_OUT]: LogOut,
-  [ActivityType.UPDATE_PASSWORD]: Lock,
-  [ActivityType.DELETE_ACCOUNT]: UserMinus,
-  [ActivityType.UPDATE_ACCOUNT]: Settings,
-  [ActivityType.CREATE_TEAM]: UserPlus,
-  [ActivityType.REMOVE_TEAM_MEMBER]: UserMinus,
-  [ActivityType.INVITE_TEAM_MEMBER]: Mail,
-  [ActivityType.ACCEPT_INVITATION]: CheckCircle,
-  [ActivityType.PURCHASE_TOKENS]: Coins,
-  [ActivityType.CONSUME_TOKEN]: Zap,
-  [ActivityType.AUTO_RELOAD_TOKENS]: RefreshCw,
-  [ActivityType.UPDATE_AUTO_RELOAD]: Settings,
-  // M2-M4 activity types
-  [ActivityType.CREATE_CLIENT]: Users,
-  [ActivityType.UPDATE_CLIENT]: Users,
-  [ActivityType.DELETE_CLIENT]: UserMinus,
-  [ActivityType.CREATE_CASE]: Briefcase,
-  [ActivityType.UPDATE_CASE]: Briefcase,
-  [ActivityType.DELETE_CASE]: Trash2,
-  [ActivityType.ASSIGN_CASE]: Users,
-  [ActivityType.ADD_FORM_TO_CASE]: FileText,
-  [ActivityType.REMOVE_FORM_FROM_CASE]: Trash2,
-  [ActivityType.START_FORM]: FileText,
-  [ActivityType.UPDATE_FORM]: FileText,
-  [ActivityType.COMPLETE_FORM]: FileCheck,
-  [ActivityType.SUBMIT_FORM]: FileCheck,
-  [ActivityType.UPLOAD_EVIDENCE]: Upload,
-  [ActivityType.VALIDATE_EVIDENCE]: CheckCircle,
-  [ActivityType.DELETE_EVIDENCE]: Trash2,
-  [ActivityType.CREATE_REFERRAL_LINK]: Link,
-  [ActivityType.USE_REFERRAL_LINK]: Link,
-  [ActivityType.GENERATE_PDF]: FileText,
-};
-
-function getRelativeTime(date: Date) {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) return 'just now';
-  if (diffInSeconds < 3600)
-    return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-  if (diffInSeconds < 86400)
-    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
-  return date.toLocaleDateString();
+interface ActivityResponse {
+  logs: ActivityLog[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
-export default async function ActivityPage() {
-  const t = await getTranslations('dashboard.activity');
-  const logs = await getActivityLogs();
+interface TeamMember {
+  id: number;
+  name: string | null;
+  email: string;
+}
 
-  const formatAction = (action: ActivityType): string => {
-    const actionKey = action as keyof typeof ActivityType;
-    return t(`actions.${actionKey}`) || action;
-  };
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+function buildQueryString(filters: Filters, limit: number, offset: number): string {
+  const params = new URLSearchParams();
+  params.set('limit', limit.toString());
+  params.set('offset', offset.toString());
+
+  if (filters.userId) params.set('userId', filters.userId.toString());
+  if (filters.action) params.set('action', filters.action);
+  if (filters.entityType) params.set('entityType', filters.entityType);
+  if (filters.entityId) params.set('entityId', filters.entityId.toString());
+  if (filters.search) params.set('search', filters.search);
+  if (filters.startDate) params.set('startDate', filters.startDate.toISOString());
+  if (filters.endDate) params.set('endDate', filters.endDate.toISOString());
+
+  return params.toString();
+}
+
+export default function ActivityPage() {
+  const t = useTranslations('dashboard.activity');
+  const [filters, setFilters] = useState<Filters>({});
+  const [limit] = useState(20);
+  const [offset, setOffset] = useState(0);
+
+  const queryString = buildQueryString(filters, limit, offset);
+  const { data, error, isLoading } = useSWR<ActivityResponse>(
+    `/api/activity?${queryString}`,
+    fetcher,
+    {
+      refreshInterval: 30000, // Refresh every 30 seconds
+      revalidateOnFocus: true,
+    }
+  );
+
+  // Fetch team members for user filter
+  const { data: teamData } = useSWR<{ teamMembers: TeamMember[] }>(
+    '/api/team/members',
+    fetcher
+  );
+
+  const handleFiltersChange = useCallback((newFilters: Filters) => {
+    setFilters(newFilters);
+    setOffset(0); // Reset pagination when filters change
+  }, []);
+
+  const handlePageChange = useCallback((newOffset: number) => {
+    setOffset(newOffset);
+  }, []);
+
+  const handleExport = useCallback(async () => {
+    // Build CSV data
+    if (!data?.logs) return;
+
+    const headers = ['Timestamp', 'User', 'Action', 'Entity Type', 'Entity Name', 'IP Address'];
+    const rows = data.logs.map((log) => [
+      new Date(log.timestamp).toISOString(),
+      log.user?.name || log.user?.email || 'System',
+      log.action,
+      log.entityType || '',
+      log.entityName || '',
+      log.ipAddress || '',
+    ]);
+
+    const csv = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `activity-log-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [data?.logs]);
+
+  const users = teamData?.teamMembers?.map((m) => ({
+    id: m.id,
+    name: m.name,
+    email: m.email,
+  })) || [];
 
   return (
-    <section className="flex-1">
-      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        {t('title')}
-      </h1>
+    <section className="flex-1 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-violet-100 rounded-lg">
+            <History className="h-6 w-6 text-violet-600" />
+          </div>
+          <div>
+            <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
+              {t('title')}
+            </h1>
+            <p className="text-sm text-gray-500">{t('description')}</p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={handleExport} disabled={!data?.logs?.length}>
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <ActivityLogFilters
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            users={users}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Activity List */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Activity History</span>
+            {data && (
+              <span className="text-sm font-normal text-muted-foreground">
+                {data.total} total activities
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {logs.length > 0 ? (
-            <ul className="space-y-4">
-              {logs.map((log) => {
-                const Icon = iconMap[log.action as ActivityType] || Settings;
-                const formattedAction = formatAction(log.action as ActivityType);
-
-                return (
-                  <li key={log.id} className="flex items-center space-x-4">
-                    <div className="bg-violet-100 rounded-full p-2">
-                      <Icon className="w-5 h-5 text-violet-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {formattedAction}
-                        {log.ipAddress && ` from IP ${log.ipAddress}`}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {getRelativeTime(new Date(log.timestamp))}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="flex flex-col items-center justify-center text-center py-12">
-              <AlertCircle className="h-12 w-12 text-violet-500 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {t('noActivity')}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-sm">
-                {t('description')}
-              </p>
+          {error ? (
+            <div className="text-center py-8 text-red-500">
+              Failed to load activity logs. Please try again.
             </div>
+          ) : (
+            <ActivityLogList
+              logs={data?.logs || []}
+              total={data?.total || 0}
+              limit={limit}
+              offset={offset}
+              isLoading={isLoading}
+              showChanges={true}
+              onPageChange={handlePageChange}
+            />
           )}
         </CardContent>
       </Card>

@@ -317,7 +317,7 @@ export default function PortalLandingPage({
         {/* CTA for Registration */}
         <Card className="bg-gradient-to-r from-violet-500 to-indigo-500 text-white border-0">
           <CardContent className="py-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-lg mb-1">
                   {t('register.cta.title')}
@@ -333,6 +333,37 @@ export default function PortalLandingPage({
               >
                 <Link href={`/portal/${code}/register`}>
                   {t('register.cta.button')}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Already have account - Login option */}
+        <Card className="border-gray-200 bg-gray-50">
+          <CardContent className="py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-white p-2 border">
+                  <User className="h-4 w-4 text-gray-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">
+                    {t('login.cta.title')}
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    {t('login.cta.description')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <Link href="/sign-in">
+                  {t('login.cta.button')}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

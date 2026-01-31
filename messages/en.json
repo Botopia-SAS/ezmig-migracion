@@ -354,6 +354,7 @@
       "legal": "Legal",
       "clients": "Clients",
       "cases": "Cases",
+      "myCases": "My Cases",
       "referrals": "Referral Links"
     },
 
@@ -396,6 +397,8 @@
 
     "general": {
       "title": "General Settings",
+      "error": "Something went wrong.",
+      "notAuthorized": "You are not authorized to do this.",
       "account": {
         "title": "Account Information",
         "name": "Name",
@@ -404,6 +407,13 @@
         "emailPlaceholder": "Enter your email",
         "save": "Save Changes",
         "saving": "Saving..."
+      },
+      "logo": {
+        "title": "Tenant Logo",
+        "label": "Upload a logo",
+        "helper": "PNG/JPG, recommended square ratio.",
+        "save": "Save logo",
+        "saving": "Saving logo..."
       }
     },
 
@@ -423,7 +433,28 @@
         "INVITE_TEAM_MEMBER": "Invited team member",
         "ACCEPT_INVITATION": "Accepted invitation",
         "PURCHASE_TOKENS": "Purchased tokens",
-        "CONSUME_TOKEN": "Consumed token"
+        "CONSUME_TOKEN": "Consumed token",
+        "AUTO_RELOAD_TOKENS": "Auto-reloaded tokens",
+        "UPDATE_AUTO_RELOAD": "Updated auto-reload",
+        "CREATE_CLIENT": "Created client",
+        "UPDATE_CLIENT": "Updated client",
+        "DELETE_CLIENT": "Deleted client",
+        "CREATE_CASE": "Created case",
+        "UPDATE_CASE": "Updated case",
+        "DELETE_CASE": "Deleted case",
+        "ASSIGN_CASE": "Assigned case",
+        "ADD_FORM_TO_CASE": "Added form to case",
+        "REMOVE_FORM_FROM_CASE": "Removed form from case",
+        "START_FORM": "Started form",
+        "UPDATE_FORM": "Updated form",
+        "COMPLETE_FORM": "Completed form",
+        "SUBMIT_FORM": "Submitted form",
+        "UPLOAD_EVIDENCE": "Uploaded evidence",
+        "VALIDATE_EVIDENCE": "Validated evidence",
+        "DELETE_EVIDENCE": "Deleted evidence",
+        "CREATE_REFERRAL_LINK": "Created referral link",
+        "USE_REFERRAL_LINK": "Used referral link",
+        "GENERATE_PDF": "Generated PDF"
       }
     },
 
@@ -449,6 +480,7 @@
 
     "billing": {
       "title": "Billing & Tokens",
+      "subtitle": "Manage your tokens and view transaction history",
       "balance": {
         "title": "Token Balance",
         "description": "Available tokens for form submissions",
@@ -705,6 +737,64 @@
         "error": "An error occurred"
       }
     },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Your practice at a glance",
+      "stats": {
+        "totalCases": "Total Cases",
+        "activeCases": "Active Cases",
+        "totalClients": "Total Clients",
+        "clientsWithCases": "Clients with Cases"
+      },
+      "charts": {
+        "casesByStatus": {
+          "title": "Cases by Status",
+          "description": "Distribution of your cases"
+        },
+        "casesByType": {
+          "title": "Cases by Type",
+          "description": "Form types in your practice"
+        }
+      },
+      "deadlines": {
+        "title": "Upcoming Deadlines",
+        "description": "Cases requiring attention",
+        "noDeadlines": "No upcoming deadlines",
+        "daysRemaining": "days",
+        "today": "Today",
+        "overdue": "Overdue"
+      }
+    },
+    "myCases": {
+      "title": "My Cases",
+      "subtitle": "View your immigration cases and pending forms",
+      "welcome": "Welcome",
+      "noCases": "No cases assigned",
+      "noCasesDescription": "You don't have any immigration cases yet. Your attorney will assign cases to you when ready.",
+      "noForms": "No forms to complete",
+      "forms": "Forms to complete",
+      "completed": "completed",
+      "deadline": "Deadline",
+      "error": "Failed to load your cases",
+      "types": {
+        "family_based": "Family-Based",
+        "employment": "Employment",
+        "asylum": "Asylum",
+        "naturalization": "Naturalization",
+        "adjustment": "Adjustment of Status",
+        "removal_defense": "Removal Defense",
+        "visa": "Visa",
+        "other": "Other"
+      },
+      "statuses": {
+        "intake": "Intake",
+        "in_progress": "In Progress",
+        "submitted": "Submitted",
+        "approved": "Approved",
+        "denied": "Denied",
+        "closed": "Closed"
+      }
+    },
     "forms": {
       "title": "Forms",
       "subtitle": "USCIS form templates",
@@ -912,7 +1002,8 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "dashboard": "Dashboard",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "openMenu": "Open menu"
   },
   "legal": {
     "terms": {
@@ -1192,6 +1283,13 @@
         "passwordTooShort": "Password must be at least 8 characters",
         "invalidLink": "This referral link is no longer valid",
         "generic": "Failed to create account. Please try again."
+      }
+    },
+    "login": {
+      "cta": {
+        "title": "Already have an account?",
+        "description": "Sign in to access your client portal",
+        "button": "Sign In"
       }
     },
     "invalid": {

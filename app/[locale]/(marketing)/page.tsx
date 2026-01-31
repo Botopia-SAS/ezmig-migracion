@@ -77,6 +77,12 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-grid-soft overflow-x-hidden scrollbar-hide relative">
+      <style jsx>{`
+        @keyframes pill-shine {
+          0% { transform: translateX(-120%) skewX(-12deg); }
+          100% { transform: translateX(220%) skewX(-12deg); }
+        }
+      `}</style>
       {/* Interactive background that follows cursor */}
       <BackgroundGrid />
 
@@ -85,6 +91,15 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           {/* Centered Text Content */}
           <AnimationContainer className="flex flex-col items-center text-center">
+            <div className="mb-5">
+              <span className="relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-violet-200/80 bg-[#f2e8ff]/90 px-4 py-2 text-sm font-semibold text-violet-700 shadow-sm shadow-indigo-100/50 backdrop-blur">
+                <span className="absolute inset-0 -left-1/2 w-[60%] -skew-x-12 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-pill-shine" aria-hidden />
+                <Sparkles className="h-4 w-4 text-violet-600 relative z-10" />
+                <span className="relative z-10">{t('hero.badge')}</span>
+                <ArrowRight className="h-4 w-4 text-violet-600 relative z-10" />
+              </span>
+            </div>
+
             <h1 className="text-gray-900 text-center py-4 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight !leading-[1.1]">
               {t('hero.title')}
               <br />
@@ -100,15 +115,15 @@ export default function HomePage() {
               {t('hero.subtitle', { highlight: t('hero.highlight') })}
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full px-4 sm:px-0">
-              <Link href="/sign-up" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 sm:px-8 h-12">
+            <div className="flex flex-row flex-nowrap items-center justify-center gap-2 sm:gap-4 w-full px-2 sm:px-0 overflow-x-auto">
+              <Link href="/sign-up" className="shrink-0">
+                <Button size="lg" className="shrink-0 whitespace-nowrap text-sm sm:text-base bg-gray-900 hover:bg-gray-800 text-white rounded-full px-4 sm:px-8 h-11 sm:h-12">
                   {t('hero.cta')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
-              <Link href="#how-it-works" className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-6 sm:px-8 h-12 border-gray-200 bg-white text-gray-900">
+              <Link href="#how-it-works" className="shrink-0">
+                <Button size="lg" variant="outline" className="shrink-0 whitespace-nowrap text-sm sm:text-base rounded-full px-4 sm:px-8 h-11 sm:h-12 border-gray-200 bg-white text-gray-900">
                   {t('hero.demo')}
                 </Button>
               </Link>
@@ -287,7 +302,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section - Bento Grid */}
-      <section id="features" className="py-8 px-4 bg-white">
+      <section id="features" className="py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimationContainer delay={0.1}>
             <div className="flex flex-col w-full items-center justify-center py-2">
@@ -529,7 +544,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-6 px-4 bg-gradient-to-b from-white via-indigo-50/50 to-white">
+      <section id="pricing" className="py-6 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimationContainer delay={0.1}>
             <div className="flex flex-col items-center justify-center w-full py-2 max-w-xl mx-auto">
@@ -685,7 +700,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 px-4 bg-white">
+      <section id="faq" className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimationContainer delay={0.1}>
             <div className="flex flex-col items-center justify-center w-full mb-8">

@@ -174,7 +174,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
   if (isLoading) {
     return (
       <section className="flex-1">
-        <Button variant="ghost" asChild className="mb-4">
+        <Button
+          variant="ghost"
+          asChild
+          className="mb-4 text-gray-900 hover:text-gray-900"
+        >
           <Link href="/dashboard/clients">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -188,7 +192,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
   if (error || !client) {
     return (
       <section className="flex-1">
-        <Button variant="ghost" asChild className="mb-4">
+        <Button
+          variant="ghost"
+          asChild
+          className="mb-4 text-gray-900 hover:text-gray-900"
+        >
           <Link href="/dashboard/clients">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('back')}
@@ -203,7 +211,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <section className="flex-1">
-      <Button variant="ghost" asChild className="mb-4">
+      <Button
+        variant="ghost"
+        asChild
+        className="mb-4 text-gray-900 hover:text-gray-900"
+      >
         <Link href="/dashboard/clients">
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('back')}

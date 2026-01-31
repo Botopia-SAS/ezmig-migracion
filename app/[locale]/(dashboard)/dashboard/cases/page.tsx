@@ -162,12 +162,18 @@ export default function CasesPage() {
 
   return (
     <section className="flex-1">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
-            {t('title')}
-          </h1>
-          <p className="text-sm text-gray-500">{t('subtitle')}</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-violet-100 rounded-lg">
+            <Briefcase className="h-6 w-6 text-violet-600" />
+          </div>
+          <div>
+            <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
+              {t('title')}
+            </h1>
+            <p className="text-sm text-gray-500">{t('subtitle')}</p>
+          </div>
         </div>
         <Button
           asChild

@@ -126,10 +126,16 @@ export default function ClientsPage() {
 
   return (
     <section className="flex-1">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-violet-100 rounded-lg">
+            <Users className="h-6 w-6 text-violet-600" />
+          </div>
+          <div>
+            <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+          </div>
         </div>
         <Button asChild className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white">
           <Link href="/dashboard/clients/new">
@@ -202,12 +208,16 @@ export default function ClientsPage() {
                           )}
                         </TableCell>
                         <TableCell>{formatDate(client.createdAt)}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-muted text-muted-foreground hover:text-foreground"
+                                aria-label={t('table.actions')}
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">

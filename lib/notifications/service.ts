@@ -72,7 +72,7 @@ export async function notifyTeamOwners(
     );
 
   // Create notification for each owner
-  const notifications = await Promise.all(
+  const results = await Promise.all(
     owners.map((owner) =>
       createNotification({
         ...notification,
@@ -82,11 +82,46 @@ export async function notifyTeamOwners(
     )
   );
 
-  return notifications;
+  return results;
 }
 
 /**
- * Notify team about a new client registration
+ * Create notifications for all team owners and staff
+ */
+export async function notifyTeamOwnersAndStaff(
+  teamId: number,
+  notification: Omit<CreateNotificationInput, 'userId' | 'teamId'>
+) {
+  // Get all team owners and staff (exclude clients)
+  const members = await db
+    .select({
+      userId: teamMembers.userId,
+      role: teamMembers.role,
+    })
+    .from(teamMembers)
+    .where(eq(teamMembers.teamId, teamId));
+
+  // Filter to only owners and staff
+  const ownersAndStaff = members.filter(
+    (m) => m.role === 'owner' || m.role === 'staff'
+  );
+
+  // Create notification for each member
+  const results = await Promise.all(
+    ownersAndStaff.map((member) =>
+      createNotification({
+        ...notification,
+        userId: member.userId,
+        teamId,
+      })
+    )
+  );
+
+  return results;
+}
+
+/**
+ * Notify team about a new client registration (owners and staff)
  */
 export async function notifyClientRegistered(
   teamId: number,
@@ -94,7 +129,7 @@ export async function notifyClientRegistered(
   clientEmail: string,
   caseId?: number
 ) {
-  return notifyTeamOwners(teamId, {
+  return notifyTeamOwnersAndStaff(teamId, {
     type: 'client_registered',
     title: 'New Client Registered',
     message: `${clientName} (${clientEmail}) has registered via referral link and can now access the portal.`,

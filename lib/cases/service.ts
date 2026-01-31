@@ -5,10 +5,13 @@ import {
   caseForms,
   formTypes,
   users,
-  activityLogs,
+  evidences,
   ActivityType,
 } from '@/lib/db/schema';
+import { alias } from 'drizzle-orm/pg-core';
+import type { Case } from '@/lib/db/schema';
 import { eq, and, desc, sql, like, or, isNull, asc } from 'drizzle-orm';
+import { logActivity, detectChanges } from '@/lib/activity';
 
 // Types
 export interface CreateCaseInput {
@@ -88,11 +91,7 @@ export async function createCase(input: CreateCaseInput) {
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
-    teamId: input.teamId,
-    userId: input.createdBy,
-    action: ActivityType.CREATE_CASE,
-  });
+  await logCaseActivity(input.teamId, input.createdBy, ActivityType.CREATE_CASE, newCase);
 
   return newCase;
 }
@@ -115,15 +114,29 @@ export async function getCaseById(caseId: number, teamId: number) {
 
 // Get case with related data
 export async function getCaseWithDetails(caseId: number, teamId: number) {
+  // Create aliases for users table to join for both assignedTo and createdBy
+  const assignedUser = alias(users, 'assigned_user');
+  const createdByUser = alias(users, 'created_by_user');
+
   const [caseData] = await db
     .select({
       case: cases,
       client: clients,
-      assignedUser: users,
+      assignedUser: {
+        id: assignedUser.id,
+        name: assignedUser.name,
+        email: assignedUser.email,
+      },
+      createdBy: {
+        id: createdByUser.id,
+        name: createdByUser.name,
+        email: createdByUser.email,
+      },
     })
     .from(cases)
     .leftJoin(clients, eq(cases.clientId, clients.id))
-    .leftJoin(users, eq(cases.assignedTo, users.id))
+    .leftJoin(assignedUser, eq(cases.assignedTo, assignedUser.id))
+    .leftJoin(createdByUser, eq(cases.createdBy, createdByUser.id))
     .where(
       and(
         eq(cases.id, caseId),
@@ -149,11 +162,33 @@ export async function getCaseWithDetails(caseId: number, teamId: number) {
     formType: f.formType,
   }));
 
+  // Get evidences for this case with uploader info
+  const uploadedByUser = alias(users, 'uploaded_by_user');
+  const evidencesData = await db
+    .select({
+      evidence: evidences,
+      uploadedByUser: {
+        id: uploadedByUser.id,
+        name: uploadedByUser.name,
+        email: uploadedByUser.email,
+      },
+    })
+    .from(evidences)
+    .leftJoin(uploadedByUser, eq(evidences.uploadedBy, uploadedByUser.id))
+    .where(eq(evidences.caseId, caseId));
+
+  const evidencesList = evidencesData.map((e) => ({
+    ...e.evidence,
+    uploadedByUser: e.uploadedByUser,
+  }));
+
   return {
     ...caseData.case,
     client: caseData.client,
-    assignedUser: caseData.assignedUser,
+    assignedUser: caseData.assignedUser?.id ? caseData.assignedUser : null,
+    createdBy: caseData.createdBy?.id ? caseData.createdBy : null,
     forms,
+    evidences: evidencesList,
   };
 }
 
@@ -262,12 +297,15 @@ export async function updateCase(
     .where(and(eq(cases.id, caseId), eq(cases.teamId, teamId)))
     .returning();
 
-  // Log activity
-  await db.insert(activityLogs).values({
-    teamId,
-    userId,
-    action: ActivityType.UPDATE_CASE,
-  });
+  if (updatedCase) {
+    // Detect changes - cast to compatible type
+    const changes = detectChanges(
+      existingCase as Record<string, unknown>,
+      data as Record<string, unknown>,
+      ['caseType', 'status', 'priority', 'filingDeadline', 'assignedTo', 'uscisReceiptNumber', 'internalNotes']
+    );
+    await logCaseActivity(teamId, userId, ActivityType.UPDATE_CASE, updatedCase, changes);
+  }
 
   return updatedCase;
 }
@@ -283,11 +321,7 @@ export async function deleteCase(caseId: number, teamId: number, userId: number)
     .where(and(eq(cases.id, caseId), eq(cases.teamId, teamId)));
 
   // Log activity
-  await db.insert(activityLogs).values({
-    teamId,
-    userId,
-    action: ActivityType.DELETE_CASE,
-  });
+  await logCaseActivity(teamId, userId, ActivityType.DELETE_CASE, existingCase);
 
   return true;
 }
@@ -308,12 +342,15 @@ export async function assignCase(
     .where(and(eq(cases.id, caseId), eq(cases.teamId, teamId)))
     .returning();
 
-  // Log activity
-  await db.insert(activityLogs).values({
-    teamId,
-    userId,
-    action: ActivityType.ASSIGN_CASE,
-  });
+  if (updatedCase) {
+    // Log activity with assignment change
+    const changes = detectChanges(
+      existingCase as Record<string, unknown>,
+      { assignedTo: assignToUserId } as Record<string, unknown>,
+      ['assignedTo']
+    );
+    await logCaseActivity(teamId, userId, ActivityType.ASSIGN_CASE, updatedCase, changes);
+  }
 
   return updatedCase;
 }
@@ -350,6 +387,64 @@ export async function getCaseStats(teamId: number) {
   };
 }
 
+// Get cases for a client (by userId) - used for client portal
+export async function getCasesForClient(userId: number) {
+  // First, find the client record linked to this user
+  const [clientRecord] = await db
+    .select()
+    .from(clients)
+    .where(eq(clients.userId, userId));
+
+  if (!clientRecord) {
+    return { cases: [], client: null };
+  }
+
+  // Get all cases for this client with their forms
+  const casesData = await db
+    .select({
+      case: cases,
+      assignedUser: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(cases)
+    .leftJoin(users, eq(cases.assignedTo, users.id))
+    .where(and(eq(cases.clientId, clientRecord.id), isNull(cases.deletedAt)))
+    .orderBy(desc(cases.createdAt));
+
+  // For each case, get its forms with form type info
+  const casesWithForms = await Promise.all(
+    casesData.map(async (c) => {
+      const formsData = await db
+        .select({
+          caseForm: caseForms,
+          formType: formTypes,
+        })
+        .from(caseForms)
+        .innerJoin(formTypes, eq(caseForms.formTypeId, formTypes.id))
+        .where(eq(caseForms.caseId, c.case.id));
+
+      const forms = formsData.map((f) => ({
+        ...f.caseForm,
+        formType: f.formType,
+      }));
+
+      return {
+        ...c.case,
+        assignedUser: c.assignedUser,
+        forms,
+      };
+    })
+  );
+
+  return {
+    cases: casesWithForms,
+    client: clientRecord,
+  };
+}
+
 // Get upcoming deadlines
 export async function getUpcomingDeadlines(teamId: number, days = 30) {
   const futureDate = new Date();
@@ -381,4 +476,25 @@ export async function getUpcomingDeadlines(teamId: number, days = 30) {
     ...c.case,
     clientName: c.client ? `${c.client.firstName} ${c.client.lastName}` : null,
   }));
+}
+
+/**
+ * Log case-related activity with entity context
+ */
+async function logCaseActivity(
+  teamId: number,
+  userId: number,
+  action: ActivityType,
+  caseData: Case,
+  changes?: Record<string, { old: unknown; new: unknown }> | null
+) {
+  await logActivity({
+    teamId,
+    userId,
+    action,
+    entityType: 'case',
+    entityId: caseData.id,
+    entityName: caseData.caseNumber || undefined,
+    changes: changes || undefined,
+  });
 }

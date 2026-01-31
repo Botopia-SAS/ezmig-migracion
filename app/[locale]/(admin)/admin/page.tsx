@@ -17,7 +17,7 @@ import {
 import { db } from '@/lib/db/drizzle';
 import { users, teams } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import {
   StatCard,
   TopTenantsList,
@@ -30,6 +30,7 @@ import {
   ActivityFeed,
   ActivityDayChart,
 } from '@/components/admin';
+import { Shield } from 'lucide-react';
 
 async function getDashboardData() {
   // Use demo data for charts if database has insufficient data
@@ -87,19 +88,23 @@ async function getDashboardData() {
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations('admin.dashboard');
-  const locale = await getLocale();
   const data = await getDashboardData();
 
   const estimatedRevenue = Math.round(data.globalStats.totalPurchased * 2.5);
 
   return (
-    <div className="space-y-6">
+    <section className="flex-1 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-        <p className="text-gray-500 mt-1">
-          {t('subtitle')}
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-violet-100 rounded-lg">
+          <Shield className="h-6 w-6 text-violet-600" />
+        </div>
+        <div>
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">{t('title')}</h1>
+          <p className="text-sm text-gray-500">
+            {t('subtitle')}
+          </p>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -203,6 +208,6 @@ export default async function AdminDashboardPage() {
           <p className="text-xs text-gray-400">tenants</p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

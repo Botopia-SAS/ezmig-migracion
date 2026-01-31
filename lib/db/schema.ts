@@ -121,6 +121,7 @@ export const users = pgTable('users', {
 export const teams = pgTable('teams', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
+  logoUrl: varchar('logo_url', { length: 500 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   // Stripe fields
@@ -158,6 +159,13 @@ export const activityLogs = pgTable('activity_logs', {
   action: text('action').notNull(),
   timestamp: timestamp('timestamp').notNull().defaultNow(),
   ipAddress: varchar('ip_address', { length: 45 }),
+  // Enhanced audit fields
+  entityType: varchar('entity_type', { length: 50 }), // 'client', 'case', 'form', 'evidence', 'referral', 'user', 'team', 'token'
+  entityId: integer('entity_id'),
+  entityName: varchar('entity_name', { length: 255 }), // Display name (e.g., "EZM-2026-00001", "John Doe")
+  metadata: jsonb('metadata'), // Additional context as JSON
+  changes: jsonb('changes'), // { field: { old: x, new: y } }
+  userAgent: text('user_agent'), // Browser/device info
 });
 
 export const invitations = pgTable('invitations', {

@@ -7,7 +7,7 @@
       "subtitle": "La plataforma con IA que automatiza {highlight} y gestión de casos para abogados de inmigración.",
       "subtitleLine2": "",
       "highlight": "Formularios USCIS",
-      "cta": "Comenzar Prueba Gratis",
+      "cta": "Comenzar Gratis",
       "demo": "Ver como funciona",
       "badge": "Formularios de Inmigración con IA",
       "mockup": {
@@ -354,6 +354,7 @@
       "legal": "Legal",
       "clients": "Clientes",
       "cases": "Casos",
+      "myCases": "Mis Casos",
       "referrals": "Enlaces de Referencia"
     },
 
@@ -396,6 +397,8 @@
 
     "general": {
       "title": "Configuración General",
+      "error": "Ocurrió un error.",
+      "notAuthorized": "No estás autorizado para realizar esta acción.",
       "account": {
         "title": "Información de la Cuenta",
         "name": "Nombre",
@@ -404,6 +407,13 @@
         "emailPlaceholder": "Ingresa tu correo electrónico",
         "save": "Guardar Cambios",
         "saving": "Guardando..."
+      },
+      "logo": {
+        "title": "Logo del tenant",
+        "label": "Sube un logo",
+        "helper": "PNG/JPG, ideal proporción cuadrada.",
+        "save": "Guardar logo",
+        "saving": "Guardando logo..."
       }
     },
 
@@ -423,7 +433,28 @@
         "INVITE_TEAM_MEMBER": "Invitó miembro al equipo",
         "ACCEPT_INVITATION": "Aceptó invitación",
         "PURCHASE_TOKENS": "Compró tokens",
-        "CONSUME_TOKEN": "Consumió token"
+        "CONSUME_TOKEN": "Consumió token",
+        "AUTO_RELOAD_TOKENS": "Recarga automática de tokens",
+        "UPDATE_AUTO_RELOAD": "Actualizó auto-recarga",
+        "CREATE_CLIENT": "Creó cliente",
+        "UPDATE_CLIENT": "Actualizó cliente",
+        "DELETE_CLIENT": "Eliminó cliente",
+        "CREATE_CASE": "Creó caso",
+        "UPDATE_CASE": "Actualizó caso",
+        "DELETE_CASE": "Eliminó caso",
+        "ASSIGN_CASE": "Asignó caso",
+        "ADD_FORM_TO_CASE": "Agregó formulario al caso",
+        "REMOVE_FORM_FROM_CASE": "Quitó formulario del caso",
+        "START_FORM": "Inició formulario",
+        "UPDATE_FORM": "Actualizó formulario",
+        "COMPLETE_FORM": "Completó formulario",
+        "SUBMIT_FORM": "Envió formulario",
+        "UPLOAD_EVIDENCE": "Subió evidencia",
+        "VALIDATE_EVIDENCE": "Validó evidencia",
+        "DELETE_EVIDENCE": "Eliminó evidencia",
+        "CREATE_REFERRAL_LINK": "Creó enlace de referido",
+        "USE_REFERRAL_LINK": "Usó enlace de referido",
+        "GENERATE_PDF": "Generó PDF"
       }
     },
 
@@ -449,6 +480,7 @@
 
     "billing": {
       "title": "Facturación y Tokens",
+      "subtitle": "Administra tus tokens y consulta el historial de transacciones",
       "balance": {
         "title": "Balance de Tokens",
         "description": "Tokens disponibles para envío de formularios",
@@ -705,6 +737,64 @@
         "error": "Ha ocurrido un error"
       }
     },
+    "overview": {
+      "title": "Resumen",
+      "subtitle": "Tu práctica de un vistazo",
+      "stats": {
+        "totalCases": "Total de Casos",
+        "activeCases": "Casos Activos",
+        "totalClients": "Total de Clientes",
+        "clientsWithCases": "Clientes con Casos"
+      },
+      "charts": {
+        "casesByStatus": {
+          "title": "Casos por Estado",
+          "description": "Distribución de tus casos"
+        },
+        "casesByType": {
+          "title": "Casos por Tipo",
+          "description": "Tipos de formularios en tu práctica"
+        }
+      },
+      "deadlines": {
+        "title": "Fechas Límite Próximas",
+        "description": "Casos que requieren atención",
+        "noDeadlines": "No hay fechas límite próximas",
+        "daysRemaining": "días",
+        "today": "Hoy",
+        "overdue": "Vencido"
+      }
+    },
+    "myCases": {
+      "title": "Mis Casos",
+      "subtitle": "Ver tus casos de inmigración y formularios pendientes",
+      "welcome": "Bienvenido",
+      "noCases": "No hay casos asignados",
+      "noCasesDescription": "Aún no tienes casos de inmigración. Tu abogado te asignará casos cuando estén listos.",
+      "noForms": "No hay formularios para completar",
+      "forms": "Formularios por completar",
+      "completed": "completados",
+      "deadline": "Fecha límite",
+      "error": "Error al cargar tus casos",
+      "types": {
+        "family_based": "Familiar",
+        "employment": "Empleo",
+        "asylum": "Asilo",
+        "naturalization": "Naturalización",
+        "adjustment": "Ajuste de Estatus",
+        "removal_defense": "Defensa de Deportación",
+        "visa": "Visa",
+        "other": "Otro"
+      },
+      "statuses": {
+        "intake": "Recepción",
+        "in_progress": "En Progreso",
+        "submitted": "Enviado",
+        "approved": "Aprobado",
+        "denied": "Denegado",
+        "closed": "Cerrado"
+      }
+    },
     "forms": {
       "title": "Formularios",
       "subtitle": "Plantillas de formularios USCIS",
@@ -912,7 +1002,8 @@
     "signIn": "Iniciar Sesion",
     "signUp": "Registrarse",
     "dashboard": "Panel de Control",
-    "signOut": "Cerrar sesion"
+    "signOut": "Cerrar sesion",
+    "openMenu": "Abrir menú"
   },
   "legal": {
     "terms": {
@@ -1178,6 +1269,13 @@
         "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
         "invalidLink": "Este enlace de referencia es inválido o ha expirado",
         "generic": "Ocurrió un error. Por favor intente de nuevo."
+      }
+    },
+    "login": {
+      "cta": {
+        "title": "¿Ya tienes una cuenta?",
+        "description": "Inicia sesión para acceder a tu portal de cliente",
+        "button": "Iniciar Sesión"
       }
     },
     "invalid": {

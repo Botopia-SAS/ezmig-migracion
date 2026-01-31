@@ -23,12 +23,14 @@ import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
 import { createWalletForTeam } from '@/lib/tokens/service';
 import { getUser, getUserWithTeam } from '@/lib/db/queries';
+import { getTeamForUser } from '@/lib/db/queries';
 import {
   validatedActionWithUser,
   type ActionState,
 } from '@/lib/auth/middleware';
 import { getTranslations } from 'next-intl/server';
 import { defaultLocale, locales, type Locale } from '@/i18n/config';
+import { createHash } from 'crypto';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -277,6 +279,79 @@ export const signUp = validatedActionWithLocale(signUpSchema, async (data, formD
 
   redirect(`/${locale}/dashboard`);
 });
+
+export const updateTeamLogo = async (prevState: ActionState, formData: FormData) => {
+  const locale = await resolveLocale(formData);
+  const tGeneral = await getTranslations({ locale, namespace: 'dashboard.general' });
+
+  const user = await getUser();
+  if (!user) {
+    return { error: tGeneral('error') };
+  }
+
+  const team = await getTeamForUser();
+  if (!team) {
+    return { error: tGeneral('error') };
+  }
+
+  const currentMember = team.teamMembers.find((member) => member.user.id === user.id);
+  if (currentMember?.role !== 'owner') {
+    return { error: tGeneral('notAuthorized') };
+  }
+
+  const file = formData.get('logo');
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: 'Please upload a logo image.' };
+  }
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    return { error: 'Cloudinary is not configured.' };
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const folder = 'tenant-logos';
+  const signatureString = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+  const signature = createHash('sha1').update(signatureString).digest('hex');
+
+  const uploadForm = new FormData();
+  uploadForm.append('file', new Blob([buffer], { type: file.type || 'application/octet-stream' }), file.name || 'logo');
+  uploadForm.append('api_key', apiKey);
+  uploadForm.append('timestamp', timestamp.toString());
+  uploadForm.append('signature', signature);
+  uploadForm.append('folder', folder);
+
+  const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: uploadForm,
+  });
+
+  if (!uploadRes.ok) {
+    const errText = await uploadRes.text();
+    console.error('Cloudinary upload failed', errText);
+    return { error: 'Upload failed. Please try again.' };
+  }
+
+  const uploadJson = await uploadRes.json();
+  const secureUrl = uploadJson.secure_url as string | undefined;
+
+  if (!secureUrl) {
+    return { error: 'Upload failed. Please try again.' };
+  }
+
+  await db
+    .update(teams)
+    .set({ logoUrl: secureUrl, updatedAt: new Date() })
+    .where(eq(teams.id, team.id));
+
+  return { success: 'Logo updated successfully', logoUrl: secureUrl };
+};
 
 export async function signOut() {
   const user = (await getUser()) as User;

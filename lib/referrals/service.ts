@@ -58,6 +58,7 @@ export interface ReferralLinkPublicInfo {
   clientId: number | null;
   caseId: number | null;
   allowedForms: number[] | null;
+  createdBy: number | null;
   isValid: boolean;
   invalidReason?: string;
   client?: {
@@ -293,6 +294,7 @@ export async function getReferralLinkByCode(
     clientId: link.clientId,
     caseId: link.caseId,
     allowedForms: link.allowedForms as number[] | null,
+    createdBy: link.createdBy,
     isValid,
     invalidReason,
     client: row.client?.id

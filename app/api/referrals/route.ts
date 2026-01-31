@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
 import { getUserWithTeam } from '@/lib/auth/rbac';
 import { db } from '@/lib/db/drizzle';
-import { activityLogs, ActivityType } from '@/lib/db/schema';
+import { activityLogs, ActivityType, cases } from '@/lib/db/schema';
 import {
   createReferralLink,
   getReferralLinksByTeam,
@@ -83,11 +84,24 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
+    // Auto-enrich clientId from caseId if caseId is provided but clientId is not
+    let enrichedClientId = data.clientId;
+    if (data.caseId && !data.clientId) {
+      const [caseRecord] = await db
+        .select({ clientId: cases.clientId })
+        .from(cases)
+        .where(eq(cases.id, data.caseId));
+
+      if (caseRecord?.clientId) {
+        enrichedClientId = caseRecord.clientId;
+      }
+    }
+
     // Create the referral link
     const link = await createReferralLink({
       teamId: userWithTeam.team.id,
       caseId: data.caseId,
-      clientId: data.clientId,
+      clientId: enrichedClientId,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
       maxUses: data.maxUses,
       allowedForms: data.allowedForms,

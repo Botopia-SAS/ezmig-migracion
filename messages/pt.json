@@ -353,7 +353,9 @@
       "autoReload": "Recarga Automática",
       "legal": "Legal",
       "clients": "Clientes",
-      "cases": "Casos"
+      "cases": "Casos",
+      "myCases": "Meus Casos",
+      "referrals": "Links de Referência"
     },
 
     "team": {
@@ -395,6 +397,8 @@
 
     "general": {
       "title": "Configurações Gerais",
+      "error": "Ocorreu um erro.",
+      "notAuthorized": "Você não está autorizado a fazer isso.",
       "account": {
         "title": "Informações da Conta",
         "name": "Nome",
@@ -403,6 +407,13 @@
         "emailPlaceholder": "Digite seu e-mail",
         "save": "Salvar Alterações",
         "saving": "Salvando..."
+      },
+      "logo": {
+        "title": "Logo do tenant",
+        "label": "Envie um logo",
+        "helper": "PNG/JPG, proporção quadrada recomendada.",
+        "save": "Salvar logo",
+        "saving": "Salvando logo..."
       }
     },
 
@@ -422,7 +433,28 @@
         "INVITE_TEAM_MEMBER": "Convidou membro para equipe",
         "ACCEPT_INVITATION": "Aceitou convite",
         "PURCHASE_TOKENS": "Comprou tokens",
-        "CONSUME_TOKEN": "Consumiu token"
+        "CONSUME_TOKEN": "Consumiu token",
+        "AUTO_RELOAD_TOKENS": "Recarga automática de tokens",
+        "UPDATE_AUTO_RELOAD": "Atualizou auto-reload",
+        "CREATE_CLIENT": "Criou cliente",
+        "UPDATE_CLIENT": "Atualizou cliente",
+        "DELETE_CLIENT": "Excluiu cliente",
+        "CREATE_CASE": "Criou caso",
+        "UPDATE_CASE": "Atualizou caso",
+        "DELETE_CASE": "Excluiu caso",
+        "ASSIGN_CASE": "Atribuiu caso",
+        "ADD_FORM_TO_CASE": "Adicionou formulário ao caso",
+        "REMOVE_FORM_FROM_CASE": "Removeu formulário do caso",
+        "START_FORM": "Iniciou formulário",
+        "UPDATE_FORM": "Atualizou formulário",
+        "COMPLETE_FORM": "Concluiu formulário",
+        "SUBMIT_FORM": "Enviou formulário",
+        "UPLOAD_EVIDENCE": "Enviou evidência",
+        "VALIDATE_EVIDENCE": "Validou evidência",
+        "DELETE_EVIDENCE": "Excluiu evidência",
+        "CREATE_REFERRAL_LINK": "Criou link de indicação",
+        "USE_REFERRAL_LINK": "Usou link de indicação",
+        "GENERATE_PDF": "Gerou PDF"
       }
     },
 
@@ -704,6 +736,64 @@
         "error": "Ocorreu um erro"
       }
     },
+    "overview": {
+      "title": "Resumo",
+      "subtitle": "Sua prática em um relance",
+      "stats": {
+        "totalCases": "Total de Casos",
+        "activeCases": "Casos Ativos",
+        "totalClients": "Total de Clientes",
+        "clientsWithCases": "Clientes com Casos"
+      },
+      "charts": {
+        "casesByStatus": {
+          "title": "Casos por Status",
+          "description": "Distribuição dos seus casos"
+        },
+        "casesByType": {
+          "title": "Casos por Tipo",
+          "description": "Tipos de formulários na sua prática"
+        }
+      },
+      "deadlines": {
+        "title": "Prazos Próximos",
+        "description": "Casos que requerem atenção",
+        "noDeadlines": "Nenhum prazo próximo",
+        "daysRemaining": "dias",
+        "today": "Hoje",
+        "overdue": "Vencido"
+      }
+    },
+    "myCases": {
+      "title": "Meus Casos",
+      "subtitle": "Ver seus casos de imigração e formulários pendentes",
+      "welcome": "Bem-vindo",
+      "noCases": "Nenhum caso atribuído",
+      "noCasesDescription": "Você ainda não tem casos de imigração. Seu advogado atribuirá casos quando estiverem prontos.",
+      "noForms": "Nenhum formulário para completar",
+      "forms": "Formulários para completar",
+      "completed": "completados",
+      "deadline": "Prazo",
+      "error": "Falha ao carregar seus casos",
+      "types": {
+        "family_based": "Familiar",
+        "employment": "Emprego",
+        "asylum": "Asilo",
+        "naturalization": "Naturalização",
+        "adjustment": "Ajuste de Status",
+        "removal_defense": "Defesa de Deportação",
+        "visa": "Visto",
+        "other": "Outro"
+      },
+      "statuses": {
+        "intake": "Recepção",
+        "in_progress": "Em Progresso",
+        "submitted": "Enviado",
+        "approved": "Aprovado",
+        "denied": "Negado",
+        "closed": "Fechado"
+      }
+    },
     "forms": {
       "title": "Formulários",
       "subtitle": "Modelos de formulários USCIS",
@@ -838,7 +928,8 @@
     "signIn": "Entrar",
     "signUp": "Cadastrar",
     "dashboard": "Painel de Controle",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "openMenu": "Abrir menu"
   },
   "legal": {
     "terms": {

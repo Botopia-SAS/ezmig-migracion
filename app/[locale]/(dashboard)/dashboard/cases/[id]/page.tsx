@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useSWR from 'swr';
@@ -117,7 +117,7 @@ interface CaseDetails {
     email: string;
     phone: string | null;
   } | null;
-  assignedTo: {
+  assignedUser: {
     id: number;
     name: string | null;
     email: string;
@@ -148,6 +148,115 @@ function InfoItem({
       <div>
         <p className="text-xs text-gray-500">{label}</p>
         <p className="text-sm font-medium">{value || '-'}</p>
+      </div>
+    </div>
+  );
+}
+
+type EditableFieldProps = {
+  label: string;
+  icon?: React.ElementType;
+  value: string | null;
+  displayValue: React.ReactNode;
+  type?: 'text' | 'date' | 'select' | 'textarea';
+  options?: { value: string; label: string }[];
+  onSave: (newValue: string | null) => Promise<void>;
+};
+
+function EditableField({
+  label,
+  icon: Icon,
+  value,
+  displayValue,
+  type = 'text',
+  options = [],
+  onSave,
+}: EditableFieldProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<string>(value ?? '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Keep draft in sync when server data updates
+  useEffect(() => {
+    setDraft(value ?? '');
+  }, [value]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(draft || null);
+      setIsEditing(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-start gap-3 py-2">
+      {Icon && <Icon className="h-4 w-4 text-gray-400 mt-1 shrink-0" />}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-gray-500">{label}</p>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-gray-500 hover:text-gray-900"
+            onClick={() => setIsEditing((prev) => !prev)}
+            aria-label={`Edit ${label}`}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        {isEditing ? (
+          <div className="mt-2 space-y-2">
+            {type === 'select' ? (
+              <Select value={draft} onValueChange={setDraft}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  {options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : type === 'textarea' ? (
+              <Textarea
+                value={draft ?? ''}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={3}
+              />
+            ) : (
+              <Input
+                type={type === 'date' ? 'date' : 'text'}
+                value={draft ?? ''}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+            )}
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setDraft(value ?? '');
+                  setIsEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm font-medium break-words">{displayValue || '-'}</p>
+        )}
       </div>
     </div>
   );
@@ -306,6 +415,23 @@ export default function CaseDetailPage({
     isLoading,
     mutate: mutateCaseData,
   } = useSWR<CaseDetails>(`/api/cases/${id}?details=true`, fetcher);
+
+  const updateCaseField = async (payload: Partial<CaseDetails>) => {
+    const response = await fetch(`/api/cases/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to update case');
+    }
+
+    await mutateCaseData();
+    toast.success('Case updated');
+  };
 
   // Fetch available form types
   const { data: formTypesData } = useSWR<{ formTypes: FormType[] }>('/api/form-types', fetcher);
@@ -495,6 +621,21 @@ export default function CaseDetailPage({
     );
   }
 
+  const caseTypeOptions = [
+    { value: 'family_based', label: t('types.family_based') },
+    { value: 'employment', label: t('types.employment') },
+    { value: 'asylum', label: t('types.asylum') },
+    { value: 'naturalization', label: t('types.naturalization') },
+    { value: 'adjustment', label: t('types.adjustment') },
+    { value: 'removal_defense', label: t('types.removal_defense') },
+    { value: 'visa', label: t('types.visa') },
+    { value: 'other', label: t('types.other') },
+  ];
+
+  const filingDeadlineValue = caseData.filingDeadline
+    ? new Date(caseData.filingDeadline).toISOString().split('T')[0]
+    : '';
+
   return (
     <section className="flex-1">
       <Button variant="ghost" asChild className="mb-4 text-gray-900">
@@ -576,15 +717,20 @@ export default function CaseDetailPage({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoItem
+                    <EditableField
                       icon={Briefcase}
                       label={t('form.caseType')}
-                      value={t(`types.${caseData.caseType}`)}
+                      value={caseData.caseType}
+                      displayValue={t(`types.${caseData.caseType}`)}
+                      type="select"
+                      options={caseTypeOptions}
+                      onSave={(newValue) => updateCaseField({ caseType: newValue || undefined })}
                     />
-                    <InfoItem
+                    <EditableField
                       icon={Calendar}
                       label={t('form.filingDeadline')}
-                      value={
+                      value={filingDeadlineValue}
+                      displayValue={
                         caseData.filingDeadline ? (
                           <span className="flex items-center gap-1">
                             {formatDate(caseData.filingDeadline)}
@@ -596,11 +742,15 @@ export default function CaseDetailPage({
                           '-'
                         )
                       }
+                      type="date"
+                      onSave={(newValue) => updateCaseField({ filingDeadline: newValue || null })}
                     />
-                    <InfoItem
+                    <EditableField
                       icon={FileText}
                       label={t('form.uscisReceiptNumber')}
-                      value={caseData.uscisReceiptNumber || '-'}
+                      value={caseData.uscisReceiptNumber || ''}
+                      displayValue={caseData.uscisReceiptNumber || '-'}
+                      onSave={(newValue) => updateCaseField({ uscisReceiptNumber: newValue || null })}
                     />
                     <InfoItem
                       icon={Clock}
@@ -611,8 +761,8 @@ export default function CaseDetailPage({
                       icon={User}
                       label={t('form.assignedTo')}
                       value={
-                        caseData.assignedTo
-                          ? caseData.assignedTo.name || caseData.assignedTo.email
+                        caseData.assignedUser
+                          ? caseData.assignedUser.name || caseData.assignedUser.email
                           : '-'
                       }
                     />
@@ -626,16 +776,19 @@ export default function CaseDetailPage({
                       }
                     />
                   </div>
-                  {caseData.internalNotes && (
-                    <div className="mt-6 pt-6 border-t">
-                      <p className="text-xs text-gray-500 mb-2">
-                        {t('form.internalNotes')}
-                      </p>
-                      <p className="text-sm whitespace-pre-wrap">
-                        {caseData.internalNotes}
-                      </p>
-                    </div>
-                  )}
+                  <div className="mt-6 pt-6 border-t">
+                    <EditableField
+                      label={t('form.internalNotes')}
+                      value={caseData.internalNotes || ''}
+                      displayValue={caseData.internalNotes ? (
+                        <span className="whitespace-pre-wrap text-sm">{caseData.internalNotes}</span>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                      type="textarea"
+                      onSave={(newValue) => updateCaseField({ internalNotes: newValue || null })}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 

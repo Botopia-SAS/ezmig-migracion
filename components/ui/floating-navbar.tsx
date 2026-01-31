@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { HelpCircle, Home, LogOut } from "lucide-react";
+import { HelpCircle, Home, LogOut, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/app/[locale]/(login)/actions";
 import { User } from "@/lib/db/schema";
 import useSWR, { mutate } from "swr";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -92,6 +93,11 @@ export function FloatingNavbar({ className }: { className?: string }) {
   const t = useTranslations("header");
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {
@@ -115,6 +121,10 @@ export function FloatingNavbar({ className }: { className?: string }) {
     { href: "/pricing", label: t("pricing") },
   ];
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <AnimatePresence mode="wait">
       <motion.nav
@@ -131,21 +141,75 @@ export function FloatingNavbar({ className }: { className?: string }) {
         }}
         className={cn(
           "flex fixed top-4 inset-x-0 mx-4 sm:mx-auto sm:max-w-fit",
-          "border border-gray-200 rounded-2xl sm:rounded-full",
-          "bg-white/90 backdrop-blur-md shadow-lg shadow-black/5",
-          "z-[5000] px-4 py-2 items-center justify-between sm:justify-center gap-2",
+          "border border-violet-200/80 rounded-xl sm:rounded-2xl",
+          "bg-[#eadbff]/90 backdrop-blur-md shadow-md shadow-indigo-200/40",
+          "z-[5000] px-4 py-2 items-center justify-between gap-2",
           className
         )}
       >
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 pr-2">
-          <img
-            src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
-            alt="EZMig Logo"
-            className="h-7 w-auto"
-          />
-          <span className="hidden sm:inline text-lg font-bold text-gray-900">EZMig</span>
-        </Link>
+        {/* Logo + Mobile Menu */}
+        <div className="flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden size-10 text-gray-700 hover:text-violet-600"
+                aria-label={t("openMenu")}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="sm:hidden p-0">
+              <SheetHeader className="flex-row items-center justify-between border-b">
+                <div className="flex items-center gap-2">
+                  <img
+                    src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
+                    alt="EZMig Logo"
+                    className="h-7 w-auto"
+                  />
+                  <SheetTitle className="text-lg font-semibold text-gray-900">EZMig</SheetTitle>
+                </div>
+              </SheetHeader>
+
+              <div className="flex flex-col gap-4 p-5">
+                <div className="flex flex-col gap-3">
+                  {navItems.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="text-base font-semibold text-gray-900 hover:text-violet-600"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                  <a
+                    href="/#faq"
+                    className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-violet-600"
+                  >
+                    {t("faq")}
+                    <HelpCircle className="h-4 w-4" />
+                  </a>
+                </div>
+
+                <div className="h-px bg-gray-200" />
+
+                <div className="flex items-center gap-3">
+                  <LanguageSwitcher />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Link href="/" className="flex items-center gap-1.5 pr-2">
+            <img
+              src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
+              alt="EZMig Logo"
+              className="h-7 w-auto"
+            />
+            <span className="hidden lg:inline text-lg font-bold text-gray-900">EZMig</span>
+          </Link>
+        </div>
 
         {/* Nav Links */}
         <div className="hidden sm:flex items-center gap-1">
@@ -173,10 +237,12 @@ export function FloatingNavbar({ className }: { className?: string }) {
         {/* Language Switcher */}
         <LanguageSwitcher />
 
-        {/* Auth Buttons */}
-        <Suspense fallback={<div className="h-8 w-20" />}>
-          <UserMenu />
-        </Suspense>
+        {/* Auth Buttons (visible from md, inline) */}
+        <div className="hidden md:flex items-center gap-2">
+          <Suspense fallback={<div className="h-8 w-20" />}>
+            <UserMenu />
+          </Suspense>
+        </div>
       </motion.nav>
     </AnimatePresence>
   );

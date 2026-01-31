@@ -134,9 +134,18 @@ export default function BillingPage() {
   const t = useTranslations('dashboard.billing');
   return (
     <section className="flex-1">
-      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        {t('title')}
-      </h1>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-violet-100 rounded-lg">
+          <Coins className="h-6 w-6 text-violet-600" />
+        </div>
+        <div>
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
+            {t('title')}
+          </h1>
+          <p className="text-sm text-gray-500">{t('subtitle')}</p>
+        </div>
+      </div>
 
       <Suspense fallback={null}>
         <StatusMessage />

@@ -12,6 +12,22 @@ const protectedRoutes = ['/dashboard', '/admin'];
 // Routes that require admin role
 const adminRoutes = ['/admin'];
 
+// Routes that end_user (client) role CAN access
+const clientAllowedRoutes = [
+  '/dashboard/my-cases',
+  '/dashboard/security',
+];
+
+// Routes that end_user (client) role CANNOT access (staff/owner only)
+const staffOnlyRoutes = [
+  '/dashboard/clients',
+  '/dashboard/cases',
+  '/dashboard/referrals',
+  '/dashboard/billing',
+  '/dashboard/general',
+  '/dashboard/activity',
+];
+
 // Remove locale prefix from path
 function getPathWithoutLocale(pathname: string): string {
   return pathname.replace(/^\/(en|es|pt)/, '') || '/';
@@ -27,6 +43,18 @@ function isProtectedPath(pathname: string): boolean {
 function isAdminPath(pathname: string): boolean {
   const pathWithoutLocale = getPathWithoutLocale(pathname);
   return adminRoutes.some(route => pathWithoutLocale.startsWith(route));
+}
+
+// Check if path is allowed for client (end_user) role
+function isClientAllowedPath(pathname: string): boolean {
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
+  return clientAllowedRoutes.some(route => pathWithoutLocale.startsWith(route));
+}
+
+// Check if path requires staff/owner role (not for clients)
+function isStaffOnlyPath(pathname: string): boolean {
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
+  return staffOnlyRoutes.some(route => pathWithoutLocale.startsWith(route));
 }
 
 // Get the locale-aware sign-in URL
@@ -75,6 +103,26 @@ export async function middleware(request: NextRequest) {
         // Redirect non-admins to dashboard
         return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
       }
+    } catch {
+      return NextResponse.redirect(getSignInUrl(request, locale));
+    }
+  }
+
+  // Check role-based access for dashboard routes
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
+  if (pathWithoutLocale.startsWith('/dashboard') && sessionCookie) {
+    try {
+      const parsed = await verifyToken(sessionCookie.value);
+      const userRole = parsed.user?.role;
+
+      // Client (end_user) trying to access staff-only routes
+      if (userRole === 'end_user' && isStaffOnlyPath(pathname)) {
+        return NextResponse.redirect(new URL(`/${locale}/dashboard/my-cases`, request.url));
+      }
+
+      // Staff/Owner trying to access client-only routes (my-cases)
+      // Allow them to see the page but they will see "no data" since they're not clients
+      // This is handled by the API returning empty data for non-clients
     } catch {
       return NextResponse.redirect(getSignInUrl(request, locale));
     }

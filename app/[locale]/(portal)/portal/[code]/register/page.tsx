@@ -166,9 +166,9 @@ export default function PortalRegisterPage({
       setIsSuccess(true);
       toast.success(t('register.success'));
 
-      // Redirect to portal after a short delay
+      // Redirect to client dashboard after a short delay
       setTimeout(() => {
-        router.push(`/portal/${code}`);
+        router.push('/dashboard/my-cases');
       }, 2000);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t('register.errors.generic'));
@@ -206,7 +206,7 @@ export default function PortalRegisterPage({
               {t('register.successDescription')}
             </p>
             <Button asChild className="bg-green-600 hover:bg-green-700">
-              <Link href={`/portal/${code}`}>{t('register.continueToPortal')}</Link>
+              <Link href="/dashboard/my-cases">{t('register.continueToPortal')}</Link>
             </Button>
           </CardContent>
         </Card>
