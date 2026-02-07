@@ -1,51 +1,28 @@
 'use client';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  TrendingUp,
-  TrendingDown,
-  Building,
-  Users,
-  Coins,
-  DollarSign,
-  Package,
-  BarChart3,
-} from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const iconMap = {
-  building: Building,
-  users: Users,
-  coins: Coins,
-  dollarSign: DollarSign,
-  package: Package,
-  barChart: BarChart3,
-} as const;
-
-type IconName = keyof typeof iconMap;
-
 interface StatCardProps {
-  iconName: IconName;
+  icon: React.ReactNode;
   value: number | string;
   label: string;
   subLabel?: string;
   change?: number;
   variant?: 'default' | 'highlight';
   iconBgColor?: string;
-  iconColor?: string;
 }
 
 export function StatCard({
-  iconName,
+  icon,
   value,
   label,
   subLabel,
   change,
   variant = 'default',
   iconBgColor = 'bg-violet-100',
-  iconColor = 'text-violet-600',
 }: StatCardProps) {
-  const Icon = iconMap[iconName];
   const isHighlight = variant === 'highlight';
 
   return (
@@ -62,9 +39,7 @@ export function StatCard({
             isHighlight ? 'bg-white/10' : iconBgColor
           )}
         >
-          <Icon
-            className={cn('h-5 w-5', isHighlight ? 'text-white' : iconColor)}
-          />
+          {icon}
         </div>
         {change !== undefined && (
           <div
@@ -92,7 +67,7 @@ export function StatCard({
             isHighlight ? 'text-white' : 'text-gray-900'
           )}
         >
-          {value}
+          {typeof value === 'number' ? value.toLocaleString() : value}
         </p>
         <p
           className={cn(

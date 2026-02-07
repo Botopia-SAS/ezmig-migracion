@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Bell, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,88 +10,24 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import useSWR from 'swr';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
-
-interface Notification {
-  id: number;
-  type: string;
-  title: string;
-  message: string | null;
-  isRead: boolean;
-  actionUrl: string | null;
-  createdAt: string;
-}
-
-interface NotificationsResponse {
-  notifications: Notification[];
-  unreadCount: number;
-}
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const TYPE_ICONS: Record<string, string> = {
-  case_update: 'text-blue-500',
-  form_completed: 'text-green-500',
-  deadline: 'text-red-500',
-  uscis_status: 'text-purple-500',
-  document_request: 'text-orange-500',
-  payment: 'text-emerald-500',
-  client_registered: 'text-violet-500',
-  system: 'text-gray-500',
-};
+import { useNotifications, type Notification } from '@/hooks/use-notifications';
 
 export function DashboardNotificationBell() {
-  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
-
-  const { data, mutate } = useSWR<NotificationsResponse>(
-    mounted ? '/api/notifications?limit=20' : null,
-    fetcher,
-    { refreshInterval: 30000 } // Refresh every 30 seconds
-  );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleMarkAllRead = async () => {
-    try {
-      await fetch('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'markAllRead' }),
-      });
-      mutate();
-    } catch (error) {
-      console.error('Failed to mark all as read:', error);
-    }
-  };
+  const { notifications, unreadCount, mounted, markAllRead, markAsRead } = useNotifications();
 
   const handleNotificationClick = async (notification: Notification) => {
-    // Mark as read if unread
     if (!notification.isRead) {
-      try {
-        await fetch(`/api/notifications/${notification.id}`, {
-          method: 'PATCH',
-        });
-        mutate();
-      } catch (error) {
-        console.error('Failed to mark as read:', error);
-      }
+      await markAsRead(notification.id);
     }
-
-    // Navigate if there's an action URL
     if (notification.actionUrl) {
       setOpen(false);
       router.push(notification.actionUrl);
     }
   };
-
-  const unreadCount = data?.unreadCount || 0;
-  const notifications = data?.notifications || [];
 
   // Render a placeholder during SSR to avoid hydration mismatch
   if (!mounted) {
@@ -139,7 +75,7 @@ export function DashboardNotificationBell() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleMarkAllRead}
+              onClick={markAllRead}
               className="text-xs"
             >
               <Check className="h-3 w-3 mr-1" />

@@ -1,17 +1,16 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { use, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Loader2, FileText, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { FormRenderer, type FormSchema } from '@/components/forms/form-renderer';
+import { useHeaderActions } from '@/components/dashboard/header-actions-context';
 
 interface CaseFormData {
   id: number;
@@ -37,12 +36,12 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 function LoadingSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-12 gap-6">
+      <Skeleton className="h-10 w-full" />
+      <div className="grid grid-cols-12 gap-4">
         <div className="col-span-3">
-          <Skeleton className="h-96 w-full" />
+          <Skeleton className="h-80 w-full" />
         </div>
         <div className="col-span-9">
-          <Skeleton className="h-12 w-full mb-4" />
           <Skeleton className="h-64 w-full" />
         </div>
       </div>
@@ -57,8 +56,9 @@ export default function FormFillingPage({
 }) {
   const { id: caseId, formId } = use(params);
   const t = useTranslations('dashboard.forms');
-  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const { setActions } = useHeaderActions();
 
   const {
     data: caseForm,
@@ -66,6 +66,36 @@ export default function FormFillingPage({
     isLoading,
     mutate,
   } = useSWR<CaseFormData>(`/api/case-forms/${formId}`, fetcher);
+
+  // Inject header actions (back button, form name, progress)
+  useEffect(() => {
+    if (caseForm) {
+      setActions(
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/dashboard/cases/${caseId}`}
+            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('backToCase')}</span>
+          </Link>
+          <div className="h-5 w-px bg-gray-300" />
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-800">{caseForm.formType.name}</span>
+            <span className="text-xs text-gray-400">{caseForm.formType.code}</span>
+          </div>
+          <div className="h-5 w-px bg-gray-300" />
+          <span className="text-lg font-bold text-violet-600">{progress}%</span>
+        </div>
+      );
+    }
+    return () => setActions(null);
+  }, [caseForm, progress, setActions, caseId, t]);
+
+  // Handle progress change from FormRenderer
+  const handleProgressChange = useCallback((p: number) => {
+    setProgress(p);
+  }, []);
 
   // Handle autosave
   const handleAutosave = async (fieldPath: string, value: string | null) => {
@@ -110,12 +140,6 @@ export default function FormFillingPage({
   if (isLoading) {
     return (
       <section className="flex-1">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href={`/dashboard/cases/${caseId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('backToCase')}
-          </Link>
-        </Button>
         <LoadingSkeleton />
       </section>
     );
@@ -124,12 +148,6 @@ export default function FormFillingPage({
   if (error || !caseForm) {
     return (
       <section className="flex-1">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href={`/dashboard/cases/${caseId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('backToCase')}
-          </Link>
-        </Button>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{t('formNotFound')}</AlertDescription>
@@ -143,48 +161,26 @@ export default function FormFillingPage({
 
   return (
     <section className="flex-1">
-      {/* Header */}
-      <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href={`/dashboard/cases/${caseId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('backToCase')}
-          </Link>
-        </Button>
-
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-violet-100 rounded-lg">
-            <FileText className="h-6 w-6 text-violet-600" />
-          </div>
-          <div>
-            <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
-              {caseForm.formType.name}
-            </h1>
-            <p className="text-sm text-gray-500">
-              {caseForm.case.caseNumber} • {caseForm.formType.code}
-            </p>
-          </div>
-        </div>
-
-        {isSubmitted && (
-          <Alert className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {t('formSubmittedReadOnly')}
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
+      {isSubmitted && (
+        <Alert className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {t('formSubmittedReadOnly')}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Form Renderer */}
       {formSchema ? (
         <FormRenderer
           formSchema={formSchema}
           initialData={caseForm.formData || {}}
+          caseId={caseForm.caseId}
           caseFormId={caseForm.id}
           onAutosave={handleAutosave}
           onSave={handleSave}
           readOnly={isSubmitted}
+          onProgressChange={handleProgressChange}
         />
       ) : (
         <Alert variant="destructive">

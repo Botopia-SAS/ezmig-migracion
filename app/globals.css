@@ -9,6 +9,8 @@
 @variant dark (&:is(.dark *));
 
 @theme {
+  --font-sans: var(--font-manrope), Arial, Helvetica, sans-serif;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -75,12 +77,6 @@
   }
 }
 
-@layer utilities {
-  body {
-    font-family: "Inter", Arial, Helvetica, sans-serif;
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -112,7 +108,7 @@
     --radius: 0.5rem;
     /* Sidebar: White background with violet/indigo accent for selected items */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 250 10% 26%;
+    --sidebar-foreground: 0 0% 0%;
     --sidebar-primary: 250 89% 74%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 250 70% 55%;
@@ -202,7 +198,7 @@
   --radius: 0.6rem;
   /* Sidebar: White background with violet/indigo accent for selected items */
   --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(250 10% 26%);
+  --sidebar-foreground: hsl(0 0% 0%);
   --sidebar-primary: hsl(250 89% 74%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(250 70% 55%);
@@ -257,6 +253,7 @@
 */
 
 @theme inline {
+  --font-sans: var(--font-manrope), Arial, Helvetica, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -400,10 +397,10 @@
   color: inherit;
 }
 
-/* Sidebar active item styling - left accent border */
-[data-sidebar="menu-button"][data-active="true"] {
+/* Sidebar active item styling - left accent border removed for pill design */
+/* [data-sidebar="menu-button"][data-active="true"] {
   position: relative;
   border-left: 3px solid hsl(250 89% 65%);
   border-radius: 0 0.375rem 0.375rem 0;
   padding-left: calc(0.5rem - 3px);
-}
+} */

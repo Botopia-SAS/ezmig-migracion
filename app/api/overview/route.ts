@@ -1,44 +1,23 @@
-import { NextResponse } from 'next/server';
-import { getUserWithTeam } from '@/lib/auth/rbac';
+import { withStaffOrOwner } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import { getCaseStats, getUpcomingDeadlines } from '@/lib/cases/service';
 import { getClientStats } from '@/lib/clients/service';
 import { getWalletBalance } from '@/lib/tokens/service';
 
-/**
- * GET /api/overview
- * Get overview statistics for the dashboard
- * Accessible by owner and staff roles only
- */
-export async function GET() {
+export const GET = withStaffOrOwner(async (_req, ctx) => {
   try {
-    const userWithTeam = await getUserWithTeam();
-    if (!userWithTeam?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!userWithTeam.team) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Only owner and staff can access overview
-    if (userWithTeam.tenantRole === 'client') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const teamId = userWithTeam.team.id;
-
     // Fetch all stats in parallel
     const [caseStats, clientStats, upcomingDeadlines] = await Promise.all([
-      getCaseStats(teamId),
-      getClientStats(teamId),
-      getUpcomingDeadlines(teamId, 30), // Next 30 days
+      getCaseStats(ctx.teamId),
+      getClientStats(ctx.teamId),
+      getUpcomingDeadlines(ctx.teamId, 30), // Next 30 days
     ]);
 
     // Token balance - only for owner role
     let tokenBalance: number | null = null;
-    if (userWithTeam.tenantRole === 'owner') {
+    if (ctx.tenantRole === 'owner') {
       try {
-        tokenBalance = await getWalletBalance(teamId);
+        tokenBalance = await getWalletBalance(ctx.teamId);
       } catch {
         tokenBalance = null;
       }
@@ -69,7 +48,7 @@ export async function GET() {
       (s) => s.status === 'in_progress'
     )?.count || 0;
 
-    return NextResponse.json({
+    return successResponse({
       caseStats: {
         total: caseStats.total,
         active: activeCases,
@@ -84,10 +63,6 @@ export async function GET() {
       tokenBalance,
     });
   } catch (error) {
-    console.error('Error fetching overview stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch overview stats' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error fetching overview stats');
   }
-}
+});

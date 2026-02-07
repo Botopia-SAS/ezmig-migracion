@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
-import { teamMembers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
-import { getEvidenceById, updateEvidence, deleteEvidence, validateEvidence } from '@/lib/evidences/service';
+import { withAuth } from '@/lib/api/middleware';
+import { successResponse, handleRouteError, notFoundResponse } from '@/lib/api/response';
+import { validateBody, requireIntParam } from '@/lib/api/validators';
+import { getEvidenceById, updateEvidence, deleteEvidence } from '@/lib/evidences/service';
 import { z } from 'zod';
 
 const updateEvidenceSchema = z.object({
@@ -14,151 +12,46 @@ const updateEvidenceSchema = z.object({
   validationNotes: z.string().nullable().optional(),
 });
 
-const validateEvidenceSchema = z.object({
-  status: z.enum(['valid', 'invalid', 'needs_review']),
-  notes: z.string().optional(),
+export const GET = withAuth(async (_request, { teamId }, params) => {
+  try {
+    const [evidenceId, err] = requireIntParam(params?.id, 'evidence ID');
+    if (err) return err;
+
+    const evidence = await getEvidenceById(evidenceId, teamId);
+    if (!evidence) return notFoundResponse('Evidence');
+
+    return successResponse(evidence);
+  } catch (error) {
+    return handleRouteError(error, 'Failed to fetch evidence');
+  }
 });
 
-/**
- * GET /api/evidences/[id]
- * Get a specific evidence
- */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const PUT = withAuth(async (request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const evidenceId = parseInt(id);
-
-    if (isNaN(evidenceId)) {
-      return NextResponse.json({ error: 'Invalid evidence ID' }, { status: 400 });
-    }
-
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
-
-    const evidence = await getEvidenceById(evidenceId, membership.teamId);
-
-    if (!evidence) {
-      return NextResponse.json({ error: 'Evidence not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(evidence);
-  } catch (error) {
-    console.error('Error fetching evidence:', error);
-    return NextResponse.json({ error: 'Failed to fetch evidence' }, { status: 500 });
-  }
-}
-
-/**
- * PUT /api/evidences/[id]
- * Update evidence metadata
- */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const evidenceId = parseInt(id);
-
-    if (isNaN(evidenceId)) {
-      return NextResponse.json({ error: 'Invalid evidence ID' }, { status: 400 });
-    }
-
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
+    const [evidenceId, err] = requireIntParam(params?.id, 'evidence ID');
+    if (err) return err;
 
     const body = await request.json();
-    const validationResult = updateEvidenceSchema.safeParse(body);
+    const [data, validationError] = validateBody(updateEvidenceSchema, body);
+    if (validationError) return validationError;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.errors },
-        { status: 400 }
-      );
-    }
+    const updatedEvidence = await updateEvidence(evidenceId, teamId, user.id, data);
 
-    const updatedEvidence = await updateEvidence(
-      evidenceId,
-      membership.teamId,
-      user.id,
-      validationResult.data
-    );
-
-    return NextResponse.json(updatedEvidence);
+    return successResponse(updatedEvidence);
   } catch (error) {
-    console.error('Error updating evidence:', error);
-    const message = error instanceof Error ? error.message : 'Failed to update evidence';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleRouteError(error, 'Failed to update evidence');
   }
-}
+});
 
-/**
- * DELETE /api/evidences/[id]
- * Soft delete an evidence
- */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const DELETE = withAuth(async (_request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const evidenceId = parseInt(id);
+    const [evidenceId, err] = requireIntParam(params?.id, 'evidence ID');
+    if (err) return err;
 
-    if (isNaN(evidenceId)) {
-      return NextResponse.json({ error: 'Invalid evidence ID' }, { status: 400 });
-    }
+    await deleteEvidence(evidenceId, teamId, user.id);
 
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
-
-    await deleteEvidence(evidenceId, membership.teamId, user.id);
-
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    console.error('Error deleting evidence:', error);
-    const message = error instanceof Error ? error.message : 'Failed to delete evidence';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleRouteError(error, 'Failed to delete evidence');
   }
-}
+});

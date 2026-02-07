@@ -18,15 +18,15 @@ export default function DashboardLayout({
       <HeaderActionsProvider>
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset className="bg-gray-100">
+          <SidebarInset className="bg-gray-50">
             {/* Top bar with sidebar trigger, notifications and language switcher */}
-            <header className="sticky top-0 z-10 flex h-12 items-center gap-4 px-4 border-b bg-white">
-              <SidebarTrigger className="-ml-1" />
+            <header className="sticky top-0 z-10 flex h-12 items-center gap-4 px-4 bg-white/30 backdrop-blur-sm">
+              <SidebarTrigger className="-ml-1 text-gray-700 hover:text-gray-900" />
+              <HeaderActions />
               <div className="flex-1" />
               <TokenBalanceBadge />
               <DashboardNotificationBell />
               <LanguageSwitcher />
-              <HeaderActions />
             </header>
 
             {/* Main content with gray background */}

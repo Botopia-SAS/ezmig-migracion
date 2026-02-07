@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { FieldWrapper } from './field-wrapper';
 import type { FormField } from './index';
 
 interface FieldSelectProps {
@@ -25,20 +26,17 @@ export function FieldSelect({
   error,
   disabled,
 }: FieldSelectProps) {
+  const t = useTranslations('dashboard.forms.renderer');
   // Normalize options to { value, label } format
   const normalizedOptions = (field.options || []).map((opt) =>
     typeof opt === 'string' ? { value: opt, label: opt } : opt
   );
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={field.id}>
-        {field.label}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+    <FieldWrapper field={field} error={error}>
       <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger className={error ? 'border-red-500' : ''}>
-          <SelectValue placeholder={field.placeholder || 'Select...'} />
+          <SelectValue placeholder={field.placeholder || t('selectPlaceholder')} />
         </SelectTrigger>
         <SelectContent>
           {normalizedOptions.map((opt) => (
@@ -48,10 +46,6 @@ export function FieldSelect({
           ))}
         </SelectContent>
       </Select>
-      {field.helpText && (
-        <p className="text-xs text-gray-500">{field.helpText}</p>
-      )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
+    </FieldWrapper>
   );
 }

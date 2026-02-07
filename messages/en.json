@@ -3,7 +3,11 @@
     "hero": {
       "title": "Simplify Your",
       "titleHighlight": "Immigration Practice",
-      "typewriterWords": ["Immigration Practice", "Case Management", "Legal Workflow"],
+      "typewriterWords": [
+        "Immigration Practice",
+        "Case Management",
+        "Legal Workflow"
+      ],
       "subtitle": "The AI-powered platform that automates {highlight} and case management for immigration attorneys.",
       "subtitleLine2": "",
       "highlight": "USCIS Forms",
@@ -339,7 +343,6 @@
   "dashboard": {
     "title": "Dashboard",
     "signOut": "Sign out",
-
     "sidebar": {
       "settings": "Settings",
       "team": "Team",
@@ -357,7 +360,6 @@
       "myCases": "My Cases",
       "referrals": "Referral Links"
     },
-
     "team": {
       "title": "Team Settings",
       "subscription": {
@@ -394,7 +396,6 @@
         "cancel": "Cancel"
       }
     },
-
     "general": {
       "title": "General Settings",
       "error": "Something went wrong.",
@@ -416,7 +417,6 @@
         "saving": "Saving logo..."
       }
     },
-
     "activity": {
       "title": "Activity Log",
       "description": "View recent activity in your team",
@@ -457,7 +457,6 @@
         "GENERATE_PDF": "Generated PDF"
       }
     },
-
     "security": {
       "title": "Security Settings",
       "password": {
@@ -477,7 +476,6 @@
         "deleting": "Deleting..."
       }
     },
-
     "billing": {
       "title": "Billing & Tokens",
       "subtitle": "Manage your tokens and view transaction history",
@@ -835,6 +833,24 @@
         "added": "Form added to case",
         "removed": "Form removed from case",
         "error": "An error occurred"
+      },
+      "renderer": {
+        "previous": "Previous",
+        "next": "Next",
+        "saveProgress": "Save Progress",
+        "completeForm": "Complete Form",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "lastSaved": "Last saved {time}",
+        "selectPlaceholder": "Select...",
+        "attachments": {
+          "attach": "Attach evidence",
+          "uploading": "Uploading...",
+          "uploaded": "File uploaded successfully",
+          "uploadError": "Failed to upload file",
+          "deleted": "Attachment removed",
+          "deleteError": "Failed to remove attachment"
+        }
       }
     },
     "referrals": {
@@ -847,7 +863,7 @@
       "addFirst": "Create your first link",
       "table": {
         "code": "Code",
-        "client": "Client",
+        "formTypes": "Form Types",
         "case": "Case",
         "status": "Status",
         "uses": "Uses",
@@ -869,18 +885,32 @@
       },
       "form": {
         "title": "Create Referral Link",
+        "description": "Create a referral link to invite clients to complete forms",
+        "selectFormTypes": "Select Form Types",
+        "selectFormTypesDescription": "Choose the forms the client will need to complete",
+        "formTypesRequired": "At least one form type is required",
+        "formTypesSelected": "form type(s) selected",
         "selectCase": "Select Case (optional)",
         "selectCasePlaceholder": "Choose a case...",
-        "selectClient": "Select Client (optional)",
-        "selectClientPlaceholder": "Choose a client...",
+        "noCase": "No specific case (auto-create)",
         "expiresAt": "Expiration Date (optional)",
         "maxUses": "Maximum Uses",
-        "allowedForms": "Allowed Forms",
-        "allowedFormsPlaceholder": "All forms allowed"
+        "linkSettings": "Link Settings",
+        "linkSettingsDescription": "Configure access and expiration for this referral link"
+      },
+      "formCategories": {
+        "family": "Family",
+        "employment": "Employment",
+        "humanitarian": "Humanitarian",
+        "naturalization": "Naturalization",
+        "travel": "Travel",
+        "other": "Other"
       },
       "detail": {
         "title": "Referral Link Details",
         "linkUrl": "Link URL",
+        "formTypes": "Form Types",
+        "autoCreateCase": "Auto-create on registration",
         "usageHistory": "Usage History",
         "noUsage": "No usage recorded yet",
         "usageTable": {
@@ -1002,6 +1032,7 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "dashboard": "Dashboard",
+    "goToDashboard": "Go to dashboard",
     "signOut": "Sign out",
     "openMenu": "Open menu"
   },
@@ -1092,7 +1123,8 @@
         "users": "Users",
         "transactions": "Transactions",
         "packages": "Packages",
-        "stats": "Stats"
+        "stats": "Stats",
+        "forms": "Forms"
       },
       "fallback": {
         "userName": "Admin User",
@@ -1186,6 +1218,201 @@
         "tip": "Keep sort order aligned with your pricing page to avoid confusion."
       }
     },
+    "forms": {
+      "title": "Form Types",
+      "description": "Create and manage immigration form schemas",
+      "newForm": "New Form",
+      "editForm": "Edit Form",
+      "columns": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Category",
+        "edition": "Edition",
+        "tokenCost": "Token Cost",
+        "status": "Status",
+        "caseForms": "Usage",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "edit": "Edit",
+        "builder": "Builder",
+        "preview": "Preview",
+        "duplicate": "Duplicate",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "create": {
+        "title": "Create Form Type",
+        "submit": "Create & Open Builder"
+      },
+      "editMeta": {
+        "title": "Edit Form Type",
+        "save": "Save Changes",
+        "openBuilder": "Open Builder",
+        "openPreview": "Preview"
+      },
+      "fields": {
+        "code": "Form Code",
+        "codePlaceholder": "e.g. I-130",
+        "codeHelp": "Unique form identifier (e.g. I-130, N-400)",
+        "name": "Form Name",
+        "namePlaceholder": "e.g. Petition for Alien Relative",
+        "description": "Description",
+        "descriptionPlaceholder": "Brief description of this form",
+        "category": "Category",
+        "categoryPlaceholder": "Select category",
+        "uscisEdition": "USCIS Edition",
+        "uscisEditionPlaceholder": "e.g. 03/22/2023",
+        "tokenCost": "Token Cost",
+        "estimatedTime": "Estimated Time (min)"
+      },
+      "categories": {
+        "family": "Family-Based",
+        "employment": "Employment",
+        "humanitarian": "Humanitarian",
+        "naturalization": "Naturalization",
+        "other": "Other"
+      },
+      "empty": "No form types found. Create your first form.",
+      "caseFormCount": "{count} case forms",
+      "deleteConfirm": {
+        "title": "Delete Form Type",
+        "message": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+        "messageWithCases": "This form type is used by {count} case forms. It will be deactivated instead of deleted.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      }
+    },
+    "formBuilder": {
+      "title": "Form Builder",
+      "toolbar": {
+        "save": "Save",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "unsaved": "Unsaved changes",
+        "undo": "Undo",
+        "redo": "Redo",
+        "preview": "Preview",
+        "back": "Back to Forms",
+        "export": "Export JSON",
+        "import": "Import JSON"
+      },
+      "outline": {
+        "title": "Structure",
+        "addPart": "Add Part",
+        "addSection": "Add Section",
+        "addField": "Add Field",
+        "emptyParts": "No parts yet. Click to add one.",
+        "emptySections": "No sections. Click + to add.",
+        "emptyFields": "No fields. Click + to add."
+      },
+      "canvas": {
+        "emptyState": "Select or add a field to get started",
+        "addFieldHere": "Add field",
+        "required": "Required",
+        "conditional": "Conditional"
+      },
+      "properties": {
+        "title": "Properties",
+        "noSelection": "Select an element to edit its properties",
+        "tabs": {
+          "general": "General",
+          "options": "Options",
+          "advanced": "Advanced"
+        },
+        "part": {
+          "title": "Part Title",
+          "deletePart": "Delete Part",
+          "deleteConfirm": "Delete this part and all its sections?"
+        },
+        "section": {
+          "title": "Section Title",
+          "description": "Description",
+          "descriptionPlaceholder": "Optional section description",
+          "deleteSection": "Delete Section",
+          "deleteConfirm": "Delete this section and all its fields?"
+        },
+        "field": {
+          "id": "Field ID",
+          "idHelp": "Unique identifier (camelCase)",
+          "label": "Label",
+          "type": "Field Type",
+          "required": "Required",
+          "placeholder": "Placeholder",
+          "helpText": "Help Text",
+          "maxLength": "Max Length",
+          "pdfField": "PDF Field Mapping",
+          "pdfFieldHelp": "AcroForm field name for PDF generation",
+          "deleteField": "Delete Field",
+          "deleteConfirm": "Delete this field?",
+          "duplicateField": "Duplicate Field"
+        },
+        "conditional": {
+          "title": "Conditional Display",
+          "enabled": "Show conditionally",
+          "dependsOn": "Depends on field",
+          "dependsOnPlaceholder": "Select field...",
+          "operator": "Operator",
+          "value": "Expected value",
+          "valuePlaceholder": "Value to match",
+          "operators": {
+            "equals": "Equals",
+            "notEquals": "Not equals",
+            "in": "In list",
+            "notIn": "Not in list"
+          }
+        },
+        "options": {
+          "title": "Options",
+          "addOption": "Add Option",
+          "bulkAdd": "Bulk Add",
+          "bulkAddHelp": "One option per line. Format: value|label or just label.",
+          "value": "Value",
+          "label": "Label",
+          "noOptions": "No options yet. Add one below.",
+          "removeOption": "Remove"
+        }
+      },
+      "fieldTypes": {
+        "text": "Text",
+        "textarea": "Textarea",
+        "date": "Date",
+        "select": "Select",
+        "radio": "Radio",
+        "checkbox": "Checkbox",
+        "checkbox_group": "Checkbox Group",
+        "phone": "Phone",
+        "email": "Email",
+        "number": "Number",
+        "ssn": "SSN",
+        "alien_number": "Alien Number"
+      },
+      "fieldTypeCategories": {
+        "text": "Text Fields",
+        "choice": "Choice Fields",
+        "special": "Special Fields"
+      },
+      "stats": {
+        "parts": "Parts",
+        "sections": "Sections",
+        "fields": "Fields",
+        "required": "Required"
+      },
+      "validation": {
+        "partNeedsSections": "Part must have at least one section",
+        "sectionNeedsFields": "Section must have at least one field",
+        "duplicateFieldId": "Duplicate field ID: {id}",
+        "duplicatePartId": "Duplicate part ID: {id}",
+        "duplicateSectionId": "Duplicate section ID: {id}",
+        "invalidConditionalRef": "Conditional references non-existent field: {ref}",
+        "optionsRequired": "Options are required for this field type"
+      }
+    },
     "stats": {
       "title": "Analytics",
       "cards": {
@@ -1260,12 +1487,22 @@
       "namePlaceholder": "Enter your full name",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
-      "emailPrefilled": "Your email has been pre-filled based on your case",
       "password": "Password",
       "passwordPlaceholder": "Create a password",
       "passwordHint": "At least 8 characters",
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
+      "immigrationInfo": "Immigration Information (optional)",
+      "dateOfBirth": "Date of Birth",
+      "countryOfBirth": "Country of Birth",
+      "countryOfBirthPlaceholder": "e.g. Mexico",
+      "nationality": "Nationality",
+      "nationalityPlaceholder": "e.g. Mexican",
+      "alienNumber": "A-Number (Alien Registration Number)",
+      "alienNumberHint": "Optional. Format: A-XXX-XXX-XXX",
+      "continue": "Continue",
+      "skipStep": "Skip this step",
+      "immigrationInfoHint": "This information is optional but helps speed up your case.",
       "submit": "Create Account",
       "submitting": "Creating account...",
       "alreadyHaveAccount": "Already have an account?",
@@ -1279,6 +1516,7 @@
       "successDescription": "Your account has been created. Redirecting to your portal...",
       "continueToPortal": "Continue to Portal",
       "errors": {
+        "fillAllFields": "Please fill in all required fields",
         "passwordMismatch": "Passwords do not match",
         "passwordTooShort": "Password must be at least 8 characters",
         "invalidLink": "This referral link is no longer valid",
@@ -1305,6 +1543,1063 @@
       "rights": "All rights reserved.",
       "terms": "Terms of Service",
       "privacy": "Privacy Policy"
+    }
+  },
+  "forms": {
+    "i-130": {
+      "part1": {
+        "title": "Part 1. Relationship",
+        "relationship": {
+          "title": "Relationship",
+          "description": "Select the relationship between you (the petitioner) and the person you are filing for (the beneficiary).",
+          "filingFor": {
+            "label": "I am filing this petition for my...",
+            "options": {
+              "spouse": "Spouse",
+              "parent": "Parent",
+              "brother_sister": "Brother/Sister",
+              "child": "Child"
+            },
+            "helpText": "Select the family relationship that best describes your connection to the beneficiary."
+          },
+          "childAdopted": {
+            "label": "If you are filing for a child, was the child adopted?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate whether the child was legally adopted."
+          },
+          "siblingStepOrAdoptive": {
+            "label": "Are you related by a stepparent or adoptive parent?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate if the sibling relationship is through a stepparent or adoptive parent."
+          },
+          "multipleFilings": {
+            "label": "Are you filing this petition for more than one beneficiary?",
+            "helpText": "You must file a separate Form I-130 for each beneficiary.",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            }
+          }
+        }
+      },
+      "part2": {
+        "title": "Part 2. Information About You",
+        "names": {
+          "title": "Your Full Legal Name",
+          "familyName": {
+            "label": "Family Name (Last Name)",
+            "placeholder": "e.g., Smith",
+            "helpText": "Enter your last name exactly as it appears on your official documents."
+          },
+          "givenName": {
+            "label": "Given Name (First Name)",
+            "placeholder": "e.g., John",
+            "helpText": "Enter your first name exactly as it appears on your official documents."
+          },
+          "middleName": {
+            "label": "Middle Name",
+            "placeholder": "e.g., Michael",
+            "helpText": "If you have a middle name, enter it here. Leave blank if none."
+          }
+        },
+        "otherNames": {
+          "title": "Other Names Used",
+          "description": "Provide all other names you have ever used, including aliases, maiden name, and nicknames.",
+          "maidenFamilyName": {
+            "label": "Family Name (Last Name) at Birth",
+            "placeholder": "e.g., Johnson",
+            "helpText": "Enter your family name at birth if different from your current last name."
+          },
+          "maidenGivenName": {
+            "label": "Given Name (First Name) at Birth",
+            "placeholder": "e.g., Jane",
+            "helpText": "Enter your first name at birth if different from your current first name."
+          },
+          "maidenMiddleName": {
+            "label": "Middle Name at Birth",
+            "placeholder": "e.g., Marie",
+            "helpText": "Enter your middle name at birth if different from your current middle name."
+          }
+        },
+        "identifiers": {
+          "title": "Identification Numbers",
+          "alienNumber": {
+            "label": "Alien Registration Number (A-Number)",
+            "helpText": "If you have an A-Number, enter it here. This is a 7 to 9-digit number.",
+            "placeholder": "A-XXXXXXXXX"
+          },
+          "uscisAccountNumber": {
+            "label": "USCIS Online Account Number",
+            "helpText": "If you have previously filed an application or petition with USCIS online.",
+            "placeholder": "e.g., 123456789012"
+          },
+          "ssn": {
+            "label": "U.S. Social Security Number",
+            "placeholder": "XXX-XX-XXXX",
+            "helpText": "Enter your 9-digit U.S. Social Security Number if you have one."
+          }
+        },
+        "mailingAddress": {
+          "title": "Your Mailing Address",
+          "inCareOf": {
+            "label": "In Care Of Name",
+            "placeholder": "e.g., John Smith",
+            "helpText": "Enter the name of the person who will receive mail on your behalf, if applicable."
+          },
+          "streetNumber": {
+            "label": "Street Number and Name",
+            "placeholder": "e.g., 123 Main Street",
+            "helpText": "Enter the street number and name of your mailing address."
+          },
+          "aptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Select the type of unit if applicable (apartment, suite, or floor)."
+          },
+          "aptNumber": {
+            "label": "Number",
+            "placeholder": "e.g., 4B",
+            "helpText": "Enter your apartment, suite, or floor number."
+          },
+          "city": {
+            "label": "City or Town",
+            "placeholder": "e.g., New York",
+            "helpText": "Enter the city or town of your mailing address."
+          },
+          "state": {
+            "label": "State",
+            "options": {
+              "AL": "Alabama",
+              "AK": "Alaska",
+              "AZ": "Arizona",
+              "AR": "Arkansas",
+              "CA": "California",
+              "CO": "Colorado",
+              "CT": "Connecticut",
+              "DE": "Delaware",
+              "FL": "Florida",
+              "GA": "Georgia",
+              "HI": "Hawaii",
+              "ID": "Idaho",
+              "IL": "Illinois",
+              "IN": "Indiana",
+              "IA": "Iowa",
+              "KS": "Kansas",
+              "KY": "Kentucky",
+              "LA": "Louisiana",
+              "ME": "Maine",
+              "MD": "Maryland",
+              "MA": "Massachusetts",
+              "MI": "Michigan",
+              "MN": "Minnesota",
+              "MS": "Mississippi",
+              "MO": "Missouri",
+              "MT": "Montana",
+              "NE": "Nebraska",
+              "NV": "Nevada",
+              "NH": "New Hampshire",
+              "NJ": "New Jersey",
+              "NM": "New Mexico",
+              "NY": "New York",
+              "NC": "North Carolina",
+              "ND": "North Dakota",
+              "OH": "Ohio",
+              "OK": "Oklahoma",
+              "OR": "Oregon",
+              "PA": "Pennsylvania",
+              "RI": "Rhode Island",
+              "SC": "South Carolina",
+              "SD": "South Dakota",
+              "TN": "Tennessee",
+              "TX": "Texas",
+              "UT": "Utah",
+              "VT": "Vermont",
+              "VA": "Virginia",
+              "WA": "Washington",
+              "WV": "West Virginia",
+              "WI": "Wisconsin",
+              "WY": "Wyoming",
+              "DC": "District of Columbia"
+            },
+            "helpText": "Select the U.S. state of your mailing address."
+          },
+          "zipCode": {
+            "label": "ZIP Code",
+            "placeholder": "e.g., 10001",
+            "helpText": "Enter the 5-digit ZIP code or ZIP+4 code."
+          },
+          "province": {
+            "label": "Province",
+            "placeholder": "e.g., Ontario",
+            "helpText": "Enter the province if your address is outside the United States."
+          },
+          "postalCode": {
+            "label": "Postal Code",
+            "placeholder": "e.g., M5V 2T6",
+            "helpText": "Enter the postal code if your address is outside the United States."
+          },
+          "country": {
+            "label": "Country",
+            "placeholder": "e.g., United States",
+            "helpText": "Enter the country of your mailing address."
+          }
+        },
+        "physicalAddress": {
+          "title": "Your Physical Address",
+          "description": "If your physical address is the same as your mailing address, select \"Yes\" below.",
+          "sameAsMailingAddress": {
+            "label": "Is your physical address the same as your mailing address?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "If your home address is the same as your mailing address above, select Yes."
+          },
+          "physStreetNumber": {
+            "label": "Street Number and Name",
+            "placeholder": "e.g., 456 Oak Avenue",
+            "helpText": "Enter the street number and name of your physical address."
+          },
+          "physAptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Select the type of unit if applicable."
+          },
+          "physAptNumber": {
+            "label": "Number",
+            "placeholder": "e.g., 2A",
+            "helpText": "Enter the unit number of your physical address."
+          },
+          "physCity": {
+            "label": "City or Town",
+            "placeholder": "e.g., Los Angeles",
+            "helpText": "Enter the city or town of your physical address."
+          },
+          "physState": {
+            "label": "State",
+            "placeholder": "e.g., California",
+            "helpText": "Enter the state or province of your physical address."
+          },
+          "physZipCode": {
+            "label": "ZIP Code",
+            "placeholder": "e.g., 90001",
+            "helpText": "Enter the ZIP code of your physical address."
+          },
+          "physProvince": {
+            "label": "Province",
+            "placeholder": "e.g., Ontario",
+            "helpText": "Enter the province if outside the United States."
+          },
+          "physCountry": {
+            "label": "Country",
+            "placeholder": "e.g., United States",
+            "helpText": "Enter the country of your physical address."
+          }
+        },
+        "personalInfo": {
+          "title": "Other Personal Information",
+          "dateOfBirth": {
+            "label": "Date of Birth",
+            "helpText": "Enter your date of birth as shown on your birth certificate or passport."
+          },
+          "cityOfBirth": {
+            "label": "City/Town/Village of Birth",
+            "placeholder": "e.g., Chicago",
+            "helpText": "Enter the city, town, or village where you were born."
+          },
+          "countryOfBirth": {
+            "label": "Country of Birth",
+            "placeholder": "e.g., United States",
+            "helpText": "Enter the country where you were born."
+          },
+          "citizenship": {
+            "label": "Country of Citizenship or Nationality",
+            "placeholder": "e.g., United States",
+            "helpText": "Enter your current country of citizenship or nationality."
+          },
+          "immigrationStatus": {
+            "label": "I am a...",
+            "options": {
+              "us_citizen": "U.S. Citizen (by birth or naturalization)",
+              "lpr": "Lawful Permanent Resident (LPR)"
+            },
+            "helpText": "Select your current immigration status. You must be a U.S. citizen or lawful permanent resident to file Form I-130."
+          },
+          "lprClassOfAdmission": {
+            "label": "Class of Admission",
+            "helpText": "e.g., IR1, F2A, EB-2, DV",
+            "placeholder": "e.g., IR1, F2A, EB-2"
+          },
+          "lprDateOfAdmission": {
+            "label": "Date of Admission as LPR",
+            "helpText": "Enter the date you were admitted as a lawful permanent resident."
+          }
+        },
+        "maritalInfo": {
+          "title": "Marital Information",
+          "maritalStatus": {
+            "label": "Current Marital Status",
+            "options": {
+              "single": "Single, Never Married",
+              "married": "Married",
+              "divorced": "Divorced",
+              "widowed": "Widowed",
+              "separated": "Legally Separated",
+              "annulled": "Marriage Annulled"
+            },
+            "helpText": "Select your current marital status."
+          },
+          "timesMarried": {
+            "label": "How many times have you been married?",
+            "placeholder": "e.g., 1",
+            "helpText": "Enter the total number of times you have been legally married."
+          },
+          "spouseFamilyName": {
+            "label": "Current Spouse's Family Name (Last Name)",
+            "placeholder": "e.g., Williams",
+            "helpText": "Enter your current spouse's last name."
+          },
+          "spouseGivenName": {
+            "label": "Current Spouse's Given Name (First Name)",
+            "placeholder": "e.g., Sarah",
+            "helpText": "Enter your current spouse's first name."
+          },
+          "spouseDateOfBirth": {
+            "label": "Current Spouse's Date of Birth",
+            "helpText": "Enter your current spouse's date of birth."
+          },
+          "dateOfMarriage": {
+            "label": "Date of Current Marriage",
+            "helpText": "Enter the date of your current marriage."
+          },
+          "cityOfMarriage": {
+            "label": "City/Town of Current Marriage",
+            "placeholder": "e.g., Miami",
+            "helpText": "Enter the city or town where your current marriage took place."
+          },
+          "stateOfMarriage": {
+            "label": "State/Province of Current Marriage",
+            "placeholder": "e.g., Florida",
+            "helpText": "Enter the state or province where your current marriage took place."
+          },
+          "countryOfMarriage": {
+            "label": "Country of Current Marriage",
+            "placeholder": "e.g., United States",
+            "helpText": "Enter the country where your current marriage took place."
+          }
+        },
+        "parentInfo": {
+          "title": "Parent Information",
+          "parentUsCitizen": {
+            "label": "Was your parent a U.S. citizen at the time you obtained permanent residence?",
+            "options": {
+              "yes": "Yes",
+              "no": "No",
+              "na": "Not applicable"
+            },
+            "helpText": "If you obtained permanent residence through a parent, indicate whether that parent was a U.S. citizen at the time."
+          }
+        }
+      },
+      "part3": {
+        "title": "Part 3. Biographic Information",
+        "biographic": {
+          "title": "Biographic Information",
+          "description": "Provide the following information about yourself.",
+          "ethnicity": {
+            "label": "Ethnicity (Select one)",
+            "options": {
+              "hispanic_latino": "Hispanic or Latino",
+              "not_hispanic_latino": "Not Hispanic or Latino"
+            },
+            "helpText": "Select the ethnicity that best describes you."
+          },
+          "race": {
+            "label": "Race (Select all applicable)",
+            "options": {
+              "white": "White",
+              "asian": "Asian",
+              "black": "Black or African American",
+              "american_indian": "American Indian or Alaska Native",
+              "native_hawaiian": "Native Hawaiian or Other Pacific Islander"
+            },
+            "helpText": "Select all races that apply to you."
+          },
+          "heightFeet": {
+            "label": "Height (Feet)",
+            "placeholder": "e.g., 5",
+            "helpText": "Enter the feet portion of your height."
+          },
+          "heightInches": {
+            "label": "Height (Inches)",
+            "placeholder": "e.g., 10",
+            "helpText": "Enter the inches portion of your height (0-11)."
+          },
+          "weight": {
+            "label": "Weight (Pounds)",
+            "placeholder": "e.g., 170",
+            "helpText": "Enter your weight in pounds."
+          },
+          "eyeColor": {
+            "label": "Eye Color",
+            "options": {
+              "black": "Black",
+              "blue": "Blue",
+              "brown": "Brown",
+              "gray": "Gray",
+              "green": "Green",
+              "hazel": "Hazel",
+              "maroon": "Maroon",
+              "pink": "Pink",
+              "unknown": "Unknown/Other"
+            },
+            "helpText": "Select the color that best matches your eye color."
+          },
+          "hairColor": {
+            "label": "Hair Color",
+            "options": {
+              "bald": "Bald (No hair)",
+              "black": "Black",
+              "blond": "Blond",
+              "brown": "Brown",
+              "gray": "Gray",
+              "red": "Red",
+              "sandy": "Sandy",
+              "white": "White",
+              "unknown": "Unknown/Other"
+            },
+            "helpText": "Select the color that best matches your hair color."
+          }
+        }
+      },
+      "part4": {
+        "title": "Part 4. Information About Beneficiary",
+        "names": {
+          "title": "Beneficiary's Full Legal Name",
+          "familyName": {
+            "label": "Family Name (Last Name)",
+            "placeholder": "e.g., Doe",
+            "helpText": "Enter the beneficiary's last name exactly as it appears on official documents."
+          },
+          "givenName": {
+            "label": "Given Name (First Name)",
+            "placeholder": "e.g., Maria",
+            "helpText": "Enter the beneficiary's first name exactly as it appears on official documents."
+          },
+          "middleName": {
+            "label": "Middle Name",
+            "placeholder": "e.g., Elena",
+            "helpText": "Enter the beneficiary's middle name, if any."
+          }
+        },
+        "otherNames": {
+          "title": "Other Names Used by Beneficiary",
+          "otherFamilyName": {
+            "label": "Family Name (Last Name) at Birth",
+            "placeholder": "e.g., Martinez",
+            "helpText": "Enter the beneficiary's family name at birth if different from current name."
+          },
+          "otherGivenName": {
+            "label": "Given Name (First Name) at Birth",
+            "placeholder": "e.g., Rosa",
+            "helpText": "Enter the beneficiary's first name at birth if different from current name."
+          },
+          "otherMiddleName": {
+            "label": "Middle Name at Birth",
+            "placeholder": "e.g., Isabel",
+            "helpText": "Enter the beneficiary's middle name at birth if different from current name."
+          }
+        },
+        "identifiers": {
+          "title": "Beneficiary's Identification Numbers",
+          "alienNumber": {
+            "label": "Alien Registration Number (A-Number)",
+            "placeholder": "A-XXXXXXXXX",
+            "helpText": "Enter the beneficiary's alien registration number (A-Number), if any."
+          },
+          "uscisAccountNumber": {
+            "label": "USCIS Online Account Number",
+            "placeholder": "e.g., 123456789012",
+            "helpText": "Enter the beneficiary's USCIS online account number, if any."
+          },
+          "ssn": {
+            "label": "U.S. Social Security Number (if any)",
+            "placeholder": "XXX-XX-XXXX",
+            "helpText": "Enter the beneficiary's U.S. Social Security Number, if any."
+          }
+        },
+        "mailingAddress": {
+          "title": "Beneficiary's Mailing Address",
+          "inCareOf": {
+            "label": "In Care Of Name",
+            "placeholder": "e.g., Jane Smith",
+            "helpText": "Enter the name of the person who will receive mail on behalf of the beneficiary."
+          },
+          "streetNumber": {
+            "label": "Street Number and Name",
+            "placeholder": "e.g., 789 Elm Street",
+            "helpText": "Enter the street number and name of the beneficiary's mailing address."
+          },
+          "aptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Select the type of unit if applicable."
+          },
+          "aptNumber": {
+            "label": "Number",
+            "placeholder": "e.g., 3C",
+            "helpText": "Enter the unit number of the beneficiary's address."
+          },
+          "city": {
+            "label": "City or Town",
+            "placeholder": "e.g., Mexico City",
+            "helpText": "Enter the city or town of the beneficiary's mailing address."
+          },
+          "state": {
+            "label": "State/Province",
+            "placeholder": "e.g., CDMX",
+            "helpText": "Enter the state or province of the beneficiary's mailing address."
+          },
+          "zipCode": {
+            "label": "ZIP/Postal Code",
+            "placeholder": "e.g., 06600",
+            "helpText": "Enter the ZIP or postal code of the beneficiary's address."
+          },
+          "country": {
+            "label": "Country",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country of the beneficiary's mailing address."
+          }
+        },
+        "birthInfo": {
+          "title": "Beneficiary's Birth Information",
+          "dateOfBirth": {
+            "label": "Date of Birth",
+            "helpText": "Enter the beneficiary's date of birth as shown on their birth certificate."
+          },
+          "cityOfBirth": {
+            "label": "City/Town/Village of Birth",
+            "placeholder": "e.g., Guadalajara",
+            "helpText": "Enter the city or village where the beneficiary was born."
+          },
+          "countryOfBirth": {
+            "label": "Country of Birth",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country where the beneficiary was born."
+          },
+          "sex": {
+            "label": "Sex",
+            "options": {
+              "male": "Male",
+              "female": "Female"
+            },
+            "helpText": "Select the beneficiary's biological sex."
+          }
+        },
+        "citizenship": {
+          "title": "Beneficiary's Citizenship & Nationality",
+          "nationality": {
+            "label": "Country of Citizenship or Nationality",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the beneficiary's current country of citizenship or nationality."
+          }
+        },
+        "maritalInfo": {
+          "title": "Beneficiary's Marital Information",
+          "maritalStatus": {
+            "label": "Current Marital Status",
+            "options": {
+              "single": "Single, Never Married",
+              "married": "Married",
+              "divorced": "Divorced",
+              "widowed": "Widowed",
+              "separated": "Legally Separated",
+              "annulled": "Marriage Annulled"
+            },
+            "helpText": "Select the beneficiary's current marital status."
+          },
+          "timesMarried": {
+            "label": "How many times has the beneficiary been married?",
+            "placeholder": "e.g., 1",
+            "helpText": "Enter the total number of times the beneficiary has been legally married."
+          }
+        },
+        "immigrationInfo": {
+          "title": "Beneficiary's Immigration Information",
+          "inUS": {
+            "label": "Is the beneficiary currently in the United States?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate whether the beneficiary is currently physically present in the United States."
+          },
+          "classOfAdmission": {
+            "label": "Class of Nonimmigrant Admission",
+            "helpText": "e.g., B-2, F-1, H-1B",
+            "placeholder": "e.g., B-2, F-1, H-1B"
+          },
+          "i94Number": {
+            "label": "I-94 Arrival-Departure Record Number",
+            "placeholder": "e.g., 12345678901",
+            "helpText": "Enter the beneficiary's 11-digit I-94 arrival-departure record number."
+          },
+          "dateOfArrival": {
+            "label": "Date of Arrival",
+            "helpText": "Enter the date the beneficiary most recently arrived in the United States."
+          },
+          "authorizedStayExpiration": {
+            "label": "Date Authorized Stay Expires or D/S",
+            "helpText": "Enter the date the beneficiary's authorized stay expires, or \"D/S\" for duration of status."
+          },
+          "passportNumber": {
+            "label": "Passport Number",
+            "placeholder": "e.g., AB1234567",
+            "helpText": "Enter the beneficiary's passport number."
+          },
+          "travelDocumentNumber": {
+            "label": "Travel Document Number",
+            "placeholder": "e.g., TD1234567",
+            "helpText": "Enter the beneficiary's travel document number, if different from passport."
+          },
+          "passportCountry": {
+            "label": "Country of Issuance for Passport/Travel Document",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country that issued the beneficiary's passport or travel document."
+          },
+          "passportExpiration": {
+            "label": "Expiration Date for Passport/Travel Document",
+            "helpText": "Enter the expiration date of the beneficiary's passport or travel document."
+          }
+        },
+        "employmentInfo": {
+          "title": "Beneficiary's Current Employment",
+          "employerName": {
+            "label": "Name of Current Employer (if any)",
+            "placeholder": "e.g., Acme Corporation",
+            "helpText": "Enter the beneficiary's current employer name, if employed."
+          },
+          "employerStreet": {
+            "label": "Employer Street Address",
+            "placeholder": "e.g., 100 Business Parkway",
+            "helpText": "Enter the street address of the beneficiary's employer."
+          },
+          "employerCity": {
+            "label": "Employer City",
+            "placeholder": "e.g., Houston",
+            "helpText": "Enter the city of the beneficiary's employer."
+          },
+          "employerState": {
+            "label": "Employer State/Province",
+            "placeholder": "e.g., Texas",
+            "helpText": "Enter the state or province of the beneficiary's employer."
+          },
+          "employerCountry": {
+            "label": "Employer Country",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country of the beneficiary's employer."
+          }
+        },
+        "parentInfo": {
+          "title": "Beneficiary's Parent Information",
+          "description": "Provide information about the beneficiary's parents.",
+          "motherFamilyName": {
+            "label": "Mother's Family Name (Last Name)",
+            "placeholder": "e.g., Rodriguez",
+            "helpText": "Enter the beneficiary's mother's last name."
+          },
+          "motherGivenName": {
+            "label": "Mother's Given Name (First Name)",
+            "placeholder": "e.g., Carmen",
+            "helpText": "Enter the beneficiary's mother's first name."
+          },
+          "motherMiddleName": {
+            "label": "Mother's Middle Name",
+            "placeholder": "e.g., Rosa",
+            "helpText": "Enter the beneficiary's mother's middle name, if any."
+          },
+          "motherDateOfBirth": {
+            "label": "Mother's Date of Birth",
+            "helpText": "Enter the beneficiary's mother's date of birth."
+          },
+          "motherCountryOfBirth": {
+            "label": "Mother's Country of Birth",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country where the beneficiary's mother was born."
+          },
+          "fatherFamilyName": {
+            "label": "Father's Family Name (Last Name)",
+            "placeholder": "e.g., Garcia",
+            "helpText": "Enter the beneficiary's father's last name."
+          },
+          "fatherGivenName": {
+            "label": "Father's Given Name (First Name)",
+            "placeholder": "e.g., Carlos",
+            "helpText": "Enter the beneficiary's father's first name."
+          },
+          "fatherMiddleName": {
+            "label": "Father's Middle Name",
+            "placeholder": "e.g., Alberto",
+            "helpText": "Enter the beneficiary's father's middle name, if any."
+          },
+          "fatherDateOfBirth": {
+            "label": "Father's Date of Birth",
+            "helpText": "Enter the beneficiary's father's date of birth."
+          },
+          "fatherCountryOfBirth": {
+            "label": "Father's Country of Birth",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country where the beneficiary's father was born."
+          }
+        },
+        "proceedings": {
+          "title": "Prior Immigration Proceedings",
+          "inProceedings": {
+            "label": "Has the beneficiary ever been in immigration proceedings?",
+            "helpText": "This includes removal, exclusion, rescission, or deportation proceedings.",
+            "options": {
+              "no": "No",
+              "yes_removal": "Yes - Removal",
+              "yes_exclusion": "Yes - Exclusion/Deportation",
+              "yes_rescission": "Yes - Rescission"
+            }
+          }
+        },
+        "processingChoice": {
+          "title": "Processing Information",
+          "description": "You MUST select either Option 61 or Option 62, but NOT both.",
+          "processingType": {
+            "label": "How will the beneficiary obtain permanent residence?",
+            "helpText": "Select adjustment of status if the beneficiary is in the U.S., or consular processing if they are abroad.",
+            "options": {
+              "adjustment": "Adjustment of Status in the United States (Item 61)",
+              "consular": "Immigrant Visa at a U.S. Embassy/Consulate Abroad (Item 62)"
+            }
+          },
+          "consulateCity": {
+            "label": "U.S. Embassy or Consulate City",
+            "placeholder": "e.g., Ciudad Juárez",
+            "helpText": "Enter the city of the U.S. Embassy or Consulate where the beneficiary will apply for the immigrant visa."
+          },
+          "consulateCountry": {
+            "label": "U.S. Embassy or Consulate Country",
+            "placeholder": "e.g., Mexico",
+            "helpText": "Enter the country of the U.S. Embassy or Consulate."
+          }
+        }
+      },
+      "part5": {
+        "title": "Part 5. Other Information",
+        "otherInfo": {
+          "title": "Additional Information About Beneficiary",
+          "inRemovalProceedings": {
+            "label": "Is the beneficiary currently in removal, deportation, or rescission proceedings?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate if the beneficiary is currently in any removal, deportation, or rescission proceedings."
+          },
+          "previouslyInUS": {
+            "label": "Has the beneficiary ever been in the United States?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate whether the beneficiary has ever been physically present in the United States."
+          },
+          "arrested": {
+            "label": "Has the beneficiary ever been arrested, cited, charged, or convicted of any crime?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate if the beneficiary has ever been arrested, cited, charged, or convicted of any crime anywhere in the world."
+          },
+          "previouslyApplied": {
+            "label": "Has the beneficiary previously applied for permanent residence?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate if the beneficiary has ever previously applied for or received permanent resident status in the U.S."
+          },
+          "workedWithoutAuth": {
+            "label": "Has the beneficiary ever worked in the United States without authorization?",
+            "options": {
+              "yes": "Yes",
+              "no": "No"
+            },
+            "helpText": "Indicate if the beneficiary has ever worked in the United States without proper employment authorization."
+          },
+          "additionalDetails": {
+            "label": "If you answered \"Yes\" to any question above, provide details",
+            "placeholder": "Provide details about any \"Yes\" answers above...",
+            "helpText": "If you answered \"Yes\" to any of the questions above, provide complete details here."
+          }
+        }
+      },
+      "part6": {
+        "title": "Part 6. Petitioner's Statement",
+        "statement": {
+          "title": "Petitioner's Statement, Contact, and Signature",
+          "description": "Select the appropriate statement and provide your contact information.",
+          "canReadEnglish": {
+            "label": "I can read and understand English, and I have read and understand every question and instruction on this petition.",
+            "options": {
+              "yes": "Yes, I can read and understand English",
+              "no": "No, an interpreter assisted me"
+            },
+            "helpText": "Select whether you can read and understand English without assistance."
+          },
+          "interpreterLanguage": {
+            "label": "Language of the interpreter",
+            "placeholder": "e.g., Spanish",
+            "helpText": "Enter the language used by the interpreter who assisted you."
+          },
+          "preparerUsed": {
+            "label": "Did someone other than you prepare this petition?",
+            "options": {
+              "yes": "Yes",
+              "no": "No, I prepared it myself"
+            },
+            "helpText": "Indicate whether an attorney, accredited representative, or another person prepared this petition for you."
+          },
+          "daytimePhone": {
+            "label": "Petitioner's Daytime Telephone Number",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Enter a phone number where you can be reached during business hours."
+          },
+          "mobilePhone": {
+            "label": "Petitioner's Mobile Telephone Number",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Enter your mobile phone number."
+          },
+          "email": {
+            "label": "Petitioner's Email Address",
+            "placeholder": "email@example.com",
+            "helpText": "Enter an email address where USCIS can contact you."
+          }
+        }
+      },
+      "part7": {
+        "title": "Part 7. Interpreter's Information",
+        "interpreter": {
+          "title": "Interpreter's Contact Information",
+          "description": "Complete this section only if an interpreter assisted the petitioner.",
+          "interpreterFamilyName": {
+            "label": "Interpreter's Family Name (Last Name)",
+            "placeholder": "e.g., Martinez",
+            "helpText": "Enter the interpreter's last name."
+          },
+          "interpreterGivenName": {
+            "label": "Interpreter's Given Name (First Name)",
+            "placeholder": "e.g., Ana",
+            "helpText": "Enter the interpreter's first name."
+          },
+          "interpreterBusinessName": {
+            "label": "Interpreter's Business or Organization Name",
+            "placeholder": "e.g., Language Services Inc.",
+            "helpText": "Enter the interpreter's business or organization name, if applicable."
+          },
+          "interpreterPhone": {
+            "label": "Interpreter's Daytime Telephone Number",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Enter the interpreter's daytime phone number."
+          },
+          "interpreterEmail": {
+            "label": "Interpreter's Email Address",
+            "placeholder": "email@example.com",
+            "helpText": "Enter the interpreter's email address."
+          },
+          "interpreterLanguage": {
+            "label": "Language Interpreted",
+            "placeholder": "e.g., Spanish",
+            "helpText": "Enter the language interpreted during the completion of this form."
+          }
+        }
+      },
+      "part8": {
+        "title": "Part 8. Preparer's Information",
+        "preparer": {
+          "title": "Preparer's Contact Information",
+          "description": "Complete this section only if someone other than the petitioner prepared this petition.",
+          "preparerFamilyName": {
+            "label": "Preparer's Family Name (Last Name)",
+            "placeholder": "e.g., Johnson",
+            "helpText": "Enter the preparer's last name."
+          },
+          "preparerGivenName": {
+            "label": "Preparer's Given Name (First Name)",
+            "placeholder": "e.g., Robert",
+            "helpText": "Enter the preparer's first name."
+          },
+          "preparerBusinessName": {
+            "label": "Preparer's Business or Organization Name",
+            "placeholder": "e.g., Immigration Law Firm LLC",
+            "helpText": "Enter the preparer's business or organization name, if applicable."
+          },
+          "preparerPhone": {
+            "label": "Preparer's Daytime Telephone Number",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Enter the preparer's daytime phone number."
+          },
+          "preparerEmail": {
+            "label": "Preparer's Email Address",
+            "placeholder": "email@example.com",
+            "helpText": "Enter the preparer's email address."
+          },
+          "isAttorney": {
+            "label": "I am an attorney or accredited representative.",
+            "helpText": "Check this box if the preparer is an attorney or accredited representative."
+          }
+        }
+      }
+    }
+  },
+  "onboarding": {
+    "back": "Back",
+    "skipSetup": "Skip setup",
+    "step1": "Profile type",
+    "step2": "Information",
+    "welcome": "Welcome to EZMig",
+    "howWillYouUse": "How will you use the platform?",
+    "recommended": "Recommended",
+    "continue": "Continue",
+    "profileTypes": {
+      "agency": {
+        "title": "Agency / Law Firm",
+        "subtitle": "Manage multiple cases and teams"
+      },
+      "freelancer": {
+        "title": "Freelancer",
+        "subtitle": "Work independently"
+      }
+    },
+    "agencyForm": {
+      "title": "Agency information",
+      "subtitle": "Complete the basic details to get started"
+    },
+    "freelancerForm": {
+      "title": "Professional profile",
+      "subtitle": "Complete your information to appear in the directory"
+    },
+    "toasts": {
+      "profileCreated": "Profile created successfully!",
+      "profileError": "Error creating profile"
+    },
+    "rightPanel": {
+      "headline": "Automate your legal practice",
+      "description": "Fill immigration forms with precision and full compliance in less time",
+      "uscisCompliant": "USCIS Compliant",
+      "accuracy": "Accuracy",
+      "activeCases": "Active cases",
+      "processed": "Processed",
+      "forms": "Forms",
+      "timeSaved": "Time saved",
+      "compliance": "Compliance",
+      "formName": "Form I-485",
+      "formSubtitle": "Adjustment of Status",
+      "readyToSubmit": "Ready to submit"
+    }
+  },
+  "agencies": {
+    "typeSelector": {
+      "title": "Agency Type",
+      "description": "Select the type of services your agency offers",
+      "selectedType": "Selected type",
+      "cannotChange": "Cannot be changed after registration",
+      "servicesIncluded": "Services included",
+      "types": {
+        "law_firm": {
+          "title": "Law Firm",
+          "description": "We can represent clients before USCIS and immigration courts",
+          "features": [
+            "Full legal representation",
+            "Court appearances",
+            "Deportation defense",
+            "Specialized legal consultations"
+          ]
+        },
+        "immigration_services": {
+          "title": "Immigration Services",
+          "description": "We help complete immigration forms (no legal representation)",
+          "features": [
+            "Complete USCIS forms",
+            "Document review",
+            "Informational consultations",
+            "Application preparation"
+          ]
+        }
+      }
+    },
+    "form": {
+      "registerTitle": "Agency Registration",
+      "settingsTitle": "Agency Settings",
+      "subtitle": "Complete all the required fields to register your agency",
+      "sections": {
+        "agencyType": "Agency type",
+        "businessInfo": "Business information",
+        "location": "Location",
+        "legalInfo": "Legal information",
+        "owner": "Owner",
+        "disclaimer": "Legal disclaimer"
+      },
+      "fields": {
+        "legalBusinessName": "Legal Business Name",
+        "dbaName": "Trade Name (DBA)",
+        "businessEmail": "Business Email",
+        "businessPhone": "Business Phone",
+        "website": "Website",
+        "address": "Office Address",
+        "addressPlaceholder": "Enter your address...",
+        "city": "City",
+        "state": "State",
+        "zipCode": "Zip Code",
+        "firmRegistrationNumber": "Firm Registration Number",
+        "registrationState": "Registration State",
+        "businessLicense": "Business License",
+        "ownerFullName": "Full Name",
+        "ownerPosition": "Position/Title",
+        "ownerEmail": "Owner Email",
+        "ownerPhone": "Owner Phone"
+      },
+      "placeholders": {
+        "legalBusinessName": "e.g.: Smith & Associates LLC",
+        "dbaName": "e.g.: Smith Law Group",
+        "website": "https://your-website.com",
+        "city": "City",
+        "state": "CA",
+        "zipCode": "90210",
+        "firmRegistration": "e.g.: 123456789",
+        "registrationState": "CA",
+        "businessLicense": "BL-2024-001234",
+        "ownerName": "Owner full name",
+        "ownerPosition": "CEO, Managing Partner, etc."
+      },
+      "submit": "Complete registration",
+      "submitting": "Creating profile...",
+      "requiredNote": "Fields marked with * are required. Your progress is saved automatically.",
+      "submitSuccess": "Registration submitted successfully",
+      "submitError": "Error submitting registration"
     }
   }
 }

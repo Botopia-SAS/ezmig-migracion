@@ -92,7 +92,7 @@ export default function HomePage() {
           {/* Centered Text Content */}
           <AnimationContainer className="flex flex-col items-center text-center">
             <div className="mb-5">
-              <span className="relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-violet-200/80 bg-[#f2e8ff]/90 px-4 py-2 text-sm font-semibold text-violet-700 shadow-sm shadow-indigo-100/50 backdrop-blur">
+              <span className="relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-violet-200/80 bg-[#f2e8ff]/90 px-4 py-2 text-sm font-normal text-black shadow-sm shadow-indigo-100/50 backdrop-blur">
                 <span className="absolute inset-0 -left-1/2 w-[60%] -skew-x-12 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-pill-shine" aria-hidden />
                 <Sparkles className="h-4 w-4 text-violet-600 relative z-10" />
                 <span className="relative z-10">{t('hero.badge')}</span>
@@ -100,7 +100,7 @@ export default function HomePage() {
               </span>
             </div>
 
-            <h1 className="text-gray-900 text-center py-4 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight !leading-[1.1]">
+            <h1 className="text-gray-900 text-center py-4 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight !leading-[1.2]">
               {t('hero.title')}
               <br />
               <TypewriterEffect

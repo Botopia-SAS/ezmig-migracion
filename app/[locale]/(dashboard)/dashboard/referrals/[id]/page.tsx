@@ -12,7 +12,6 @@ import {
   Clock,
   AlertCircle,
   ExternalLink,
-  User,
   Briefcase,
   Calendar,
   Hash,
@@ -39,24 +38,25 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 
+interface FormTypeInfo {
+  id: number;
+  code: string;
+  name: string;
+  category: string | null;
+}
+
 interface ReferralLink {
   id: number;
   code: string;
   teamId: number;
   caseId: number | null;
-  clientId: number | null;
   isActive: boolean;
   expiresAt: string | null;
   maxUses: number;
   currentUses: number;
   createdAt: string;
   url: string;
-  client: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-  } | null;
+  formTypes: FormTypeInfo[];
   case: {
     id: number;
     caseNumber: string | null;
@@ -287,27 +287,21 @@ export default function ReferralDetailPage({
               <CardTitle>Link Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Client */}
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-violet-100 p-2">
-                    <User className="h-4 w-4 text-violet-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Client</p>
-                    {link.client ? (
-                      <Link
-                        href={`/dashboard/clients/${link.client.id}`}
-                        className="text-violet-600 hover:underline"
-                      >
-                        {link.client.firstName} {link.client.lastName}
-                      </Link>
-                    ) : (
-                      <p className="text-gray-400">Not assigned</p>
-                    )}
+              {/* Form Types */}
+              {link.formTypes?.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-500 mb-2">{t('detail.formTypes')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {link.formTypes.map((ft) => (
+                      <Badge key={ft.id} variant="secondary" className="bg-violet-100 text-violet-700 font-mono">
+                        {ft.code} — {ft.name}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
+              )}
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Case */}
                 <div className="flex items-start gap-3">
                   <div className="rounded-lg bg-indigo-100 p-2">
@@ -323,7 +317,7 @@ export default function ReferralDetailPage({
                         {link.case.caseNumber || link.case.caseType}
                       </Link>
                     ) : (
-                      <p className="text-gray-400">Not assigned</p>
+                      <p className="text-gray-400">{t('detail.autoCreateCase')}</p>
                     )}
                   </div>
                 </div>

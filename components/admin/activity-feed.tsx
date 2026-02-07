@@ -19,35 +19,17 @@ interface ActivityFeedProps {
   items: ActivityFeedItem[];
 }
 
-const actionIcons: Record<string, typeof Activity> = {
-  SIGN_UP: UserPlus,
-  SIGN_IN: LogIn,
-  PURCHASE_TOKENS: Coins,
-  CONSUME_TOKEN: Zap,
-  AUTO_RELOAD_TOKENS: RefreshCw,
-  INVITE_TEAM_MEMBER: UserCheck,
-  UPDATE_AUTO_RELOAD: Settings,
+const ACTION_CONFIG: Record<string, { icon: typeof Activity; label: string; color: string }> = {
+  SIGN_UP: { icon: UserPlus, label: 'signed up', color: 'text-green-500 bg-green-50' },
+  SIGN_IN: { icon: LogIn, label: 'signed in', color: 'text-blue-500 bg-blue-50' },
+  PURCHASE_TOKENS: { icon: Coins, label: 'purchased tokens', color: 'text-violet-500 bg-violet-50' },
+  CONSUME_TOKEN: { icon: Zap, label: 'used a token', color: 'text-orange-500 bg-orange-50' },
+  AUTO_RELOAD_TOKENS: { icon: RefreshCw, label: 'auto-reload triggered', color: 'text-indigo-500 bg-indigo-50' },
+  INVITE_TEAM_MEMBER: { icon: UserCheck, label: 'invited team member', color: 'text-cyan-500 bg-cyan-50' },
+  UPDATE_AUTO_RELOAD: { icon: Settings, label: 'updated auto-reload settings', color: 'text-gray-500 bg-gray-50' },
 };
 
-const actionLabels: Record<string, string> = {
-  SIGN_UP: 'signed up',
-  SIGN_IN: 'signed in',
-  PURCHASE_TOKENS: 'purchased tokens',
-  CONSUME_TOKEN: 'used a token',
-  AUTO_RELOAD_TOKENS: 'auto-reload triggered',
-  INVITE_TEAM_MEMBER: 'invited team member',
-  UPDATE_AUTO_RELOAD: 'updated auto-reload settings',
-};
-
-const actionColors: Record<string, string> = {
-  SIGN_UP: 'text-green-500 bg-green-50',
-  SIGN_IN: 'text-blue-500 bg-blue-50',
-  PURCHASE_TOKENS: 'text-violet-500 bg-violet-50',
-  CONSUME_TOKEN: 'text-orange-500 bg-orange-50',
-  AUTO_RELOAD_TOKENS: 'text-indigo-500 bg-indigo-50',
-  INVITE_TEAM_MEMBER: 'text-cyan-500 bg-cyan-50',
-  UPDATE_AUTO_RELOAD: 'text-gray-500 bg-gray-50',
-};
+const DEFAULT_ACTION = { icon: Activity, label: '', color: 'text-gray-500 bg-gray-50' };
 
 function formatTimeAgo(date: Date): string {
   const now = new Date();
@@ -93,9 +75,9 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
         ) : (
           <div className="space-y-4">
             {items.map((item) => {
-              const Icon = actionIcons[item.action] ?? Activity;
-              const label = actionLabels[item.action] ?? item.action;
-              const colorClass = actionColors[item.action] ?? 'text-gray-500 bg-gray-50';
+              const config = ACTION_CONFIG[item.action] ?? DEFAULT_ACTION;
+              const Icon = config.icon;
+              const label = config.label || item.action;
 
               return (
                 <div key={item.id} className="flex items-start gap-3">
@@ -106,7 +88,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <div className={cn('p-1 rounded', colorClass)}>
+                      <div className={cn('p-1 rounded', config.color)}>
                         <Icon className="h-3 w-3" />
                       </div>
                       <span className="font-medium text-sm truncate">

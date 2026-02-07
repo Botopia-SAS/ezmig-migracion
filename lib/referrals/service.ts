@@ -8,11 +8,11 @@ import {
   formTypes,
   users,
   teams,
+  teamMembers,
   type ReferralLink,
-  type NewReferralLink,
   type ReferralLinkUsageRecord,
 } from '@/lib/db/schema';
-import { eq, and, desc, isNull, gt, or, sql } from 'drizzle-orm';
+import { eq, and, desc, isNull, gt, or, sql, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
 // ============================================
@@ -22,21 +22,22 @@ import { nanoid } from 'nanoid';
 export interface CreateReferralLinkInput {
   teamId: number;
   caseId?: number;
-  clientId?: number;
+  formTypeIds: number[];
   expiresAt?: Date;
   maxUses?: number;
-  allowedForms?: number[];
   allowedSections?: string[];
   createdBy: number;
 }
 
+export interface FormTypeInfo {
+  id: number;
+  code: string;
+  name: string;
+  category: string | null;
+}
+
 export interface ReferralLinkWithDetails extends ReferralLink {
-  client: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-  } | null;
+  formTypes: FormTypeInfo[];
   case: {
     id: number;
     caseNumber: string | null;
@@ -55,40 +56,107 @@ export interface ReferralLinkPublicInfo {
   code: string;
   teamId: number;
   teamName: string;
-  clientId: number | null;
+  teamLogoUrl: string | null;
   caseId: number | null;
-  allowedForms: number[] | null;
+  formTypeIds: number[];
   createdBy: number | null;
   isValid: boolean;
   invalidReason?: string;
-  client?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  formTypes: FormTypeInfo[];
   case?: {
     caseNumber: string | null;
     caseType: string;
   };
-  forms?: {
-    id: number;
-    code: string;
-    name: string;
-    status: string;
-    progressPercentage: number;
-  }[];
+}
+
+export interface RegistrationInput {
+  email: string;
+  name: string;
+  passwordHash: string;
+  dateOfBirth?: string;
+  countryOfBirth?: string;
+  nationality?: string;
+  alienNumber?: string;
+}
+
+export interface RegistrationResult {
+  success: boolean;
+  user?: typeof users.$inferSelect;
+  client?: typeof clients.$inferSelect;
+  case?: typeof cases.$inferSelect;
+  error?: string;
+}
+
+// ============================================
+// HELPERS
+// ============================================
+
+function generateReferralCode(): string {
+  return nanoid(12);
+}
+
+/**
+ * Resolve form type details from an array of IDs
+ */
+async function fetchFormTypesByIds(ids: number[]): Promise<FormTypeInfo[]> {
+  if (ids.length === 0) return [];
+
+  const types = await db
+    .select({
+      id: formTypes.id,
+      code: formTypes.code,
+      name: formTypes.name,
+      category: formTypes.category,
+    })
+    .from(formTypes)
+    .where(inArray(formTypes.id, ids));
+
+  return types;
+}
+
+/**
+ * Infer case type from form type categories.
+ * Priority: family > humanitarian > naturalization > employment > travel > other
+ */
+function inferCaseType(
+  formTypeCategories: (string | null)[]
+): 'family_based' | 'employment' | 'asylum' | 'naturalization' | 'adjustment' | 'other' {
+  const categories = new Set(formTypeCategories.filter(Boolean));
+
+  if (categories.has('family')) return 'family_based';
+  if (categories.has('humanitarian')) return 'asylum';
+  if (categories.has('naturalization')) return 'naturalization';
+  if (categories.has('employment')) return 'employment';
+  if (categories.has('travel')) return 'adjustment';
+  return 'other';
+}
+
+/**
+ * Generate a sequential case number: EZM-YYYY-XXXXX
+ */
+async function generateCaseNumber(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `EZM-${year}-`;
+
+  const [latest] = await tx
+    .select({ caseNumber: cases.caseNumber })
+    .from(cases)
+    .where(sql`${cases.caseNumber} LIKE ${prefix + '%'}`)
+    .orderBy(desc(cases.caseNumber))
+    .limit(1);
+
+  let seq = 1;
+  if (latest?.caseNumber) {
+    const lastSeq = parseInt(latest.caseNumber.split('-').pop() || '0', 10);
+    seq = lastSeq + 1;
+  }
+
+  return `${prefix}${String(seq).padStart(5, '0')}`;
 }
 
 // ============================================
 // CRUD OPERATIONS
 // ============================================
-
-/**
- * Generate a unique referral code
- */
-function generateReferralCode(): string {
-  return nanoid(12); // 12 character URL-safe unique ID
-}
 
 /**
  * Create a new referral link
@@ -103,12 +171,11 @@ export async function createReferralLink(
     .values({
       teamId: input.teamId,
       caseId: input.caseId,
-      clientId: input.clientId,
       code,
       expiresAt: input.expiresAt,
       maxUses: input.maxUses ?? 1,
       currentUses: 0,
-      allowedForms: input.allowedForms ? input.allowedForms : null,
+      formTypeIds: input.formTypeIds,
       allowedSections: input.allowedSections ? input.allowedSections : null,
       isActive: true,
       createdBy: input.createdBy,
@@ -127,12 +194,6 @@ export async function getReferralLinksByTeam(
   const links = await db
     .select({
       link: referralLinks,
-      client: {
-        id: clients.id,
-        firstName: clients.firstName,
-        lastName: clients.lastName,
-        email: clients.email,
-      },
       case: {
         id: cases.id,
         caseNumber: cases.caseNumber,
@@ -145,19 +206,33 @@ export async function getReferralLinksByTeam(
       },
     })
     .from(referralLinks)
-    .leftJoin(clients, eq(referralLinks.clientId, clients.id))
     .leftJoin(cases, eq(referralLinks.caseId, cases.id))
     .leftJoin(users, eq(referralLinks.createdBy, users.id))
     .where(eq(referralLinks.teamId, teamId))
     .orderBy(desc(referralLinks.createdAt));
 
-  return links.map((row) => ({
-    ...row.link,
-    client: row.client?.id ? row.client : null,
-    case: row.case?.id ? row.case : null,
-    createdByUser: row.createdByUser?.id ? row.createdByUser : null,
-    usageCount: row.link.currentUses,
-  }));
+  // Collect all unique form type IDs to resolve in one query
+  const allFormTypeIds = new Set<number>();
+  for (const row of links) {
+    const ids = (row.link.formTypeIds as number[]) || [];
+    ids.forEach((id) => allFormTypeIds.add(id));
+  }
+
+  const allFormTypes = allFormTypeIds.size > 0
+    ? await fetchFormTypesByIds([...allFormTypeIds])
+    : [];
+  const formTypesMap = new Map(allFormTypes.map((ft) => [ft.id, ft]));
+
+  return links.map((row) => {
+    const ids = (row.link.formTypeIds as number[]) || [];
+    return {
+      ...row.link,
+      formTypes: ids.map((id) => formTypesMap.get(id)).filter(Boolean) as FormTypeInfo[],
+      case: row.case?.id ? row.case : null,
+      createdByUser: row.createdByUser?.id ? row.createdByUser : null,
+      usageCount: row.link.currentUses,
+    };
+  });
 }
 
 /**
@@ -170,12 +245,6 @@ export async function getReferralLinkById(
   const links = await db
     .select({
       link: referralLinks,
-      client: {
-        id: clients.id,
-        firstName: clients.firstName,
-        lastName: clients.lastName,
-        email: clients.email,
-      },
       case: {
         id: cases.id,
         caseNumber: cases.caseNumber,
@@ -188,7 +257,6 @@ export async function getReferralLinkById(
       },
     })
     .from(referralLinks)
-    .leftJoin(clients, eq(referralLinks.clientId, clients.id))
     .leftJoin(cases, eq(referralLinks.caseId, cases.id))
     .leftJoin(users, eq(referralLinks.createdBy, users.id))
     .where(and(eq(referralLinks.id, linkId), eq(referralLinks.teamId, teamId)))
@@ -197,9 +265,12 @@ export async function getReferralLinkById(
   if (!links[0]) return null;
 
   const row = links[0];
+  const ids = (row.link.formTypeIds as number[]) || [];
+  const linkFormTypes = ids.length > 0 ? await fetchFormTypesByIds(ids) : [];
+
   return {
     ...row.link,
-    client: row.client?.id ? row.client : null,
+    formTypes: linkFormTypes,
     case: row.case?.id ? row.case : null,
     createdByUser: row.createdByUser?.id ? row.createdByUser : null,
     usageCount: row.link.currentUses,
@@ -218,12 +289,7 @@ export async function getReferralLinkByCode(
       team: {
         id: teams.id,
         name: teams.name,
-      },
-      client: {
-        id: clients.id,
-        firstName: clients.firstName,
-        lastName: clients.lastName,
-        email: clients.email,
+        logoUrl: teams.logoUrl,
       },
       case: {
         id: cases.id,
@@ -233,7 +299,6 @@ export async function getReferralLinkByCode(
     })
     .from(referralLinks)
     .innerJoin(teams, eq(referralLinks.teamId, teams.id))
-    .leftJoin(clients, eq(referralLinks.clientId, clients.id))
     .leftJoin(cases, eq(referralLinks.caseId, cases.id))
     .where(eq(referralLinks.code, code))
     .limit(1);
@@ -258,59 +323,27 @@ export async function getReferralLinkByCode(
     invalidReason = 'This link has reached its maximum usage limit';
   }
 
-  // Get forms if case exists
-  let forms: ReferralLinkPublicInfo['forms'] = undefined;
-  if (link.caseId) {
-    const caseFormsData = await db
-      .select({
-        id: caseForms.id,
-        code: formTypes.code,
-        name: formTypes.name,
-        status: caseForms.status,
-        progressPercentage: caseForms.progressPercentage,
-      })
-      .from(caseForms)
-      .innerJoin(formTypes, eq(caseForms.formTypeId, formTypes.id))
-      .where(eq(caseForms.caseId, link.caseId));
-
-    // Filter by allowed forms if specified
-    const allowedFormIds = link.allowedForms as number[] | null;
-    forms = caseFormsData
-      .filter((f) => !allowedFormIds || allowedFormIds.includes(f.id))
-      .map((f) => ({
-        id: f.id,
-        code: f.code,
-        name: f.name,
-        status: f.status,
-        progressPercentage: f.progressPercentage,
-      }));
-  }
+  const ids = (link.formTypeIds as number[]) || [];
+  const linkFormTypes = ids.length > 0 ? await fetchFormTypesByIds(ids) : [];
 
   return {
     id: link.id,
     code: link.code,
     teamId: link.teamId,
     teamName: row.team.name,
-    clientId: link.clientId,
+    teamLogoUrl: row.team.logoUrl,
     caseId: link.caseId,
-    allowedForms: link.allowedForms as number[] | null,
+    formTypeIds: ids,
     createdBy: link.createdBy,
     isValid,
     invalidReason,
-    client: row.client?.id
-      ? {
-          firstName: row.client.firstName,
-          lastName: row.client.lastName,
-          email: row.client.email,
-        }
-      : undefined,
+    formTypes: linkFormTypes,
     case: row.case?.id
       ? {
           caseNumber: row.case.caseNumber,
           caseType: row.case.caseType,
         }
       : undefined,
-    forms,
   };
 }
 
@@ -320,7 +353,7 @@ export async function getReferralLinkByCode(
 export async function updateReferralLink(
   linkId: number,
   teamId: number,
-  updates: Partial<Pick<ReferralLink, 'isActive' | 'expiresAt' | 'maxUses' | 'allowedForms' | 'allowedSections'>>
+  updates: Partial<Pick<ReferralLink, 'isActive' | 'expiresAt' | 'maxUses' | 'formTypeIds' | 'allowedSections'>>
 ): Promise<ReferralLink | null> {
   const [updated] = await db
     .update(referralLinks)
@@ -354,7 +387,6 @@ export async function deleteReferralLink(
   linkId: number,
   teamId: number
 ): Promise<boolean> {
-  // First delete usage records
   await db
     .delete(referralLinkUsage)
     .where(eq(referralLinkUsage.referralLinkId, linkId));
@@ -396,7 +428,6 @@ export async function recordReferralLinkUsage(
     })
     .returning();
 
-  // Increment usage count if this is a registration
   if (action === 'registered') {
     await db
       .update(referralLinks)
@@ -416,7 +447,6 @@ export async function getReferralLinkUsage(
   linkId: number,
   teamId: number
 ): Promise<(ReferralLinkUsageRecord & { user: { email: string } | null })[]> {
-  // First verify the link belongs to the team
   const [link] = await db
     .select({ id: referralLinks.id })
     .from(referralLinks)
@@ -480,46 +510,224 @@ export async function validateReferralLink(code: string): Promise<{
   return { valid: true, link };
 }
 
+// ============================================
+// REGISTRATION VIA REFERRAL LINK
+// ============================================
+
 /**
- * Use a referral link to register a client
- * Links the client to the referral and increments usage
+ * Use a referral link to register a new user + client + case.
+ * All operations run inside a single transaction.
+ *
+ * Logic:
+ * 1. Validate link (active, not expired, uses available)
+ * 2. Verify email doesn't exist
+ * 3. Create user (role: end_user)
+ * 4. Create client (with immigration data)
+ * 5. Add teamMembers (userId, teamId, role: client)
+ * 6. If link has NO caseId:
+ *    - Infer caseType from formType categories
+ *    - Generate caseNumber (EZM-YYYY-XXXXX)
+ *    - Create case (teamId, clientId, status: intake)
+ *    - Create case_forms for each formTypeId
+ * 7. If link HAS caseId:
+ *    - Update case.clientId = new client
+ *    - Create missing case_forms
+ * 8. Record usage
+ * 9. Increment currentUses
  */
 export async function useReferralLinkForRegistration(
   code: string,
-  userId: number,
-  metadata?: {
-    ipAddress?: string;
-    userAgent?: string;
-  }
-): Promise<{
-  success: boolean;
-  link?: ReferralLink;
-  error?: string;
-}> {
+  registrationData: RegistrationInput,
+  metadata?: { ipAddress?: string; userAgent?: string }
+): Promise<RegistrationResult> {
+  // 1. Validate link outside transaction (read-only)
   const validation = await validateReferralLink(code);
-
   if (!validation.valid || !validation.link) {
     return { success: false, error: validation.reason };
   }
 
   const link = validation.link;
+  const formTypeIds = (link.formTypeIds as number[]) || [];
 
-  // Record usage
-  await recordReferralLinkUsage(link.id, 'registered', userId, metadata);
+  // 2. Check email not taken
+  const [existingUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, registrationData.email))
+    .limit(1);
 
-  // If link has a client, link the user to that client
-  if (link.clientId) {
-    await db
-      .update(clients)
-      .set({ userId })
-      .where(and(eq(clients.id, link.clientId), isNull(clients.userId)));
+  if (existingUser) {
+    return { success: false, error: 'Email already registered' };
   }
 
-  return { success: true, link };
+  // Resolve form types for category inference
+  const linkFormTypes = formTypeIds.length > 0 ? await fetchFormTypesByIds(formTypeIds) : [];
+
+  // Parse name into first/last
+  const nameParts = registrationData.name.trim().split(/\s+/);
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
+
+  // 3-9. Run everything in a transaction
+  return await db.transaction(async (tx) => {
+    // 3. Create user
+    const [newUser] = await tx
+      .insert(users)
+      .values({
+        name: registrationData.name,
+        email: registrationData.email,
+        passwordHash: registrationData.passwordHash,
+        role: 'end_user',
+      })
+      .returning();
+
+    // 4. Create client
+    const [newClient] = await tx
+      .insert(clients)
+      .values({
+        teamId: link.teamId,
+        userId: newUser.id,
+        firstName,
+        lastName,
+        email: registrationData.email,
+        dateOfBirth: registrationData.dateOfBirth || null,
+        countryOfBirth: registrationData.countryOfBirth || null,
+        nationality: registrationData.nationality || null,
+        alienNumber: registrationData.alienNumber || null,
+      })
+      .returning();
+
+    // 5. Add team membership
+    await tx.insert(teamMembers).values({
+      userId: newUser.id,
+      teamId: link.teamId,
+      role: 'client',
+    });
+
+    let caseRecord: typeof cases.$inferSelect;
+
+    if (!link.caseId) {
+      // 6. No existing case — create one
+      const caseType = inferCaseType(linkFormTypes.map((ft) => ft.category));
+      const caseNumber = await generateCaseNumber(tx);
+
+      const [newCase] = await tx
+        .insert(cases)
+        .values({
+          teamId: link.teamId,
+          clientId: newClient.id,
+          caseNumber,
+          caseType,
+          status: 'intake',
+          priority: 'normal',
+        })
+        .returning();
+
+      caseRecord = newCase;
+
+      // Create case_forms for each formTypeId
+      if (formTypeIds.length > 0) {
+        await tx.insert(caseForms).values(
+          formTypeIds.map((ftId) => ({
+            caseId: newCase.id,
+            formTypeId: ftId,
+            status: 'not_started' as const,
+            progressPercentage: 0,
+          }))
+        );
+
+        // Pre-fill I-130 beneficiary data from registration
+        const i130FormType = linkFormTypes.find((ft) => ft.code === 'I-130');
+        if (i130FormType) {
+          const prefillData = {
+            part4: {
+              names: {
+                familyName: lastName || '',
+                givenName: firstName || '',
+              },
+              birthInfo: {
+                dateOfBirth: registrationData.dateOfBirth || '',
+                countryOfBirth: registrationData.countryOfBirth || '',
+              },
+              citizenship: {
+                nationality: registrationData.nationality || '',
+              },
+              identifiers: {
+                alienNumber: registrationData.alienNumber || '',
+              },
+            },
+          };
+
+          await tx
+            .update(caseForms)
+            .set({ formData: prefillData })
+            .where(
+              and(
+                eq(caseForms.caseId, newCase.id),
+                eq(caseForms.formTypeId, i130FormType.id)
+              )
+            );
+        }
+      }
+    } else {
+      // 7. Existing case — update its clientId and add missing forms
+      const [updatedCase] = await tx
+        .update(cases)
+        .set({ clientId: newClient.id })
+        .where(eq(cases.id, link.caseId))
+        .returning();
+
+      caseRecord = updatedCase;
+
+      // Get existing case_forms to avoid duplicates
+      const existingForms = await tx
+        .select({ formTypeId: caseForms.formTypeId })
+        .from(caseForms)
+        .where(eq(caseForms.caseId, link.caseId));
+
+      const existingFormTypeIds = new Set(existingForms.map((f) => f.formTypeId));
+      const missingFormTypeIds = formTypeIds.filter((id) => !existingFormTypeIds.has(id));
+
+      if (missingFormTypeIds.length > 0) {
+        await tx.insert(caseForms).values(
+          missingFormTypeIds.map((ftId) => ({
+            caseId: link.caseId!,
+            formTypeId: ftId,
+            status: 'not_started' as const,
+            progressPercentage: 0,
+          }))
+        );
+      }
+    }
+
+    // 8. Record usage
+    await tx.insert(referralLinkUsage).values({
+      referralLinkId: link.id,
+      userId: newUser.id,
+      action: 'registered',
+      ipAddress: metadata?.ipAddress,
+      userAgent: metadata?.userAgent,
+    });
+
+    // 9. Increment currentUses
+    await tx
+      .update(referralLinks)
+      .set({
+        currentUses: sql`${referralLinks.currentUses} + 1`,
+      })
+      .where(eq(referralLinks.id, link.id));
+
+    return {
+      success: true,
+      user: newUser,
+      client: newClient,
+      case: caseRecord,
+    };
+  });
 }
 
 // ============================================
-// HELPERS
+// HELPERS (PUBLIC)
 // ============================================
 
 /**

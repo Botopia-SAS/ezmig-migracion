@@ -19,7 +19,6 @@ import { users, teams } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 import {
-  StatCard,
   TopTenantsList,
   TransactionsChart,
   RevenueTrendsChart,
@@ -30,7 +29,8 @@ import {
   ActivityFeed,
   ActivityDayChart,
 } from '@/components/admin';
-import { Shield } from 'lucide-react';
+import { StatCard } from '@/components/ui/stat-card';
+import { Shield, Building, Users, Coins, DollarSign } from 'lucide-react';
 
 async function getDashboardData() {
   // Use demo data for charts if database has insufficient data
@@ -93,7 +93,7 @@ export default async function AdminDashboardPage() {
   const estimatedRevenue = Math.round(data.globalStats.totalPurchased * 2.5);
 
   return (
-    <section className="flex-1 space-y-6">
+    <div className="flex-1 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-violet-100 rounded-lg">
@@ -110,40 +110,36 @@ export default async function AdminDashboardPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          iconName="building"
+          icon={<Building className="h-5 w-5 text-blue-600" />}
           value={data.stats.totalTenants.value}
-            label={t('stats.totalTenants.label')}
-            subLabel={t('stats.totalTenants.sub')}
+          label={t('stats.totalTenants.label')}
+          subLabel={t('stats.totalTenants.sub')}
           change={data.stats.totalTenants.change}
           iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
         />
         <StatCard
-          iconName="users"
+          icon={<Users className="h-5 w-5 text-green-600" />}
           value={data.stats.totalUsers.value}
-            label={t('stats.totalUsers.label')}
-            subLabel={t('stats.totalUsers.sub')}
+          label={t('stats.totalUsers.label')}
+          subLabel={t('stats.totalUsers.sub')}
           change={data.stats.totalUsers.change}
           iconBgColor="bg-green-100"
-          iconColor="text-green-600"
         />
         <StatCard
-          iconName="coins"
+          icon={<Coins className="h-5 w-5 text-violet-600" />}
           value={data.stats.tokensConsumed.value}
-            label={t('stats.tokensUsed.label')}
-            subLabel={t('stats.tokensUsed.sub')}
+          label={t('stats.tokensUsed.label')}
+          subLabel={t('stats.tokensUsed.sub')}
           change={data.stats.tokensConsumed.change}
           iconBgColor="bg-violet-100"
-          iconColor="text-violet-600"
         />
         <StatCard
-          iconName="dollarSign"
-            value={`${t('currency', { value: estimatedRevenue / 100, style: 'currency', currency: 'USD' })}`}
-            label={t('stats.revenue.label')}
-            subLabel={t('stats.revenue.sub')}
+          icon={<DollarSign className="h-5 w-5 text-white" />}
+          value={`${t('currency', { value: estimatedRevenue / 100, style: 'currency', currency: 'USD' })}`}
+          label={t('stats.revenue.label')}
+          subLabel={t('stats.revenue.sub')}
           variant="highlight"
           iconBgColor="bg-white/20"
-          iconColor="text-white"
         />
       </div>
 
@@ -208,6 +204,6 @@ export default async function AdminDashboardPage() {
           <p className="text-xs text-gray-400">tenants</p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

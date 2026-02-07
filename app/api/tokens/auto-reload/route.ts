@@ -1,30 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withAuth, withOwner } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import { updateAutoReloadSettings } from '@/lib/tokens/service';
 import { db } from '@/lib/db/drizzle';
-import { teamMembers, teams } from '@/lib/db/schema';
+import { teams } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-// GET auto-reload settings
-export async function GET() {
+export const GET = withAuth(async (_request, { teamId, tenantRole }) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId, role: teamMembers.role })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Get team settings
     const [team] = await db
       .select({
         autoReloadEnabled: teams.autoReloadEnabled,
@@ -33,60 +15,36 @@ export async function GET() {
         stripeCustomerId: teams.stripeCustomerId,
       })
       .from(teams)
-      .where(eq(teams.id, membership.teamId))
+      .where(eq(teams.id, teamId))
       .limit(1);
 
-    return NextResponse.json({
+    return successResponse({
       enabled: team?.autoReloadEnabled ?? false,
       threshold: team?.autoReloadThreshold ?? 5,
       package: team?.autoReloadPackage ?? '10',
       hasPaymentMethod: !!team?.stripeCustomerId,
-      isOwner: membership.role === 'owner',
+      isOwner: tenantRole === 'owner',
     });
   } catch (error) {
-    console.error('Error fetching auto-reload settings:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleRouteError(error, 'Failed to fetch auto-reload settings');
   }
-}
+});
 
-// POST update auto-reload settings
-export async function POST(request: NextRequest) {
+export const POST = withOwner(async (request, { user, teamId }) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const { enabled, threshold, package: packageTokens } = body;
 
-    // Get user's team and check ownership
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId, role: teamMembers.role })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Only owners can update auto-reload settings
-    if (membership.role !== 'owner') {
-      return NextResponse.json({ error: 'Only team owners can update auto-reload settings' }, { status: 403 });
-    }
-
     await updateAutoReloadSettings({
-      teamId: membership.teamId,
+      teamId,
       enabled: enabled ?? false,
       threshold: threshold ?? 5,
       packageTokens: packageTokens ?? '10',
       userId: user.id,
     });
 
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    console.error('Error updating auto-reload settings:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleRouteError(error, 'Failed to update auto-reload settings');
   }
-}
+});

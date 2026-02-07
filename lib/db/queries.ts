@@ -109,6 +109,50 @@ export async function getActivityLogs() {
     .limit(10);
 }
 
+export async function getUserProfile(userId: number) {
+  const result = await db.query.teamMembers.findFirst({
+    where: eq(teamMembers.userId, userId),
+    with: {
+      user: {
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          profileType: true
+        }
+      },
+      team: true
+    }
+  });
+
+  if (!result) {
+    // Check if user exists without team membership
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId)
+    });
+
+    if (user) {
+      return {
+        userId: user.id,
+        teamId: null,
+        role: null,
+        profileType: user.profileType,
+        user: user
+      };
+    }
+    return null;
+  }
+
+  return {
+    userId: result.userId,
+    teamId: result.teamId,
+    role: result.role,
+    profileType: result.user.profileType,
+    user: result.user
+  };
+}
+
 export async function getTeamForUser() {
   const user = await getUser();
   if (!user) {
@@ -121,6 +165,7 @@ export async function getTeamForUser() {
       team: {
         with: {
           teamMembers: {
+            where: (members, { inArray }) => inArray(members.role, ['owner', 'staff']),
             with: {
               user: {
                 columns: {

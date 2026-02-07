@@ -95,8 +95,13 @@ export default function SettingsPage() {
     <section className="flex-1">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/dashboard/billing">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-gray-900 hover:text-gray-900"
+          >
             <ArrowLeft className="h-5 w-5" />
+            {t('back')}
           </Button>
         </Link>
         <h1 className="text-lg lg:text-2xl font-medium text-gray-900">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TypewriterEffectProps {
@@ -21,11 +21,6 @@ export function TypewriterEffect({
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const longestWord = useMemo(
-    () => words.reduce((longest, word) => (word.length > longest.length ? word : longest), ''),
-    [words]
-  );
 
   useEffect(() => {
     const currentWord = words[currentWordIndex];
@@ -58,14 +53,20 @@ export function TypewriterEffect({
   }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, delayBetweenWords]);
 
   return (
-    <span className={cn('relative inline-flex items-baseline justify-center', className)}>
-      {/* Invisible word to reserve width and avoid layout shift */}
-      <span className="invisible pointer-events-none select-none whitespace-pre">
-        {longestWord}
-      </span>
+    <span className={cn('relative inline-grid items-baseline justify-center overflow-visible', className)}>
+      {/* All words stacked in the same grid cell to reserve the widest one's width */}
+      {words.map((word, i) => (
+        <span
+          key={i}
+          className="invisible pointer-events-none select-none whitespace-pre col-start-1 row-start-1 pl-1 pr-3"
+          aria-hidden
+        >
+          {word}
+        </span>
+      ))}
 
-      {/* Actual text + cursor overlayed to keep cursor next to last character */}
-      <span className="absolute inset-0 flex items-baseline justify-center">
+      {/* Actual text + cursor overlayed */}
+      <span className="absolute inset-y-0 left-0 right-0 flex items-baseline justify-center overflow-visible">
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 whitespace-pre">
           {currentText}
         </span>

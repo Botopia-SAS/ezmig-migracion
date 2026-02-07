@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldWrapper } from './field-wrapper';
 import type { FormField } from './index';
 
 interface FieldTextProps {
@@ -24,11 +24,7 @@ export function FieldText({
   const inputType = type === 'email' ? 'email' : type === 'number' ? 'number' : 'text';
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={field.id}>
-        {field.label}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+    <FieldWrapper field={field} error={error} charCount={field.maxLength ? (value || '').length : undefined}>
       <Input
         id={field.id}
         type={inputType}
@@ -39,15 +35,6 @@ export function FieldText({
         disabled={disabled}
         className={error ? 'border-red-500' : ''}
       />
-      {field.helpText && (
-        <p className="text-xs text-gray-500">{field.helpText}</p>
-      )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-      {field.maxLength && (
-        <p className="text-xs text-gray-400 text-right">
-          {(value || '').length}/{field.maxLength}
-        </p>
-      )}
-    </div>
+    </FieldWrapper>
   );
 }

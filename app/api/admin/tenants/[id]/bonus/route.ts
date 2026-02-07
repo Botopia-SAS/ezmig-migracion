@@ -1,25 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withAdmin } from '@/lib/api/middleware';
+import { successResponse, badRequestResponse, handleRouteError } from '@/lib/api/response';
+import { parseIntParam } from '@/lib/api/validators';
 import { addBonusTokens } from '@/lib/tokens/service';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const POST = withAdmin(async (req, user, params) => {
   try {
-    const user = await getUser();
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const teamId = parseIntParam(params?.id);
+    if (teamId === null) {
+      return badRequestResponse('Invalid team ID');
     }
 
-    const { id } = await params;
-    const teamId = parseInt(id);
-
-    const body = await request.json();
+    const body = await req.json();
     const { amount, reason } = body;
 
     if (!amount || amount <= 0) {
-      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
+      return badRequestResponse('Invalid amount');
     }
 
     const transaction = await addBonusTokens({
@@ -29,9 +24,8 @@ export async function POST(
       adminUserId: user.id,
     });
 
-    return NextResponse.json({ success: true, transaction });
+    return successResponse({ success: true, transaction });
   } catch (error) {
-    console.error('Error adding bonus tokens:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleRouteError(error, 'Error adding bonus tokens');
   }
-}
+});

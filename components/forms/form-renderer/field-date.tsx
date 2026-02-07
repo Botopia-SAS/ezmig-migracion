@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldWrapper } from './field-wrapper';
 import type { FormField } from './index';
 
 interface FieldDateProps {
@@ -20,11 +20,7 @@ export function FieldDate({
   disabled,
 }: FieldDateProps) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={field.id}>
-        {field.label}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+    <FieldWrapper field={field} error={error}>
       <Input
         id={field.id}
         type="date"
@@ -33,10 +29,6 @@ export function FieldDate({
         disabled={disabled}
         className={error ? 'border-red-500' : ''}
       />
-      {field.helpText && (
-        <p className="text-xs text-gray-500">{field.helpText}</p>
-      )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
+    </FieldWrapper>
   );
 }

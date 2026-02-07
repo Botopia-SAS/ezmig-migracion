@@ -52,24 +52,25 @@ import {
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface FormTypeInfo {
+  id: number;
+  code: string;
+  name: string;
+  category: string | null;
+}
+
 interface ReferralLink {
   id: number;
   code: string;
   teamId: number;
   caseId: number | null;
-  clientId: number | null;
   isActive: boolean;
   expiresAt: string | null;
   maxUses: number;
   currentUses: number;
   createdAt: string;
   url: string;
-  client: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-  } | null;
+  formTypes: FormTypeInfo[];
   case: {
     id: number;
     caseNumber: string | null;
@@ -240,8 +241,7 @@ export default function ReferralsPage() {
     const searchLower = search.toLowerCase();
     return (
       link.code.toLowerCase().includes(searchLower) ||
-      link.client?.firstName?.toLowerCase().includes(searchLower) ||
-      link.client?.lastName?.toLowerCase().includes(searchLower) ||
+      link.formTypes?.some((ft) => ft.code.toLowerCase().includes(searchLower) || ft.name.toLowerCase().includes(searchLower)) ||
       link.case?.caseNumber?.toLowerCase().includes(searchLower)
     );
   });
@@ -308,7 +308,7 @@ export default function ReferralsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t('table.code')}</TableHead>
-                      <TableHead>{t('table.client')}</TableHead>
+                      <TableHead>{t('table.formTypes')}</TableHead>
                       <TableHead>{t('table.case')}</TableHead>
                       <TableHead>{t('table.status')}</TableHead>
                       <TableHead>{t('table.uses')}</TableHead>
@@ -329,13 +329,17 @@ export default function ReferralsPage() {
                           </Link>
                         </TableCell>
                         <TableCell>
-                          {link.client ? (
-                            <Link
-                              href={`/dashboard/clients/${link.client.id}`}
-                              className="hover:underline"
-                            >
-                              {link.client.firstName} {link.client.lastName}
-                            </Link>
+                          {link.formTypes?.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {link.formTypes.map((ft) => (
+                                <span
+                                  key={ft.id}
+                                  className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium rounded-full bg-violet-100 text-violet-700"
+                                >
+                                  {ft.code}
+                                </span>
+                              ))}
+                            </div>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
@@ -369,7 +373,7 @@ export default function ReferralsPage() {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                               </Button>

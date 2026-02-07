@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
-import { teamMembers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { withAuth } from '@/lib/api/middleware';
+import { successResponse, handleRouteError, notFoundResponse, conflictResponse } from '@/lib/api/response';
+import { validateBody, requireIntParam } from '@/lib/api/validators';
 import {
   getClientById,
   getClientWithCases,
@@ -13,7 +11,6 @@ import {
 } from '@/lib/clients/service';
 import { z } from 'zod';
 
-// Validation schema for updating a client
 const updateClientSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
   lastName: z.string().min(1).max(100).optional(),
@@ -34,209 +31,68 @@ const updateClientSchema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
-
-/**
- * GET /api/clients/[id]
- * Get a specific client by ID with their cases
- */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAuth(async (request, { teamId }, params) => {
   try {
-    const { id } = await params;
-    const clientId = parseInt(id);
+    const [clientId, err] = requireIntParam(params?.id, 'client ID');
+    if (err) return err;
 
-    if (isNaN(clientId)) {
-      return NextResponse.json({ error: 'Invalid client ID' }, { status: 400 });
-    }
-
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
-
-    // Check if we want cases included
     const { searchParams } = new URL(request.url);
     const includeCases = searchParams.get('includeCases') === 'true';
 
-    let client;
-    if (includeCases) {
-      client = await getClientWithCases(clientId, membership.teamId);
-    } else {
-      client = await getClientById(clientId, membership.teamId);
-    }
+    const client = includeCases
+      ? await getClientWithCases(clientId, teamId)
+      : await getClientById(clientId, teamId);
 
-    if (!client) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
-    }
+    if (!client) return notFoundResponse('Client');
 
-    return NextResponse.json(client);
+    return successResponse(client);
   } catch (error) {
-    console.error('Error fetching client:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch client' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to fetch client');
   }
-}
+});
 
-/**
- * PUT /api/clients/[id]
- * Update a client
- */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export const PUT = withAuth(async (request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const clientId = parseInt(id);
+    const [clientId, err] = requireIntParam(params?.id, 'client ID');
+    if (err) return err;
 
-    if (isNaN(clientId)) {
-      return NextResponse.json({ error: 'Invalid client ID' }, { status: 400 });
-    }
-
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
-
-    // Parse and validate request body
     const body = await request.json();
-    const validationResult = updateClientSchema.safeParse(body);
+    const [data, validationError] = validateBody(updateClientSchema, body);
+    if (validationError) return validationError;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.errors },
-        { status: 400 }
-      );
-    }
-
-    const data = validationResult.data;
-
-    // If email is being updated, check for duplicates
     if (data.email) {
-      const emailExists = await clientEmailExists(
-        membership.teamId,
-        data.email,
-        clientId
-      );
+      const emailExists = await clientEmailExists(teamId, data.email, clientId);
       if (emailExists) {
-        return NextResponse.json(
-          { error: 'A client with this email already exists' },
-          { status: 409 }
-        );
+        return conflictResponse('A client with this email already exists');
       }
     }
 
-    // Build update object, converting undefined to optional fields
     const updateData: UpdateClientInput = {};
-    if (data.firstName !== undefined) updateData.firstName = data.firstName;
-    if (data.lastName !== undefined) updateData.lastName = data.lastName;
-    if (data.email !== undefined) updateData.email = data.email;
-    if (data.phone !== undefined) updateData.phone = data.phone ?? undefined;
-    if (data.dateOfBirth !== undefined) updateData.dateOfBirth = data.dateOfBirth ?? undefined;
-    if (data.countryOfBirth !== undefined) updateData.countryOfBirth = data.countryOfBirth ?? undefined;
-    if (data.nationality !== undefined) updateData.nationality = data.nationality ?? undefined;
-    if (data.alienNumber !== undefined) updateData.alienNumber = data.alienNumber ?? undefined;
-    if (data.uscisOnlineAccount !== undefined) updateData.uscisOnlineAccount = data.uscisOnlineAccount ?? undefined;
-    if (data.currentStatus !== undefined) updateData.currentStatus = data.currentStatus ?? undefined;
-    if (data.addressLine1 !== undefined) updateData.addressLine1 = data.addressLine1 ?? undefined;
-    if (data.addressLine2 !== undefined) updateData.addressLine2 = data.addressLine2 ?? undefined;
-    if (data.city !== undefined) updateData.city = data.city ?? undefined;
-    if (data.state !== undefined) updateData.state = data.state ?? undefined;
-    if (data.zipCode !== undefined) updateData.zipCode = data.zipCode ?? undefined;
-    if (data.country !== undefined) updateData.country = data.country ?? undefined;
-    if (data.notes !== undefined) updateData.notes = data.notes ?? undefined;
-
-    // Update the client
-    const updatedClient = await updateClient(
-      clientId,
-      membership.teamId,
-      user.id,
-      updateData
-    );
-
-    if (!updatedClient) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        (updateData as Record<string, unknown>)[key] = value ?? undefined;
+      }
     }
 
-    return NextResponse.json(updatedClient);
-  } catch (error) {
-    console.error('Error updating client:', error);
-    return NextResponse.json(
-      { error: 'Failed to update client' },
-      { status: 500 }
-    );
-  }
-}
+    const updatedClient = await updateClient(clientId, teamId, user.id, updateData);
+    if (!updatedClient) return notFoundResponse('Client');
 
-/**
- * DELETE /api/clients/[id]
- * Soft delete a client
- */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+    return successResponse(updatedClient);
+  } catch (error) {
+    return handleRouteError(error, 'Failed to update client');
+  }
+});
+
+export const DELETE = withAuth(async (_request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const clientId = parseInt(id);
+    const [clientId, err] = requireIntParam(params?.id, 'client ID');
+    if (err) return err;
 
-    if (isNaN(clientId)) {
-      return NextResponse.json({ error: 'Invalid client ID' }, { status: 400 });
-    }
+    const deleted = await deleteClient(clientId, teamId, user.id);
+    if (!deleted) return notFoundResponse('Client');
 
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team membership found' }, { status: 403 });
-    }
-
-    // Delete the client
-    const deleted = await deleteClient(
-      clientId,
-      membership.teamId,
-      user.id
-    );
-
-    if (!deleted) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    console.error('Error deleting client:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete client' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to delete client');
   }
-}
+});

@@ -6,52 +6,41 @@ import useSWR from 'swr';
 import { useTranslations } from 'next-intl';
 import {
   ArrowRight,
+  ArrowLeft,
   CheckCircle,
   XCircle,
   FileText,
+  Shield,
   Clock,
-  AlertTriangle,
   User,
-  Briefcase,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
+import { LanguageSwitcher } from '@/components/language-switcher';
+
+interface FormTypeInfo {
+  id: number;
+  code: string;
+  name: string;
+  category: string | null;
+}
 
 interface ReferralLinkInfo {
   id: number;
   code: string;
   teamId: number;
   teamName: string;
-  clientId: number | null;
+  teamLogoUrl: string | null;
   caseId: number | null;
-  allowedForms: number[] | null;
+  formTypeIds: number[];
   isValid: boolean;
   invalidReason?: string;
-  client?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  formTypes: FormTypeInfo[];
   case?: {
     caseNumber: string | null;
     caseType: string;
   };
-  forms?: {
-    id: number;
-    code: string;
-    name: string;
-    status: string;
-    progressPercentage: number;
-  }[];
 }
 
 interface ReferralResponse {
@@ -62,21 +51,12 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function LoadingSkeleton() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-2xl">
-      <div className="space-y-6">
-        <div className="text-center">
-          <Skeleton className="h-8 w-48 mx-auto mb-4" />
-          <Skeleton className="h-4 w-64 mx-auto" />
-        </div>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-40" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
-          </CardContent>
-        </Card>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="space-y-4 w-full max-w-sm px-4">
+        <Skeleton className="h-8 w-48 mx-auto" />
+        <Skeleton className="h-4 w-64 mx-auto" />
+        <Skeleton className="h-40 w-full rounded-xl" />
+        <Skeleton className="h-12 w-full rounded-lg" />
       </div>
     </div>
   );
@@ -84,118 +64,20 @@ function LoadingSkeleton() {
 
 function InvalidLink({ reason, t }: { reason?: string; t: (key: string) => string }) {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-md">
-      <Card className="border-red-200 bg-red-50">
-        <CardContent className="pt-6 text-center">
-          <div className="rounded-full bg-red-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <XCircle className="h-8 w-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-red-900 mb-2">
-            {t('invalid.title')}
-          </h2>
-          <p className="text-red-700 mb-4">
-            {reason || t('invalid.description')}
-          </p>
-          <Button asChild variant="outline">
-            <Link href="/">{t('invalid.backHome')}</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function FormCard({
-  form,
-  code,
-  t,
-}: {
-  form: { id: number; code: string; name: string; status: string; progressPercentage: number };
-  code: string;
-  t: (key: string) => string;
-}) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'not_started':
-        return (
-          <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-            {t('formStatus.notStarted')}
-          </Badge>
-        );
-      case 'in_progress':
-        return (
-          <Badge className="bg-blue-100 text-blue-700">
-            {t('formStatus.inProgress')}
-          </Badge>
-        );
-      case 'completed':
-        return (
-          <Badge className="bg-green-100 text-green-700">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            {t('formStatus.completed')}
-          </Badge>
-        );
-      case 'submitted':
-        return (
-          <Badge className="bg-purple-100 text-purple-700">
-            {t('formStatus.submitted')}
-          </Badge>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getActionButton = (status: string) => {
-    if (status === 'submitted') {
-      return (
-        <Button disabled variant="outline" size="sm">
-          {t('formActions.view')}
-        </Button>
-      );
-    }
-    if (status === 'completed') {
-      return (
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/portal/${code}/forms/${form.id}`}>
-            {t('formActions.review')}
-          </Link>
-        </Button>
-      );
-    }
-    return (
-      <Button
-        size="sm"
-        className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-        asChild
-      >
-        <Link href={`/portal/${code}/forms/${form.id}`}>
-          {status === 'not_started' ? t('formActions.start') : t('formActions.continue')}
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
-      </Button>
-    );
-  };
-
-  return (
-    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-      <div className="flex items-center gap-4">
-        <div className="rounded-lg bg-violet-100 p-2">
-          <FileText className="h-5 w-5 text-violet-600" />
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="rounded-full bg-red-100 p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+          <XCircle className="h-8 w-8 text-red-600" />
         </div>
-        <div>
-          <h4 className="font-medium">{form.name}</h4>
-          <p className="text-sm text-gray-500">{form.code}</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        {form.status === 'in_progress' && (
-          <div className="text-sm text-gray-500">
-            {form.progressPercentage}%
-          </div>
-        )}
-        {getStatusBadge(form.status)}
-        {getActionButton(form.status)}
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          {t('invalid.title')}
+        </h2>
+        <p className="text-gray-500 mb-6">
+          {reason || t('invalid.description')}
+        </p>
+        <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+          <Link href="/">{t('invalid.backHome')}</Link>
+        </Button>
       </div>
     </div>
   );
@@ -229,156 +111,211 @@ export default function PortalLandingPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-2xl">
-      {/* Welcome Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 rounded-full text-violet-700 text-sm font-medium mb-4">
-          <CheckCircle className="h-4 w-4" />
-          {t('welcome.validLink')}
+    <div className="h-screen flex overflow-hidden">
+      {/* Left side — Content (scrollable) */}
+      <div className="w-full lg:w-[42%] xl:w-[38%] flex flex-col px-4 sm:px-6 lg:px-16 xl:px-20 overflow-y-auto">
+        {/* Back to home */}
+        <div className="pt-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            {t('invalid.backHome')}
+          </Link>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t('welcome.title', { teamName: link.teamName })}
-        </h1>
-        <p className="text-gray-600">
-          {t('welcome.subtitle')}
-        </p>
+
+        <div className="flex-1 flex flex-col justify-center py-12">
+          <div className="w-full max-w-sm">
+            {/* Logo + Language */}
+            <div className="flex items-center justify-between mb-8">
+              <Link href="/" className="flex items-center gap-2">
+                <img
+                  src="https://res.cloudinary.com/dxzsui9zz/image/upload/e_background_removal/f_png/v1769143142/Generated_Image_January_22_2026_-_11_16PM_ckvy3c.jpg"
+                  alt="EZMig"
+                  className="h-9 w-auto"
+                />
+                <span className="text-xl font-bold text-gray-900">EZMig</span>
+              </Link>
+              <LanguageSwitcher />
+            </div>
+
+            {/* Valid link badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-green-700 text-xs font-medium mb-5">
+              <CheckCircle className="h-3.5 w-3.5" />
+              {t('welcome.validLink')}
+            </div>
+
+            {/* Welcome */}
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              {t('welcome.title', { teamName: link.teamName })}
+            </h1>
+            <p className="text-gray-500 mb-8">
+              {t('welcome.subtitle')}
+            </p>
+
+            {/* Form types */}
+            {link.formTypes && link.formTypes.length > 0 && (
+              <div className="mb-8">
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  {t('forms.title')}
+                </p>
+                <div className="space-y-2">
+                  {link.formTypes.map((ft) => (
+                    <div
+                      key={ft.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
+                    >
+                      <div className="rounded-lg bg-violet-100 p-1.5">
+                        <FileText className="h-4 w-4 text-violet-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{ft.name}</p>
+                        <p className="text-xs text-gray-500 font-mono">{ft.code}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Register CTA */}
+            <Button
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium mb-4"
+              asChild
+            >
+              <Link href={`/portal/${code}/register`}>
+                {t('register.cta.button')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+
+            {/* Divider with sign-in */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  {t('login.cta.title')}
+                </span>
+              </div>
+            </div>
+
+            <Link
+              href="/sign-in"
+              className="w-full flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all"
+            >
+              {t('login.cta.button')}
+            </Link>
+
+            {/* Help */}
+            <p className="mt-8 text-center text-xs text-gray-500">
+              {t('help.text')}{' '}
+              <a href={`mailto:support@${link.teamName.toLowerCase().replace(/\s+/g, '')}.com`} className="text-indigo-600 hover:text-indigo-500">
+                {t('help.contact')}
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Client/Case Info */}
-        {(link.client || link.case) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('info.title')}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {link.client && (
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-blue-100 p-2">
-                    <User className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">{t('info.client')}</p>
-                    <p className="font-medium">
-                      {link.client.firstName} {link.client.lastName}
-                    </p>
-                    <p className="text-sm text-gray-500">{link.client.email}</p>
-                  </div>
-                </div>
-              )}
-              {link.case && (
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-indigo-100 p-2">
-                    <Briefcase className="h-4 w-4 text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">{t('info.case')}</p>
-                    <p className="font-medium">
-                      {link.case.caseNumber || link.case.caseType}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+      {/* Right side — Premium visual */}
+      <div className="hidden lg:flex lg:w-[58%] xl:w-[62%] bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 items-center justify-center p-16 relative overflow-hidden">
+        {/* Background blurs */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-400 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        </div>
 
-        {/* Forms */}
-        {link.forms && link.forms.length > 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('forms.title')}</CardTitle>
-              <CardDescription>
-                {t('forms.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {link.forms.map((form) => (
-                <FormCard key={form.id} form={form} code={code} t={t} />
-              ))}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <div className="rounded-full bg-gray-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <FileText className="h-8 w-8 text-gray-400" />
-              </div>
-              <h3 className="font-medium text-gray-900 mb-1">
-                {t('forms.empty')}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {t('forms.emptyDescription')}
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
-        {/* CTA for Registration */}
-        <Card className="bg-gradient-to-r from-violet-500 to-indigo-500 text-white border-0">
-          <CardContent className="py-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <h3 className="font-semibold text-lg mb-1">
-                  {t('register.cta.title')}
-                </h3>
-                <p className="text-violet-100 text-sm">
-                  {t('register.cta.description')}
-                </p>
-              </div>
-              <Button
-                variant="secondary"
-                className="bg-white text-violet-600 hover:bg-violet-50"
-                asChild
-              >
-                <Link href={`/portal/${code}/register`}>
-                  {t('register.cta.button')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Already have account - Login option */}
-        <Card className="border-gray-200 bg-gray-50">
-          <CardContent className="py-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-white p-2 border">
-                  <User className="h-4 w-4 text-gray-600" />
+        <div className="relative z-10 max-w-lg w-full">
+          {/* Floating cards */}
+          <div className="relative h-72 mb-8">
+            {/* Main card — Team branding */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-white rounded-2xl shadow-2xl p-5 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    {t('login.cta.title')}
-                  </p>
-                  <p className="text-gray-500 text-xs">
-                    {t('login.cta.description')}
-                  </p>
+                  <p className="text-sm font-semibold text-gray-900">{link.teamName}</p>
+                  <p className="text-xs text-gray-500">{t('welcome.subtitle')}</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
-                <Link href="/sign-in">
-                  {t('login.cta.button')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="space-y-2">
+                {link.formTypes?.slice(0, 2).map((ft) => (
+                  <div key={ft.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                    <div className="w-6 h-6 bg-violet-100 rounded flex items-center justify-center">
+                      <FileText className="w-3 h-3 text-violet-600" />
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 truncate">{ft.name}</span>
+                  </div>
+                ))}
+                {(link.formTypes?.length || 0) > 2 && (
+                  <p className="text-xs text-gray-400 text-center">+{link.formTypes!.length - 2} more</p>
+                )}
+              </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Help */}
-        <div className="text-center text-sm text-gray-500">
-          <p>
-            {t('help.text')}{' '}
-            <a href={`mailto:support@${link.teamName.toLowerCase().replace(/\s+/g, '')}.com`} className="text-violet-600 hover:underline">
-              {t('help.contact')}
-            </a>
-          </p>
+            {/* Trust card — Left */}
+            <div className="absolute -left-4 top-4 w-48 bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-4 transform -rotate-6 hover:rotate-0 transition-transform duration-500">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">Secure Portal</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-gray-900">256-bit</span>
+                <span className="text-xs text-gray-500">encryption</span>
+              </div>
+            </div>
+
+            {/* Status card — Right */}
+            <div className="absolute -right-4 bottom-4 w-44 bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-4 transform rotate-6 hover:rotate-0 transition-transform duration-500">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-xs text-gray-500">Ready to start</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-bold text-gray-900">{link.formTypes?.length || 0}</span>
+                <span className="text-xs text-gray-500">forms to complete</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Text content */}
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              {t('register.cta.title')}
+            </h2>
+            <p className="text-indigo-200 text-lg leading-relaxed mb-8">
+              {t('register.cta.description')}
+            </p>
+
+            {/* Feature row */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Shield className="w-4 h-4 text-indigo-300" />
+                </div>
+                <p className="text-xs text-indigo-300">Secure & Private</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Clock className="w-4 h-4 text-indigo-300" />
+                </div>
+                <p className="text-xs text-indigo-300">Save Progress</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <User className="w-4 h-4 text-indigo-300" />
+                </div>
+                <p className="text-xs text-indigo-300">Direct Access</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,177 +1,7 @@
 import 'dotenv/config';
 import { db } from './drizzle';
 import { formTypes, evidenceRules } from './schema';
-
-// Basic USCIS form schemas - these define the structure of each form
-const I130_SCHEMA = {
-  formCode: 'I-130',
-  parts: [
-    {
-      id: 'part1',
-      title: 'Information About You (Petitioner)',
-      sections: [
-        {
-          id: 'personal',
-          title: 'Personal Information',
-          fields: [
-            {
-              id: 'familyName',
-              type: 'text',
-              label: 'Family Name (Last Name)',
-              required: true,
-              maxLength: 33,
-              pdfField: 'Pt1Line1a_FamilyName',
-            },
-            {
-              id: 'givenName',
-              type: 'text',
-              label: 'Given Name (First Name)',
-              required: true,
-              maxLength: 33,
-              pdfField: 'Pt1Line1b_GivenName',
-            },
-            {
-              id: 'middleName',
-              type: 'text',
-              label: 'Middle Name',
-              required: false,
-              maxLength: 33,
-              pdfField: 'Pt1Line1c_MiddleName',
-            },
-            {
-              id: 'dateOfBirth',
-              type: 'date',
-              label: 'Date of Birth',
-              required: true,
-              pdfField: 'Pt1Line7_DateOfBirth',
-            },
-            {
-              id: 'countryOfBirth',
-              type: 'text',
-              label: 'Country of Birth',
-              required: true,
-              pdfField: 'Pt1Line8_CountryOfBirth',
-            },
-            {
-              id: 'citizenship',
-              type: 'select',
-              label: 'Country of Citizenship or Nationality',
-              required: true,
-              pdfField: 'Pt1Line9_CountryOfCitizenship',
-            },
-          ],
-        },
-        {
-          id: 'address',
-          title: 'Mailing Address',
-          fields: [
-            {
-              id: 'streetNumber',
-              type: 'text',
-              label: 'Street Number and Name',
-              required: true,
-              maxLength: 45,
-              pdfField: 'Pt1Line4a_StreetNumber',
-            },
-            {
-              id: 'aptSte',
-              type: 'select',
-              label: 'Apt/Ste/Flr',
-              required: false,
-              options: ['Apt', 'Ste', 'Flr'],
-              pdfField: 'Pt1Line4b_Unit',
-            },
-            {
-              id: 'aptNumber',
-              type: 'text',
-              label: 'Number',
-              required: false,
-              maxLength: 10,
-              pdfField: 'Pt1Line4b_Number',
-            },
-            {
-              id: 'city',
-              type: 'text',
-              label: 'City or Town',
-              required: true,
-              maxLength: 20,
-              pdfField: 'Pt1Line4c_City',
-            },
-            {
-              id: 'state',
-              type: 'select',
-              label: 'State',
-              required: true,
-              pdfField: 'Pt1Line4d_State',
-            },
-            {
-              id: 'zipCode',
-              type: 'text',
-              label: 'ZIP Code',
-              required: true,
-              maxLength: 10,
-              pdfField: 'Pt1Line4e_ZipCode',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'part2',
-      title: 'Information About Your Relative (Beneficiary)',
-      sections: [
-        {
-          id: 'relationship',
-          title: 'Relationship',
-          fields: [
-            {
-              id: 'relationship',
-              type: 'radio',
-              label: 'Relationship to Petitioner',
-              required: true,
-              options: [
-                { value: 'spouse', label: 'Spouse' },
-                { value: 'parent', label: 'Parent' },
-                { value: 'sibling', label: 'Brother/Sister' },
-                { value: 'child', label: 'Child' },
-              ],
-              pdfField: 'Pt2Line1_Relationship',
-            },
-          ],
-        },
-        {
-          id: 'beneficiaryInfo',
-          title: 'Beneficiary Information',
-          fields: [
-            {
-              id: 'familyName',
-              type: 'text',
-              label: 'Family Name (Last Name)',
-              required: true,
-              maxLength: 33,
-              pdfField: 'Pt2Line2a_FamilyName',
-            },
-            {
-              id: 'givenName',
-              type: 'text',
-              label: 'Given Name (First Name)',
-              required: true,
-              maxLength: 33,
-              pdfField: 'Pt2Line2b_GivenName',
-            },
-            {
-              id: 'dateOfBirth',
-              type: 'date',
-              label: 'Date of Birth',
-              required: true,
-              pdfField: 'Pt2Line8_DateOfBirth',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+import { I130_SCHEMA } from './schemas/i-130';
 
 const I485_SCHEMA = {
   formCode: 'I-485',
@@ -282,7 +112,7 @@ const formTypesData = [
         {
           id: 'petitioner-age',
           message: 'Petitioner must be at least 18 years old',
-          condition: 'calculateAge(part1.personal.dateOfBirth) >= 18',
+          condition: 'calculateAge(part2.personalInfo.dateOfBirth) >= 18',
         },
       ],
     },
@@ -413,7 +243,16 @@ export async function seedFormTypes() {
           version: formType.version,
           isActive: formType.isActive,
         })
-        .onConflictDoNothing({ target: formTypes.code });
+        .onConflictDoUpdate({
+          target: formTypes.code,
+          set: {
+            formSchema: formType.formSchema,
+            validationRules: formType.validationRules,
+            uscisEdition: formType.uscisEdition,
+            version: formType.version,
+            updatedAt: new Date(),
+          },
+        });
 
       console.log(`  ✅ ${formType.code}: ${formType.name}`);
     } catch (error) {

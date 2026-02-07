@@ -75,6 +75,8 @@ function PricingCard({
   features: string[];
   priceId?: string;
 }) {
+  const isAvailable = Boolean(priceId);
+
   return (
     <div className="pt-6">
       <h2 className="text-2xl font-medium text-gray-900 mb-2">{name}</h2>
@@ -97,8 +99,11 @@ function PricingCard({
       </ul>
       <form action={checkoutAction}>
         <input type="hidden" name="priceId" value={priceId} />
-        <SubmitButton />
+        <SubmitButton disabled={!isAvailable} />
       </form>
+      {!isAvailable && (
+        <p className="text-xs text-amber-600 mt-2">Plan temporarily unavailable. Please contact support.</p>
+      )}
     </div>
   );
 }

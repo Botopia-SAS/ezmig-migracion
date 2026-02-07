@@ -1,38 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
-import { teamMembers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { withStaffOrOwner } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import { getTeamActivityLogs } from '@/lib/activity';
 import type { EntityType } from '@/lib/activity';
 
-export async function GET(request: NextRequest) {
+export const GET = withStaffOrOwner(async (request, { teamId }) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const membership = await db
-      .select()
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership[0]) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    const teamId = membership[0].teamId;
-    const tenantRole = membership[0].role;
-
-    // Only owner and staff can view activity logs
-    if (tenantRole === 'client') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Parse query params
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
@@ -64,12 +36,8 @@ export async function GET(request: NextRequest) {
       search,
     });
 
-    return NextResponse.json(result);
+    return successResponse(result);
   } catch (error) {
-    console.error('Error fetching activity logs:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to fetch activity logs');
   }
-}
+});

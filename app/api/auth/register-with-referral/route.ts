@@ -1,21 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import {
-  users,
-  teamMembers,
-  clients,
-  cases,
-  type NewUser,
-  type NewTeamMember,
-  type NewClient,
-} from '@/lib/db/schema';
 import { hashPassword, setSession } from '@/lib/auth/session';
 import {
   getReferralLinkByCode,
-  validateReferralLink,
-  recordReferralLinkUsage,
+  useReferralLinkForRegistration,
 } from '@/lib/referrals/service';
 import { notifyClientRegistered } from '@/lib/notifications/service';
 
@@ -24,12 +12,16 @@ const registerSchema = z.object({
   password: z.string().min(8),
   name: z.string().min(2),
   referralCode: z.string().min(6),
+  dateOfBirth: z.string().optional(),
+  countryOfBirth: z.string().optional(),
+  nationality: z.string().optional(),
+  alienNumber: z.string().optional(),
 });
 
 /**
  * POST /api/auth/register-with-referral
- * Register a new end user via referral link
- * This is a PUBLIC endpoint
+ * Register a new end user via referral link.
+ * Creates user + client + case (if needed) + case_forms atomically.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -43,18 +35,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, name, referralCode } = validationResult.data;
+    const { email, password, name, referralCode, dateOfBirth, countryOfBirth, nationality, alienNumber } =
+      validationResult.data;
 
-    // 1. Validate the referral link
-    const linkValidation = await validateReferralLink(referralCode);
-    if (!linkValidation.valid) {
-      return NextResponse.json(
-        { error: linkValidation.reason || 'Invalid referral link' },
-        { status: 400 }
-      );
-    }
-
-    // 2. Get the referral link details
+    // Get link info for notification context
     const linkInfo = await getReferralLinkByCode(referralCode);
     if (!linkInfo) {
       return NextResponse.json(
@@ -63,125 +47,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Check if user already exists
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-
-    if (existingUser.length > 0) {
-      return NextResponse.json(
-        { error: 'An account with this email already exists' },
-        { status: 409 }
-      );
-    }
-
-    // 4. Create the user
+    // Hash password
     const passwordHash = await hashPassword(password);
-    const [firstName, ...lastNameParts] = name.split(' ');
-    const lastName = lastNameParts.join(' ') || '';
 
-    const newUser: NewUser = {
-      email,
-      passwordHash,
-      name,
-      role: 'end_user',
-    };
-
-    const [createdUser] = await db.insert(users).values(newUser).returning();
-
-    if (!createdUser) {
-      return NextResponse.json(
-        { error: 'Failed to create user account' },
-        { status: 500 }
-      );
-    }
-
-    // 5. Add user as team member with 'client' role
-    const newTeamMember: NewTeamMember = {
-      userId: createdUser.id,
-      teamId: linkInfo.teamId,
-      role: 'client',
-    };
-
-    await db.insert(teamMembers).values(newTeamMember);
-
-    // 6. Link user to client record or create new client
-    let clientId = linkInfo.clientId;
-
-    if (clientId) {
-      // Case 1: Link has clientId - link user to existing client
-      await db
-        .update(clients)
-        .set({ userId: createdUser.id })
-        .where(
-          and(
-            eq(clients.id, clientId),
-            eq(clients.teamId, linkInfo.teamId)
-          )
-        );
-    } else if (linkInfo.caseId) {
-      // Case 2: Link has caseId but no clientId - get clientId from case
-      const [caseRecord] = await db
-        .select({ clientId: cases.clientId })
-        .from(cases)
-        .where(eq(cases.id, linkInfo.caseId));
-
-      if (caseRecord?.clientId) {
-        clientId = caseRecord.clientId;
-        await db
-          .update(clients)
-          .set({ userId: createdUser.id })
-          .where(
-            and(
-              eq(clients.id, clientId),
-              eq(clients.teamId, linkInfo.teamId)
-            )
-          );
-      }
-    } else {
-      // Case 3: Link has neither - create a new client record
-      const newClient: NewClient = {
-        teamId: linkInfo.teamId,
-        userId: createdUser.id,
-        firstName,
-        lastName: lastName || firstName,
-        email,
-        createdBy: linkInfo.createdBy,
-      };
-
-      const [createdClient] = await db.insert(clients).values(newClient).returning();
-      clientId = createdClient?.id;
-    }
-
-    // 7. Record the registration usage
+    // Extract metadata
     const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
     const userAgent = request.headers.get('user-agent');
 
-    await recordReferralLinkUsage(linkInfo.id, 'registered', createdUser.id, {
-      ipAddress: ipAddress || undefined,
-      userAgent: userAgent || undefined,
-    });
+    // Delegate everything to the service (runs in a transaction)
+    const result = await useReferralLinkForRegistration(
+      referralCode,
+      {
+        email,
+        name,
+        passwordHash,
+        dateOfBirth,
+        countryOfBirth,
+        nationality,
+        alienNumber,
+      },
+      {
+        ipAddress: ipAddress || undefined,
+        userAgent: userAgent || undefined,
+      }
+    );
 
-    // 8. Notify team owners about the new registration
+    if (!result.success || !result.user) {
+      const status = result.error === 'Email already registered' ? 409 : 400;
+      return NextResponse.json(
+        { error: result.error || 'Registration failed' },
+        { status }
+      );
+    }
+
+    // Notify team owners about the new registration
     await notifyClientRegistered(
       linkInfo.teamId,
       name,
       email,
-      linkInfo.caseId || undefined
+      result.case?.id
     );
 
-    // 9. Set session for the new user
-    await setSession(createdUser);
+    // Set session for the new user
+    await setSession(result.user);
 
     return NextResponse.json(
       {
         success: true,
         user: {
-          id: createdUser.id,
-          email: createdUser.email,
-          name: createdUser.name,
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
         },
       },
       { status: 201 }

@@ -12,6 +12,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import type { Case } from '@/lib/db/schema';
 import { eq, and, desc, sql, like, or, isNull, asc } from 'drizzle-orm';
 import { logActivity, detectChanges } from '@/lib/activity';
+import { TRACKABLE_CASE_FIELDS } from '@/lib/activity/constants';
 
 // Types
 export interface CreateCaseInput {
@@ -302,7 +303,7 @@ export async function updateCase(
     const changes = detectChanges(
       existingCase as Record<string, unknown>,
       data as Record<string, unknown>,
-      ['caseType', 'status', 'priority', 'filingDeadline', 'assignedTo', 'uscisReceiptNumber', 'internalNotes']
+      [...TRACKABLE_CASE_FIELDS]
     );
     await logCaseActivity(teamId, userId, ActivityType.UPDATE_CASE, updatedCase, changes);
   }

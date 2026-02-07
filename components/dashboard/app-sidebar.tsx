@@ -1,13 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  CreditCard,
-  LogOut,
-  ChevronUp,
-  ChevronRight,
-  Scale,
-} from 'lucide-react';
+import { LogOut, ChevronUp, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import useSWR, { mutate } from 'swr';
@@ -16,9 +10,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -43,6 +34,7 @@ import {
   billingNavItems,
   getNavItemsForRole,
   getDefaultPathForRole,
+  type NavItem,
 } from '@/lib/navigation/config';
 import { TeamDataWithMembers } from '@/lib/db/schema';
 
@@ -81,11 +73,16 @@ function UserFooter() {
   // Wait for client-side mount to avoid hydration mismatch with Radix IDs
   if (!mounted || !user) {
     return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <div className="h-12 animate-pulse rounded-lg bg-sidebar-accent/50" />
-        </SidebarMenuItem>
-      </SidebarMenu>
+      <div className="flex flex-col gap-4 p-2">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="flex-1 space-y-1">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-full rounded-xl" />
+      </div>
     );
   }
 
@@ -100,63 +97,31 @@ function UserFooter() {
   const roleBadge = tenantRole === 'owner' ? 'Owner' : tenantRole === 'staff' ? 'Staff' : tenantRole === 'client' ? 'Client' : '';
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600">
-                <AvatarFallback className="rounded-lg bg-transparent text-white font-medium">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {user.name || user.email.split('@')[0]}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {roleBadge}
-                </span>
-              </div>
-              <ChevronUp className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side="top"
-            align="end"
-            sideOffset={4}
-          >
-            <div className="flex items-center gap-2 px-2 py-1.5">
-              <Avatar className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600">
-                <AvatarFallback className="rounded-lg bg-transparent text-white font-medium">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {user.name || user.email.split('@')[0]}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
-                </span>
-              </div>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleSignOut}
-              className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>{t('signOut')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <div className="flex flex-col gap-4 py-2 group-data-[collapsible=icon]:gap-2 group-data-[collapsible=icon]:items-center">
+      <div className="flex items-center gap-3 px-1 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center">
+        <Avatar className="h-10 w-10 rounded-full bg-violet-100 text-violet-600 border-2 border-white/50 shadow-sm shrink-0">
+          <AvatarFallback className="bg-violet-100 text-violet-700 font-bold">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+          <span className="truncate font-bold text-base text-gray-900 dark:text-white">
+            {user.name || user.email.split('@')[0]}
+          </span>
+          <span className="truncate text-xs text-muted-foreground font-medium">
+            {roleBadge}
+          </span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleSignOut}
+        className="relative flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 hover:shadow-lg active:scale-[0.98] group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0"
+      >
+        <LogOut className="size-5" />
+        <span className="group-data-[collapsible=icon]:hidden">{t('signOut')}</span>
+      </button>
+    </div>
   );
 }
 
@@ -178,10 +143,12 @@ export function AppSidebar() {
     return pathWithoutLocale.startsWith(href);
   };
 
-  // Filter navigation items by role
-  const visibleLegalItems = getNavItemsForRole(legalNavItems, tenantRole);
-  const visibleSettingsItems = getNavItemsForRole(settingsNavItems, tenantRole);
-  const visibleBillingItems = getNavItemsForRole(billingNavItems, tenantRole);
+  // Filter navigation items by role and combine into a single list
+  const visibleNavItems: NavItem[] = [
+    ...getNavItemsForRole(legalNavItems, tenantRole),
+    ...getNavItemsForRole(settingsNavItems, tenantRole),
+    ...getNavItemsForRole(billingNavItems, tenantRole),
+  ];
 
   // Get default home path for role
   const homePath = getDefaultPathForRole(tenantRole);
@@ -221,121 +188,62 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0 shadow-xl">
       {/* Logo Header */}
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href={homePath} className="flex items-center gap-3">
-                <img
-                  src={logoSrc}
-                  alt={team?.name || 'EZMig'}
-                  className="size-8 rounded-md object-cover"
-                />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-lg">{team?.name || 'EZMig'}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Immigration Platform
-                  </span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center gap-3 px-2 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <Link href={homePath} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <img
+              src={defaultLogo}
+              alt="EZMig"
+              className="h-8 w-auto shrink-0"
+            />
+            <span className="font-bold text-lg leading-none group-data-[collapsible=icon]:hidden">EZMig</span>
+          </Link>
+        </div>
+        
+        {/* Account Info Box */}
+        <div className="mx-2 mt-2 rounded-xl bg-violet-50/50 p-3 border border-violet-100 dark:bg-violet-900/20 dark:border-violet-800/50 group-data-[collapsible=icon]:hidden flex items-center justify-between gap-2">
+          <div className="flex flex-col overflow-hidden">
+            <div className="text-[10px] uppercase font-bold tracking-wider text-violet-600 dark:text-violet-400 mb-0.5">
+              Account
+            </div>
+            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
+              {team?.name || 'My Organization'}
+            </div>
+          </div>
+          <img 
+            src={logoSrc} 
+            alt={team?.name || 'Team Logo'} 
+            className="size-8 rounded-md object-cover shrink-0" 
+          />
+        </div>
+
+        {/* Collapsed Team Logo */}
+        <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center mt-2">
+           <img 
+            src={logoSrc} 
+            alt={team?.name || 'Team Logo'} 
+            className="size-8 rounded-md object-cover" 
+          />
+        </div>
       </SidebarHeader>
 
       {/* Navigation Content */}
-      <SidebarContent>
-        {/* Legal Navigation Group - Only show if there are visible items */}
-        {visibleLegalItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2">
-              <Scale className="size-3.5" />
-              {t('legal')}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {visibleLegalItems.map((item) => {
-                  const active = isActive(item.href);
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={t(item.key)}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="size-4" />
-                          <span className="flex-1">{t(item.key)}</span>
-                          {active && <ChevronRight className="size-4 ml-auto" />}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Settings Navigation Group - Only show if there are visible items */}
-        {visibleSettingsItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>{t('settings')}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {visibleSettingsItems.map((item) => {
-                  const active = isActive(item.href);
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={t(item.key)}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="size-4" />
-                          <span className="flex-1">{t(item.key)}</span>
-                          {active && <ChevronRight className="size-4 ml-auto" />}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Billing Navigation Group - Only show if there are visible items */}
-        {visibleBillingItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2">
-              <CreditCard className="size-3.5" />
-              {t('billing')}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {visibleBillingItems.map((item) => {
-                  const active = isActive(item.href);
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={t(item.key)}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="size-4" />
-                          <span className="flex-1">{t(item.key)}</span>
-                          {active && <ChevronRight className="size-4 ml-auto" />}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+      <SidebarContent className="px-2 pb-2 mt-4">
+        <SidebarMenu>
+          {visibleNavItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={active} tooltip={t(item.key)}>
+                  <Link href={item.href}>
+                    <item.icon className="size-4" />
+                    <span className="flex-1">{t(item.key)}</span>
+                    {active && <ChevronRight className="size-4 ml-auto" />}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
       </SidebarContent>
 
       {/* User Footer */}

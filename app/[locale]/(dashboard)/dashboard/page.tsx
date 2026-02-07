@@ -28,50 +28,23 @@ type ActionState = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-function SubscriptionSkeleton() {
-  const t = useTranslations('dashboard.team.subscription');
-  return (
-    <Card className="h-[140px]">
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-      </CardHeader>
-    </Card>
-  );
-}
-
-function ManageSubscription() {
+function PlanBadge() {
   const t = useTranslations('dashboard.team.subscription');
   const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
 
+  const isActive = teamData?.subscriptionStatus === 'active' || teamData?.subscriptionStatus === 'trialing';
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <div className="mb-4 sm:mb-0">
-              <p className="font-medium">
-                {t('plan')}: {teamData?.planName || 'Free'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {teamData?.subscriptionStatus === 'active'
-                  ? t('status')
-                  : teamData?.subscriptionStatus === 'trialing'
-                  ? t('status')
-                  : t('noSubscription')}
-              </p>
-            </div>
-            <form action={customerPortalAction}>
-              <Button type="submit" variant="outline">
-                {t('managePlan')}
-              </Button>
-            </form>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-3">
+      <Badge variant="outline" className={`text-xs font-medium px-2.5 py-0.5 ${isActive ? 'border-green-300 bg-green-50 text-green-700' : 'border-gray-300 bg-gray-50 text-gray-600'}`}>
+        {teamData?.planName || 'Free'}
+      </Badge>
+      <form action={customerPortalAction}>
+        <Button type="submit" variant="ghost" size="sm" className="text-xs text-violet-600 hover:text-violet-700 h-auto px-2 py-1">
+          {t('managePlan')}
+        </Button>
+      </form>
+    </div>
   );
 }
 
@@ -388,26 +361,27 @@ export default function SettingsPage() {
   const t = useTranslations('dashboard.team');
   return (
     <section className="flex-1">
-      <h1 className="text-lg lg:text-2xl font-medium mb-6">{t('title')}</h1>
-
-      {/* Two-column layout on desktop for Subscription and Team Members */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Suspense fallback={<SubscriptionSkeleton />}>
-          <ManageSubscription />
-        </Suspense>
-        <Suspense fallback={<TeamMembersSkeleton />}>
-          <TeamMembers />
-        </Suspense>
+      {/* Title row with inline plan badge */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
+        <h1 className="text-lg lg:text-2xl font-medium">{t('title')}</h1>
+        <PlanBadge />
       </div>
 
-      {/* Two-column layout for Invite and Pending Invitations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Suspense fallback={<InviteTeamMemberSkeleton />}>
-          <InviteTeamMember />
-        </Suspense>
-        <Suspense fallback={<PendingInvitationsSkeleton />}>
-          <PendingInvitations />
-        </Suspense>
+      {/* Team Members left (full height) | Invite + Pending right */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
+          <Suspense fallback={<TeamMembersSkeleton />}>
+            <TeamMembers />
+          </Suspense>
+        </div>
+        <div className="lg:col-span-2 space-y-6">
+          <Suspense fallback={<InviteTeamMemberSkeleton />}>
+            <InviteTeamMember />
+          </Suspense>
+          <Suspense fallback={<PendingInvitationsSkeleton />}>
+            <PendingInvitations />
+          </Suspense>
+        </div>
       </div>
     </section>
   );

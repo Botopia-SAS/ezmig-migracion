@@ -3,6 +3,7 @@ import { clients, cases, ActivityType } from '@/lib/db/schema';
 import { eq, and, desc, isNull, or, ilike, sql } from 'drizzle-orm';
 import type { Client, Case } from '@/lib/db/schema';
 import { logActivity, detectChanges } from '@/lib/activity';
+import { TRACKABLE_CLIENT_FIELDS } from '@/lib/activity/constants';
 
 // ============================================
 // TYPES
@@ -237,12 +238,7 @@ export async function updateClient(
 
   if (updatedClient) {
     // Detect what changed
-    const changes = detectChanges(oldClient, input, [
-      'firstName', 'lastName', 'email', 'phone', 'dateOfBirth',
-      'countryOfBirth', 'nationality', 'alienNumber', 'uscisOnlineAccount',
-      'currentStatus', 'addressLine1', 'addressLine2', 'city', 'state',
-      'zipCode', 'country', 'notes'
-    ]);
+    const changes = detectChanges(oldClient, input, [...TRACKABLE_CLIENT_FIELDS]);
     await logClientActivity(teamId, userId, ActivityType.UPDATE_CLIENT, updatedClient, changes);
   }
 

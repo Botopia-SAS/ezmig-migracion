@@ -4,10 +4,10 @@ import {
   caseForms,
   formFieldAutosaves,
   cases,
-  activityLogs,
   ActivityType,
 } from '@/lib/db/schema';
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
+import { logActivity } from '@/lib/activity/service';
 
 // Types
 export interface FormSchema {
@@ -19,6 +19,7 @@ export interface FormSchema {
 export interface FormPart {
   id: string;
   title: string;
+  translations?: Record<string, { title?: string }>;
   sections: FormSection[];
 }
 
@@ -26,12 +27,20 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
+  translations?: Record<string, { title?: string; description?: string }>;
   fields: FormField[];
+}
+
+export interface FieldTranslation {
+  label?: string;
+  helpText?: string;
+  placeholder?: string;
+  options?: Record<string, string>;
 }
 
 export interface FormField {
   id: string;
-  type: 'text' | 'textarea' | 'date' | 'select' | 'radio' | 'checkbox' | 'phone' | 'email' | 'number' | 'address' | 'ssn' | 'alien_number';
+  type: 'text' | 'textarea' | 'date' | 'select' | 'radio' | 'checkbox' | 'checkbox_group' | 'phone' | 'email' | 'number' | 'address' | 'ssn' | 'alien_number';
   label: string;
   required?: boolean;
   maxLength?: number;
@@ -39,9 +48,11 @@ export interface FormField {
   helpText?: string;
   options?: { value: string; label: string }[];
   pdfField?: string;
+  translations?: Record<string, FieldTranslation>;
   conditionalDisplay?: {
     field: string;
-    value: string | boolean;
+    value: string | boolean | string[];
+    operator?: 'equals' | 'notEquals' | 'in' | 'notIn';
   };
   subFields?: Record<string, { pdfField: string; label?: string }>;
 }
@@ -143,10 +154,13 @@ export async function createCaseForm(
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action: ActivityType.ADD_FORM_TO_CASE,
+    entityType: 'form',
+    entityId: newCaseForm.id,
+    entityName: formType.code,
   });
 
   return newCaseForm;
@@ -330,16 +344,42 @@ export async function deleteCaseForm(
   await db.delete(caseForms).where(eq(caseForms.id, caseFormId));
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action: ActivityType.REMOVE_FORM_FROM_CASE,
+    entityType: 'form',
+    entityId: caseFormId,
   });
 
   return { success: true };
 }
 
-// Calculate form progress based on required fields
+// Check if a field should be visible based on conditionalDisplay
+function isFieldVisible(
+  field: FormField,
+  formData: Record<string, unknown>
+): boolean {
+  if (!field.conditionalDisplay) return true;
+
+  const { field: depPath, value: expected, operator = 'equals' } = field.conditionalDisplay;
+  const actual = getNestedValue(formData, depPath);
+
+  switch (operator) {
+    case 'equals':
+      return actual === expected;
+    case 'notEquals':
+      return actual !== expected;
+    case 'in':
+      return Array.isArray(expected) && expected.includes(actual as string);
+    case 'notIn':
+      return Array.isArray(expected) && !expected.includes(actual as string);
+    default:
+      return actual === expected;
+  }
+}
+
+// Calculate form progress based on required fields (skip hidden conditional fields)
 export function calculateProgress(
   formSchema: FormSchema,
   formData: Record<string, unknown>
@@ -350,7 +390,7 @@ export function calculateProgress(
   for (const part of formSchema.parts) {
     for (const section of part.sections) {
       for (const field of section.fields) {
-        if (field.required) {
+        if (field.required && isFieldVisible(field, formData)) {
           totalRequired++;
           const fieldPath = `${part.id}.${section.id}.${field.id}`;
           const value = getNestedValue(formData, fieldPath);

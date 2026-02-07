@@ -1,4 +1,3 @@
-export { StatCard } from './stat-card';
 export { AlertCard } from './alert-card';
 export { TopTenantsList } from './top-tenants-list';
 export { TransactionsChart } from './transactions-chart';

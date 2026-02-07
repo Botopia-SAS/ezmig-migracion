@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withAdmin } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import {
   getAdminDashboardStats,
   getTopTenants,
@@ -11,19 +11,8 @@ import { db } from '@/lib/db/drizzle';
 import { users, teams } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
 
-export async function GET() {
+export const GET = withAdmin(async () => {
   try {
-    const user = await getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Fetch all data in parallel
     const [
       stats,
       topTenants,
@@ -42,7 +31,7 @@ export async function GET() {
       db.select({ count: sql<number>`count(*)` }).from(teams),
     ]);
 
-    return NextResponse.json({
+    return successResponse({
       stats,
       topTenants,
       transactionBreakdown,
@@ -52,10 +41,6 @@ export async function GET() {
       totalTeams: teamCount[0]?.count ?? 0,
     });
   } catch (error) {
-    console.error('Error fetching admin dashboard data:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error fetching admin dashboard data');
   }
-}
+});

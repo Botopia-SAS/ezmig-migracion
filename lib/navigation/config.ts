@@ -4,9 +4,6 @@ import {
   Shield,
   Activity,
   Coins,
-  History,
-  RefreshCcw,
-  Package,
   Briefcase,
   UserCircle,
   Link2,
@@ -79,19 +76,13 @@ export const settingsNavItems: NavItem[] = [
     key: 'general',
     href: '/dashboard/general',
     icon: Settings,
-    roles: ['owner', 'staff'],
+    roles: ['owner', 'staff', 'client'],
   },
   {
     key: 'activity',
     href: '/dashboard/activity',
     icon: Activity,
     roles: ['owner', 'staff'],
-  },
-  {
-    key: 'security',
-    href: '/dashboard/security',
-    icon: Shield,
-    roles: ['owner', 'staff', 'client'],
   },
 ];
 
@@ -101,28 +92,10 @@ export const settingsNavItems: NavItem[] = [
  */
 export const billingNavItems: NavItem[] = [
   {
-    key: 'overview',
+    key: 'billing',
     href: '/dashboard/billing',
     icon: Coins,
-    roles: ['owner'],
-  },
-  {
-    key: 'buyTokens',
-    href: '/dashboard/billing/packages',
-    icon: Package,
-    roles: ['owner'],
-  },
-  {
-    key: 'history',
-    href: '/dashboard/billing/history',
-    icon: History,
     roles: ['owner', 'staff'],
-  },
-  {
-    key: 'autoReload',
-    href: '/dashboard/billing/settings',
-    icon: RefreshCcw,
-    roles: ['owner'],
   },
 ];
 

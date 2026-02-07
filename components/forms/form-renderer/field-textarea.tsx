@@ -1,6 +1,7 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { FieldWrapper } from './field-wrapper';
 import type { FormField } from './index';
 
 interface FieldTextareaProps {
@@ -19,12 +20,8 @@ export function FieldTextarea({
   disabled,
 }: FieldTextareaProps) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={field.id}>
-        {field.label}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
-      <textarea
+    <FieldWrapper field={field} error={error} charCount={field.maxLength ? (value || '').length : undefined}>
+      <Textarea
         id={field.id}
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
@@ -32,19 +29,8 @@ export function FieldTextarea({
         placeholder={field.placeholder}
         disabled={disabled}
         rows={4}
-        className={`w-full rounded-md border ${
-          error ? 'border-red-500' : 'border-input'
-        } bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+        className={error ? 'border-red-500' : ''}
       />
-      {field.helpText && (
-        <p className="text-xs text-gray-500">{field.helpText}</p>
-      )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-      {field.maxLength && (
-        <p className="text-xs text-gray-400 text-right">
-          {(value || '').length}/{field.maxLength}
-        </p>
-      )}
-    </div>
+    </FieldWrapper>
   );
 }

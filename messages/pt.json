@@ -4,7 +4,11 @@
       "badge": "Formulários de Imigração com IA",
       "title": "Simplifique Sua",
       "titleHighlight": "Pratica de Imigracao",
-      "typewriterWords": ["Pratica de Imigracao", "Gestao de Casos", "Fluxo de Trabalho"],
+      "typewriterWords": [
+        "Pratica de Imigracao",
+        "Gestao de Casos",
+        "Fluxo de Trabalho"
+      ],
       "subtitle": "A plataforma com IA que automatiza {highlight} e gestão de casos para advogados de imigração.",
       "subtitleLine2": "",
       "highlight": "Formularios USCIS",
@@ -339,7 +343,6 @@
   "dashboard": {
     "title": "Painel de Controle",
     "signOut": "Sair",
-
     "sidebar": {
       "settings": "Configurações",
       "team": "Equipe",
@@ -357,7 +360,6 @@
       "myCases": "Meus Casos",
       "referrals": "Links de Referência"
     },
-
     "team": {
       "title": "Configurações da Equipe",
       "subscription": {
@@ -394,7 +396,6 @@
         "cancel": "Cancelar"
       }
     },
-
     "general": {
       "title": "Configurações Gerais",
       "error": "Ocorreu um erro.",
@@ -416,7 +417,6 @@
         "saving": "Salvando logo..."
       }
     },
-
     "activity": {
       "title": "Registro de Atividades",
       "description": "Ver atividade recente na sua equipe",
@@ -457,7 +457,6 @@
         "GENERATE_PDF": "Gerou PDF"
       }
     },
-
     "security": {
       "title": "Configurações de Segurança",
       "password": {
@@ -477,7 +476,6 @@
         "deleting": "Excluindo..."
       }
     },
-
     "billing": {
       "title": "Faturamento e Tokens",
       "balance": {
@@ -834,6 +832,24 @@
         "added": "Formulário adicionado ao caso",
         "removed": "Formulário removido do caso",
         "error": "Ocorreu um erro"
+      },
+      "renderer": {
+        "previous": "Anterior",
+        "next": "Próximo",
+        "saveProgress": "Salvar Progresso",
+        "completeForm": "Completar Formulário",
+        "saving": "Salvando...",
+        "saved": "Salvo",
+        "lastSaved": "Último salvo {time}",
+        "selectPlaceholder": "Selecionar...",
+        "attachments": {
+          "attach": "Anexar evidência",
+          "uploading": "Enviando...",
+          "uploaded": "Arquivo enviado com sucesso",
+          "uploadError": "Erro ao enviar o arquivo",
+          "deleted": "Anexo removido",
+          "deleteError": "Erro ao remover o anexo"
+        }
       }
     },
     "evidences": {
@@ -911,6 +927,93 @@
         "pending": "Pendentes",
         "invalid": "Inválidos"
       }
+    },
+    "referrals": {
+      "title": "Links de Referência",
+      "subtitle": "Crie e gerencie links de referência para clientes",
+      "newLink": "Criar Link",
+      "searchPlaceholder": "Buscar links...",
+      "noLinks": "Sem links de referência",
+      "noLinksDescription": "Crie um link de referência para convidar clientes a preencher formulários",
+      "addFirst": "Crie seu primeiro link",
+      "table": {
+        "code": "Código",
+        "formTypes": "Tipos de Formulário",
+        "case": "Caso",
+        "status": "Status",
+        "uses": "Usos",
+        "createdAt": "Criado",
+        "expiresAt": "Expira",
+        "actions": "Ações"
+      },
+      "statuses": {
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "expired": "Expirado",
+        "maxReached": "Limite Atingido"
+      },
+      "actions": {
+        "view": "Ver Detalhes",
+        "copy": "Copiar Link",
+        "deactivate": "Desativar",
+        "delete": "Excluir"
+      },
+      "form": {
+        "title": "Criar Link de Referência",
+        "description": "Crie um link de referência para convidar clientes a preencher formulários",
+        "selectFormTypes": "Selecionar Tipos de Formulário",
+        "selectFormTypesDescription": "Escolha os formulários que o cliente precisará preencher",
+        "formTypesRequired": "Pelo menos um tipo de formulário é necessário",
+        "formTypesSelected": "tipo(s) de formulário selecionado(s)",
+        "selectCase": "Selecionar Caso (opcional)",
+        "selectCasePlaceholder": "Escolha um caso...",
+        "noCase": "Sem caso específico (criar automaticamente)",
+        "expiresAt": "Data de Expiração (opcional)",
+        "maxUses": "Usos Máximos",
+        "linkSettings": "Configurações do Link",
+        "linkSettingsDescription": "Configure o acesso e a expiração deste link de referência"
+      },
+      "formCategories": {
+        "family": "Família",
+        "employment": "Emprego",
+        "humanitarian": "Humanitário",
+        "naturalization": "Naturalização",
+        "travel": "Viagem",
+        "other": "Outro"
+      },
+      "detail": {
+        "title": "Detalhes do Link de Referência",
+        "linkUrl": "URL do Link",
+        "formTypes": "Tipos de Formulário",
+        "autoCreateCase": "Criar automaticamente ao registrar",
+        "usageHistory": "Histórico de Uso",
+        "noUsage": "Sem registros de uso",
+        "usageTable": {
+          "action": "Ação",
+          "user": "Usuário",
+          "date": "Data",
+          "ipAddress": "Endereço IP"
+        },
+        "usageActions": {
+          "visited": "Visitado",
+          "registered": "Registrado",
+          "form_started": "Formulário Iniciado",
+          "form_completed": "Formulário Completado"
+        }
+      },
+      "toast": {
+        "created": "Link de referência criado",
+        "copied": "Link copiado para a área de transferência",
+        "deactivated": "Link desativado",
+        "deleted": "Link excluído",
+        "error": "Ocorreu um erro"
+      },
+      "deleteConfirm": {
+        "title": "Excluir Link de Referência",
+        "description": "Tem certeza de que deseja excluir este link de referência? Esta ação não pode ser desfeita.",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
+      }
     }
   },
   "common": {
@@ -928,6 +1031,7 @@
     "signIn": "Entrar",
     "signUp": "Cadastrar",
     "dashboard": "Painel de Controle",
+    "goToDashboard": "Ir para o painel",
     "signOut": "Sair",
     "openMenu": "Abrir menu"
   },
@@ -1018,7 +1122,8 @@
         "users": "Usuários",
         "transactions": "Transações",
         "packages": "Pacotes",
-        "stats": "Estatísticas"
+        "stats": "Estatísticas",
+        "forms": "Formulários"
       },
       "fallback": {
         "userName": "Usuário admin",
@@ -1112,6 +1217,201 @@
         "tip": "Mantenha a ordem alinhada com sua página de preços para evitar confusão."
       }
     },
+    "forms": {
+      "title": "Tipos de Formulário",
+      "description": "Criar e gerenciar esquemas de formulários de imigração",
+      "newForm": "Novo Formulário",
+      "editForm": "Editar Formulário",
+      "columns": {
+        "code": "Código",
+        "name": "Nome",
+        "category": "Categoria",
+        "edition": "Edição",
+        "tokenCost": "Custo em Tokens",
+        "status": "Status",
+        "caseForms": "Uso",
+        "actions": "Ações"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "actions": {
+        "edit": "Editar",
+        "builder": "Construtor",
+        "preview": "Visualizar",
+        "duplicate": "Duplicar",
+        "activate": "Ativar",
+        "deactivate": "Desativar",
+        "delete": "Excluir"
+      },
+      "create": {
+        "title": "Criar Tipo de Formulário",
+        "submit": "Criar e Abrir Construtor"
+      },
+      "editMeta": {
+        "title": "Editar Tipo de Formulário",
+        "save": "Salvar Alterações",
+        "openBuilder": "Abrir Construtor",
+        "openPreview": "Visualizar"
+      },
+      "fields": {
+        "code": "Código do Formulário",
+        "codePlaceholder": "ex. I-130",
+        "codeHelp": "Identificador único do formulário (ex. I-130, N-400)",
+        "name": "Nome do Formulário",
+        "namePlaceholder": "ex. Petição para Parente Estrangeiro",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Breve descrição deste formulário",
+        "category": "Categoria",
+        "categoryPlaceholder": "Selecionar categoria",
+        "uscisEdition": "Edição USCIS",
+        "uscisEditionPlaceholder": "ex. 22/03/2023",
+        "tokenCost": "Custo em Tokens",
+        "estimatedTime": "Tempo Estimado (min)"
+      },
+      "categories": {
+        "family": "Familiar",
+        "employment": "Emprego",
+        "humanitarian": "Humanitário",
+        "naturalization": "Naturalização",
+        "other": "Outro"
+      },
+      "empty": "Nenhum tipo de formulário encontrado. Crie o primeiro.",
+      "caseFormCount": "{count} formulários de caso",
+      "deleteConfirm": {
+        "title": "Excluir Tipo de Formulário",
+        "message": "Tem certeza que deseja excluir \"{name}\"? Esta ação não pode ser desfeita.",
+        "messageWithCases": "Este tipo de formulário é usado por {count} formulários de caso. Será desativado em vez de excluído.",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
+      }
+    },
+    "formBuilder": {
+      "title": "Construtor de Formulários",
+      "toolbar": {
+        "save": "Salvar",
+        "saving": "Salvando...",
+        "saved": "Salvo",
+        "unsaved": "Alterações não salvas",
+        "undo": "Desfazer",
+        "redo": "Refazer",
+        "preview": "Visualizar",
+        "back": "Voltar para Formulários",
+        "export": "Exportar JSON",
+        "import": "Importar JSON"
+      },
+      "outline": {
+        "title": "Estrutura",
+        "addPart": "Adicionar Parte",
+        "addSection": "Adicionar Seção",
+        "addField": "Adicionar Campo",
+        "emptyParts": "Sem partes ainda. Clique para adicionar uma.",
+        "emptySections": "Sem seções. Clique em + para adicionar.",
+        "emptyFields": "Sem campos. Clique em + para adicionar."
+      },
+      "canvas": {
+        "emptyState": "Selecione ou adicione um campo para começar",
+        "addFieldHere": "Adicionar campo",
+        "required": "Obrigatório",
+        "conditional": "Condicional"
+      },
+      "properties": {
+        "title": "Propriedades",
+        "noSelection": "Selecione um elemento para editar suas propriedades",
+        "tabs": {
+          "general": "Geral",
+          "options": "Opções",
+          "advanced": "Avançado"
+        },
+        "part": {
+          "title": "Título da Parte",
+          "deletePart": "Excluir Parte",
+          "deleteConfirm": "Excluir esta parte e todas as suas seções?"
+        },
+        "section": {
+          "title": "Título da Seção",
+          "description": "Descrição",
+          "descriptionPlaceholder": "Descrição opcional da seção",
+          "deleteSection": "Excluir Seção",
+          "deleteConfirm": "Excluir esta seção e todos os seus campos?"
+        },
+        "field": {
+          "id": "ID do Campo",
+          "idHelp": "Identificador único (camelCase)",
+          "label": "Rótulo",
+          "type": "Tipo de Campo",
+          "required": "Obrigatório",
+          "placeholder": "Placeholder",
+          "helpText": "Texto de Ajuda",
+          "maxLength": "Comprimento Máximo",
+          "pdfField": "Mapeamento de Campo PDF",
+          "pdfFieldHelp": "Nome do campo AcroForm para geração de PDF",
+          "deleteField": "Excluir Campo",
+          "deleteConfirm": "Excluir este campo?",
+          "duplicateField": "Duplicar Campo"
+        },
+        "conditional": {
+          "title": "Exibição Condicional",
+          "enabled": "Mostrar condicionalmente",
+          "dependsOn": "Depende do campo",
+          "dependsOnPlaceholder": "Selecionar campo...",
+          "operator": "Operador",
+          "value": "Valor esperado",
+          "valuePlaceholder": "Valor a corresponder",
+          "operators": {
+            "equals": "Igual a",
+            "notEquals": "Diferente de",
+            "in": "Na lista",
+            "notIn": "Fora da lista"
+          }
+        },
+        "options": {
+          "title": "Opções",
+          "addOption": "Adicionar Opção",
+          "bulkAdd": "Adicionar em Massa",
+          "bulkAddHelp": "Uma opção por linha. Formato: valor|rótulo ou apenas rótulo.",
+          "value": "Valor",
+          "label": "Rótulo",
+          "noOptions": "Sem opções ainda. Adicione uma abaixo.",
+          "removeOption": "Remover"
+        }
+      },
+      "fieldTypes": {
+        "text": "Texto",
+        "textarea": "Área de Texto",
+        "date": "Data",
+        "select": "Seletor",
+        "radio": "Rádio",
+        "checkbox": "Caixa de Seleção",
+        "checkbox_group": "Grupo de Caixas",
+        "phone": "Telefone",
+        "email": "Email",
+        "number": "Número",
+        "ssn": "SSN",
+        "alien_number": "Número de Estrangeiro"
+      },
+      "fieldTypeCategories": {
+        "text": "Campos de Texto",
+        "choice": "Campos de Seleção",
+        "special": "Campos Especiais"
+      },
+      "stats": {
+        "parts": "Partes",
+        "sections": "Seções",
+        "fields": "Campos",
+        "required": "Obrigatórios"
+      },
+      "validation": {
+        "partNeedsSections": "A parte deve ter pelo menos uma seção",
+        "sectionNeedsFields": "A seção deve ter pelo menos um campo",
+        "duplicateFieldId": "ID de campo duplicado: {id}",
+        "duplicatePartId": "ID de parte duplicado: {id}",
+        "duplicateSectionId": "ID de seção duplicado: {id}",
+        "invalidConditionalRef": "A condição referencia um campo inexistente: {ref}",
+        "optionsRequired": "Opções são obrigatórias para este tipo de campo"
+      }
+    },
     "stats": {
       "title": "Analítica",
       "cards": {
@@ -1142,6 +1442,1163 @@
         "count": "Quantidade",
         "total": "Total"
       }
+    }
+  },
+  "portal": {
+    "welcome": {
+      "validLink": "Link de referência válido",
+      "title": "Bem-vindo a {teamName}",
+      "subtitle": "Complete seus formulários de imigração com segurança"
+    },
+    "info": {
+      "title": "Suas Informações",
+      "client": "Cliente",
+      "case": "Caso"
+    },
+    "forms": {
+      "title": "Formulários Disponíveis",
+      "description": "Complete os seguintes formulários para prosseguir com seu caso",
+      "empty": "Sem formulários disponíveis",
+      "emptyDescription": "Entre em contato com seu advogado para mais informações"
+    },
+    "formStatus": {
+      "notStarted": "Não Iniciado",
+      "inProgress": "Em Progresso",
+      "completed": "Completado",
+      "submitted": "Enviado"
+    },
+    "formActions": {
+      "start": "Iniciar",
+      "continue": "Continuar",
+      "review": "Revisar",
+      "view": "Visualizar"
+    },
+    "register": {
+      "cta": {
+        "title": "Crie sua conta",
+        "description": "Salve seu progresso e acesse seus formulários a qualquer momento",
+        "button": "Registrar Agora"
+      },
+      "title": "Criar Conta",
+      "subtitle": "Registre-se para acessar formulários de {teamName}",
+      "back": "Voltar ao Portal",
+      "name": "Nome Completo",
+      "namePlaceholder": "Digite seu nome completo",
+      "email": "Email",
+      "emailPlaceholder": "Digite seu email",
+      "password": "Senha",
+      "passwordPlaceholder": "Crie uma senha",
+      "passwordHint": "Pelo menos 8 caracteres",
+      "confirmPassword": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "Confirme sua senha",
+      "immigrationInfo": "Informações de Imigração (opcional)",
+      "dateOfBirth": "Data de Nascimento",
+      "countryOfBirth": "País de Nascimento",
+      "countryOfBirthPlaceholder": "ex. Brasil",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "ex. Brasileira",
+      "alienNumber": "A-Number (Número de Registro de Estrangeiro)",
+      "alienNumberHint": "Opcional. Formato: A-XXX-XXX-XXX",
+      "continue": "Continuar",
+      "skipStep": "Pular esta etapa",
+      "immigrationInfoHint": "Esta informação é opcional, mas ajuda a agilizar seu caso.",
+      "submit": "Criar Conta",
+      "submitting": "Criando conta...",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signIn": "Entrar",
+      "termsText": "Ao se registrar, você concorda com nossos",
+      "termsLink": "Termos de Serviço",
+      "andText": "e",
+      "privacyLink": "Política de Privacidade",
+      "success": "Conta criada com sucesso!",
+      "successTitle": "Bem-vindo!",
+      "successDescription": "Sua conta foi criada. Redirecionando para o portal...",
+      "continueToPortal": "Continuar para o Portal",
+      "errors": {
+        "fillAllFields": "Por favor, preencha todos os campos obrigatórios",
+        "passwordMismatch": "As senhas não coincidem",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "invalidLink": "Este link de referência não é mais válido",
+        "generic": "Falha ao criar conta. Tente novamente."
+      }
+    },
+    "login": {
+      "cta": {
+        "title": "Já tem uma conta?",
+        "description": "Entre para acessar seu portal de cliente",
+        "button": "Entrar"
+      }
+    },
+    "invalid": {
+      "title": "Link Inválido",
+      "description": "Este link de referência não é válido ou expirou.",
+      "backHome": "Voltar ao Início"
+    },
+    "help": {
+      "text": "Precisa de ajuda?",
+      "contact": "Entre em contato com seu advogado"
+    },
+    "footer": {
+      "rights": "Todos os direitos reservados.",
+      "terms": "Termos de Serviço",
+      "privacy": "Política de Privacidade"
+    }
+  },
+  "forms": {
+    "i-130": {
+      "part1": {
+        "title": "Parte 1. Relacionamento",
+        "relationship": {
+          "title": "Relacionamento",
+          "description": "Selecione o relacionamento entre você (o peticionário) e a pessoa para quem você está fazendo a petição (o beneficiário).",
+          "filingFor": {
+            "label": "Estou apresentando esta petição para meu/minha...",
+            "options": {
+              "spouse": "Cônjuge",
+              "parent": "Pai/Mãe",
+              "brother_sister": "Irmão/Irmã",
+              "child": "Filho/Filha"
+            },
+            "helpText": "Selecione o parentesco que melhor descreve sua relação com o beneficiário."
+          },
+          "childAdopted": {
+            "label": "Se você está peticionando por um filho/filha, a criança foi adotada?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se a criança foi legalmente adotada."
+          },
+          "siblingStepOrAdoptive": {
+            "label": "Vocês são relacionados por padrasto/madrasta ou pai/mãe adotivo(a)?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o parentesco entre irmãos é por padrasto/madrasta ou pai/mãe adotivo(a)."
+          },
+          "multipleFilings": {
+            "label": "Você está apresentando esta petição para mais de um beneficiário?",
+            "helpText": "Você deve apresentar um Formulário I-130 separado para cada beneficiário.",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            }
+          }
+        }
+      },
+      "part2": {
+        "title": "Parte 2. Informações Sobre Você",
+        "names": {
+          "title": "Seu Nome Legal Completo",
+          "familyName": {
+            "label": "Sobrenome",
+            "placeholder": "ex., Silva",
+            "helpText": "Digite seu sobrenome exatamente como aparece em seus documentos oficiais."
+          },
+          "givenName": {
+            "label": "Nome",
+            "placeholder": "ex., João",
+            "helpText": "Digite seu primeiro nome exatamente como aparece em seus documentos oficiais."
+          },
+          "middleName": {
+            "label": "Nome do Meio",
+            "placeholder": "ex., Antônio",
+            "helpText": "Se você tem um nome do meio, digite-o aqui. Deixe em branco se não tiver."
+          }
+        },
+        "otherNames": {
+          "title": "Outros Nomes Utilizados",
+          "description": "Forneça todos os outros nomes que você já usou, incluindo apelidos, nome de solteira e nomes informais.",
+          "maidenFamilyName": {
+            "label": "Sobrenome de Nascimento",
+            "placeholder": "ex., Santos",
+            "helpText": "Digite seu sobrenome de nascimento se for diferente do seu sobrenome atual."
+          },
+          "maidenGivenName": {
+            "label": "Nome de Nascimento",
+            "placeholder": "ex., Maria",
+            "helpText": "Digite seu primeiro nome de nascimento se for diferente do seu nome atual."
+          },
+          "maidenMiddleName": {
+            "label": "Nome do Meio de Nascimento",
+            "placeholder": "ex., Helena",
+            "helpText": "Digite seu nome do meio de nascimento se for diferente do atual."
+          }
+        },
+        "identifiers": {
+          "title": "Números de Identificação",
+          "alienNumber": {
+            "label": "Número de Registro de Estrangeiro (Número A)",
+            "helpText": "Se você possui um Número A, insira-o aqui. Este é um número de 7 a 9 dígitos.",
+            "placeholder": "A-XXXXXXXXX"
+          },
+          "uscisAccountNumber": {
+            "label": "Número de Conta Online do USCIS",
+            "helpText": "Se você já apresentou uma solicitação ou petição ao USCIS online anteriormente.",
+            "placeholder": "ex., 123456789012"
+          },
+          "ssn": {
+            "label": "Número de Seguro Social dos EUA",
+            "placeholder": "XXX-XX-XXXX",
+            "helpText": "Digite seu número de Seguro Social dos EUA de 9 dígitos, se tiver um."
+          }
+        },
+        "mailingAddress": {
+          "title": "Seu Endereço para Correspondência",
+          "inCareOf": {
+            "label": "Aos Cuidados de",
+            "placeholder": "ex., João Silva",
+            "helpText": "Digite o nome da pessoa que receberá correspondência em seu nome, se aplicável."
+          },
+          "streetNumber": {
+            "label": "Número e Nome da Rua",
+            "placeholder": "ex., Rua Principal 123",
+            "helpText": "Digite o número e nome da rua do seu endereço postal."
+          },
+          "aptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Selecione o tipo de unidade, se aplicável (apartamento, sala ou andar)."
+          },
+          "aptNumber": {
+            "label": "Número",
+            "placeholder": "ex., 4B",
+            "helpText": "Digite seu número de apartamento, sala ou andar."
+          },
+          "city": {
+            "label": "Cidade ou Vila",
+            "placeholder": "ex., Nova York",
+            "helpText": "Digite a cidade do seu endereço postal."
+          },
+          "state": {
+            "label": "Estado",
+            "options": {
+              "AL": "Alabama",
+              "AK": "Alaska",
+              "AZ": "Arizona",
+              "AR": "Arkansas",
+              "CA": "California",
+              "CO": "Colorado",
+              "CT": "Connecticut",
+              "DE": "Delaware",
+              "FL": "Florida",
+              "GA": "Georgia",
+              "HI": "Hawaii",
+              "ID": "Idaho",
+              "IL": "Illinois",
+              "IN": "Indiana",
+              "IA": "Iowa",
+              "KS": "Kansas",
+              "KY": "Kentucky",
+              "LA": "Louisiana",
+              "ME": "Maine",
+              "MD": "Maryland",
+              "MA": "Massachusetts",
+              "MI": "Michigan",
+              "MN": "Minnesota",
+              "MS": "Mississippi",
+              "MO": "Missouri",
+              "MT": "Montana",
+              "NE": "Nebraska",
+              "NV": "Nevada",
+              "NH": "New Hampshire",
+              "NJ": "New Jersey",
+              "NM": "New Mexico",
+              "NY": "New York",
+              "NC": "North Carolina",
+              "ND": "North Dakota",
+              "OH": "Ohio",
+              "OK": "Oklahoma",
+              "OR": "Oregon",
+              "PA": "Pennsylvania",
+              "RI": "Rhode Island",
+              "SC": "South Carolina",
+              "SD": "South Dakota",
+              "TN": "Tennessee",
+              "TX": "Texas",
+              "UT": "Utah",
+              "VT": "Vermont",
+              "VA": "Virginia",
+              "WA": "Washington",
+              "WV": "West Virginia",
+              "WI": "Wisconsin",
+              "WY": "Wyoming",
+              "DC": "District of Columbia"
+            },
+            "helpText": "Selecione o estado dos EUA do seu endereço postal."
+          },
+          "zipCode": {
+            "label": "Código Postal",
+            "placeholder": "ex., 10001",
+            "helpText": "Digite o código postal de 5 dígitos ou código ZIP+4."
+          },
+          "province": {
+            "label": "Província",
+            "placeholder": "ex., Ontario",
+            "helpText": "Digite a província se seu endereço for fora dos Estados Unidos."
+          },
+          "postalCode": {
+            "label": "Código Postal",
+            "placeholder": "ex., M5V 2T6",
+            "helpText": "Digite o código postal se seu endereço for fora dos Estados Unidos."
+          },
+          "country": {
+            "label": "País",
+            "placeholder": "ex., Estados Unidos",
+            "helpText": "Digite o país do seu endereço postal."
+          }
+        },
+        "physicalAddress": {
+          "title": "Seu Endereço Residencial",
+          "description": "Se o seu endereço residencial é o mesmo que o endereço para correspondência, selecione \"Sim\" abaixo.",
+          "sameAsMailingAddress": {
+            "label": "Seu endereço residencial é o mesmo que o endereço para correspondência?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Se seu endereço residencial é o mesmo que seu endereço postal acima, selecione Sim."
+          },
+          "physStreetNumber": {
+            "label": "Número e Nome da Rua",
+            "placeholder": "ex., Av. Carvalho 456",
+            "helpText": "Digite o número e nome da rua do seu endereço físico."
+          },
+          "physAptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Selecione o tipo de unidade, se aplicável."
+          },
+          "physAptNumber": {
+            "label": "Número",
+            "placeholder": "ex., 2A",
+            "helpText": "Digite o número da unidade do seu endereço físico."
+          },
+          "physCity": {
+            "label": "Cidade ou Vila",
+            "placeholder": "ex., Los Angeles",
+            "helpText": "Digite a cidade do seu endereço físico."
+          },
+          "physState": {
+            "label": "Estado",
+            "placeholder": "ex., Califórnia",
+            "helpText": "Digite o estado ou província do seu endereço físico."
+          },
+          "physZipCode": {
+            "label": "Código Postal",
+            "placeholder": "ex., 90001",
+            "helpText": "Digite o código postal do seu endereço físico."
+          },
+          "physProvince": {
+            "label": "Província",
+            "placeholder": "ex., Ontario",
+            "helpText": "Digite a província se for fora dos Estados Unidos."
+          },
+          "physCountry": {
+            "label": "País",
+            "placeholder": "ex., Estados Unidos",
+            "helpText": "Digite o país do seu endereço físico."
+          }
+        },
+        "personalInfo": {
+          "title": "Outras Informações Pessoais",
+          "dateOfBirth": {
+            "label": "Data de Nascimento",
+            "helpText": "Digite sua data de nascimento como aparece em sua certidão de nascimento ou passaporte."
+          },
+          "cityOfBirth": {
+            "label": "Cidade/Vila/Povoado de Nascimento",
+            "placeholder": "ex., São Paulo",
+            "helpText": "Digite a cidade ou vila onde você nasceu."
+          },
+          "countryOfBirth": {
+            "label": "País de Nascimento",
+            "placeholder": "ex., Brasil",
+            "helpText": "Digite o país onde você nasceu."
+          },
+          "citizenship": {
+            "label": "País de Cidadania ou Nacionalidade",
+            "placeholder": "ex., Estados Unidos",
+            "helpText": "Digite seu país atual de cidadania ou nacionalidade."
+          },
+          "immigrationStatus": {
+            "label": "Eu sou um(a)...",
+            "options": {
+              "us_citizen": "Cidadão(ã) dos EUA (por nascimento ou naturalização)",
+              "lpr": "Residente Permanente Legal (LPR)"
+            },
+            "helpText": "Selecione seu status imigratório atual. Você deve ser cidadão americano ou residente permanente legal para apresentar o Formulário I-130."
+          },
+          "lprClassOfAdmission": {
+            "label": "Classe de Admissão",
+            "helpText": "ex.: IR1, F2A, EB-2, DV",
+            "placeholder": "ex., IR1, F2A, EB-2"
+          },
+          "lprDateOfAdmission": {
+            "label": "Data de Admissão como LPR",
+            "helpText": "Digite a data em que foi admitido como residente permanente legal."
+          }
+        },
+        "maritalInfo": {
+          "title": "Informações Matrimoniais",
+          "maritalStatus": {
+            "label": "Estado Civil Atual",
+            "options": {
+              "single": "Solteiro/a, Nunca Casado/a",
+              "married": "Casado/a",
+              "divorced": "Divorciado/a",
+              "widowed": "Viúvo/a",
+              "separated": "Separado/a Legalmente",
+              "annulled": "Casamento Anulado"
+            },
+            "helpText": "Selecione seu estado civil atual."
+          },
+          "timesMarried": {
+            "label": "Quantas vezes você foi casado(a)?",
+            "placeholder": "ex., 1",
+            "helpText": "Digite o número total de vezes que você foi legalmente casado(a)."
+          },
+          "spouseFamilyName": {
+            "label": "Sobrenome do Cônjuge Atual",
+            "placeholder": "ex., Oliveira",
+            "helpText": "Digite o sobrenome do seu cônjuge atual."
+          },
+          "spouseGivenName": {
+            "label": "Nome do Cônjuge Atual",
+            "placeholder": "ex., Maria",
+            "helpText": "Digite o primeiro nome do seu cônjuge atual."
+          },
+          "spouseDateOfBirth": {
+            "label": "Data de Nascimento do Cônjuge Atual",
+            "helpText": "Digite a data de nascimento do seu cônjuge atual."
+          },
+          "dateOfMarriage": {
+            "label": "Data do Casamento Atual",
+            "helpText": "Digite a data do seu casamento atual."
+          },
+          "cityOfMarriage": {
+            "label": "Cidade/Vila do Casamento Atual",
+            "placeholder": "ex., Miami",
+            "helpText": "Digite a cidade onde seu casamento atual foi realizado."
+          },
+          "stateOfMarriage": {
+            "label": "Estado/Província do Casamento Atual",
+            "placeholder": "ex., Flórida",
+            "helpText": "Digite o estado ou província onde seu casamento atual foi realizado."
+          },
+          "countryOfMarriage": {
+            "label": "País do Casamento Atual",
+            "placeholder": "ex., Estados Unidos",
+            "helpText": "Digite o país onde seu casamento atual foi realizado."
+          }
+        },
+        "parentInfo": {
+          "title": "Informações sobre os Pais",
+          "parentUsCitizen": {
+            "label": "Seu pai/mãe era cidadão(ã) dos EUA no momento em que você obteve a residência permanente?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não",
+              "na": "Não aplicável"
+            },
+            "helpText": "Se você obteve a residência permanente através de um dos pais, indique se ele(a) era cidadão(ã) americano(a) naquele momento."
+          }
+        }
+      },
+      "part3": {
+        "title": "Parte 3. Informações Biográficas",
+        "biographic": {
+          "title": "Informações Biográficas",
+          "description": "Forneça as seguintes informações sobre você.",
+          "ethnicity": {
+            "label": "Etnia (Selecione uma)",
+            "options": {
+              "hispanic_latino": "Hispânico ou Latino",
+              "not_hispanic_latino": "Não Hispânico ou Latino"
+            },
+            "helpText": "Selecione a etnia que melhor o descreve."
+          },
+          "race": {
+            "label": "Raça (Selecione todas as aplicáveis)",
+            "options": {
+              "white": "Branco",
+              "asian": "Asiático",
+              "black": "Negro ou Afro-americano",
+              "american_indian": "Indígena Americano ou Nativo do Alasca",
+              "native_hawaiian": "Nativo do Havaí ou Outro Ilhéu do Pacífico"
+            },
+            "helpText": "Selecione todas as raças que se aplicam a você."
+          },
+          "heightFeet": {
+            "label": "Altura (Pés)",
+            "placeholder": "ex., 5",
+            "helpText": "Digite a parte em pés da sua altura."
+          },
+          "heightInches": {
+            "label": "Altura (Polegadas)",
+            "placeholder": "ex., 10",
+            "helpText": "Digite a parte em polegadas da sua altura (0-11)."
+          },
+          "weight": {
+            "label": "Peso (Libras)",
+            "placeholder": "ex., 170",
+            "helpText": "Digite seu peso em libras."
+          },
+          "eyeColor": {
+            "label": "Cor dos Olhos",
+            "options": {
+              "black": "Preto",
+              "blue": "Azul",
+              "brown": "Castanho",
+              "gray": "Cinza",
+              "green": "Verde",
+              "hazel": "Avelã",
+              "maroon": "Castanho-avermelhado",
+              "pink": "Rosa",
+              "unknown": "Desconhecido/Outro"
+            },
+            "helpText": "Selecione a cor que melhor corresponde à cor dos seus olhos."
+          },
+          "hairColor": {
+            "label": "Cor do Cabelo",
+            "options": {
+              "bald": "Careca (Sem cabelo)",
+              "black": "Preto",
+              "blond": "Loiro",
+              "brown": "Castanho",
+              "gray": "Grisalho",
+              "red": "Ruivo",
+              "sandy": "Areia",
+              "white": "Branco",
+              "unknown": "Desconhecido/Outro"
+            },
+            "helpText": "Selecione a cor que melhor corresponde à cor do seu cabelo."
+          }
+        }
+      },
+      "part4": {
+        "title": "Parte 4. Informações Sobre o Beneficiário",
+        "names": {
+          "title": "Nome Legal Completo do Beneficiário",
+          "familyName": {
+            "label": "Sobrenome",
+            "placeholder": "ex., Souza",
+            "helpText": "Digite o sobrenome do beneficiário exatamente como aparece em seus documentos oficiais."
+          },
+          "givenName": {
+            "label": "Nome",
+            "placeholder": "ex., Maria",
+            "helpText": "Digite o primeiro nome do beneficiário exatamente como aparece em seus documentos oficiais."
+          },
+          "middleName": {
+            "label": "Nome do Meio",
+            "placeholder": "ex., Helena",
+            "helpText": "Digite o nome do meio do beneficiário, se tiver."
+          }
+        },
+        "otherNames": {
+          "title": "Outros Nomes Utilizados pelo Beneficiário",
+          "otherFamilyName": {
+            "label": "Sobrenome de Nascimento",
+            "placeholder": "ex., Martins",
+            "helpText": "Digite o sobrenome de nascimento do beneficiário se for diferente do atual."
+          },
+          "otherGivenName": {
+            "label": "Nome de Nascimento",
+            "placeholder": "ex., Rosa",
+            "helpText": "Digite o primeiro nome de nascimento do beneficiário se for diferente do atual."
+          },
+          "otherMiddleName": {
+            "label": "Nome do Meio de Nascimento",
+            "placeholder": "ex., Isabel",
+            "helpText": "Digite o nome do meio de nascimento do beneficiário se for diferente do atual."
+          }
+        },
+        "identifiers": {
+          "title": "Números de Identificação do Beneficiário",
+          "alienNumber": {
+            "label": "Número de Registro de Estrangeiro (Número A)",
+            "placeholder": "A-XXXXXXXXX",
+            "helpText": "Digite o número de registro de estrangeiro (número A) do beneficiário, se tiver."
+          },
+          "uscisAccountNumber": {
+            "label": "Número de Conta Online do USCIS",
+            "placeholder": "ex., 123456789012",
+            "helpText": "Digite o número da conta online do USCIS do beneficiário, se tiver."
+          },
+          "ssn": {
+            "label": "Número de Seguro Social dos EUA (se houver)",
+            "placeholder": "XXX-XX-XXXX",
+            "helpText": "Digite o número de Seguro Social dos EUA do beneficiário, se tiver."
+          }
+        },
+        "mailingAddress": {
+          "title": "Endereço para Correspondência do Beneficiário",
+          "inCareOf": {
+            "label": "Aos Cuidados de",
+            "placeholder": "ex., Maria Silva",
+            "helpText": "Digite o nome da pessoa que receberá correspondência em nome do beneficiário."
+          },
+          "streetNumber": {
+            "label": "Número e Nome da Rua",
+            "placeholder": "ex., Rua Olmo 789",
+            "helpText": "Digite o número e nome da rua do endereço postal do beneficiário."
+          },
+          "aptType": {
+            "label": "Apt/Ste/Flr",
+            "options": {
+              "apt": "Apt.",
+              "ste": "Ste.",
+              "flr": "Flr."
+            },
+            "helpText": "Selecione o tipo de unidade, se aplicável."
+          },
+          "aptNumber": {
+            "label": "Número",
+            "placeholder": "ex., 3C",
+            "helpText": "Digite o número da unidade do endereço do beneficiário."
+          },
+          "city": {
+            "label": "Cidade ou Vila",
+            "placeholder": "ex., Cidade do México",
+            "helpText": "Digite a cidade do endereço postal do beneficiário."
+          },
+          "state": {
+            "label": "Estado/Província",
+            "placeholder": "ex., CDMX",
+            "helpText": "Digite o estado ou província do endereço postal do beneficiário."
+          },
+          "zipCode": {
+            "label": "Código Postal",
+            "placeholder": "ex., 06600",
+            "helpText": "Digite o código postal do endereço do beneficiário."
+          },
+          "country": {
+            "label": "País",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país do endereço postal do beneficiário."
+          }
+        },
+        "birthInfo": {
+          "title": "Informações de Nascimento do Beneficiário",
+          "dateOfBirth": {
+            "label": "Data de Nascimento",
+            "helpText": "Digite a data de nascimento do beneficiário como aparece em sua certidão de nascimento."
+          },
+          "cityOfBirth": {
+            "label": "Cidade/Vila/Povoado de Nascimento",
+            "placeholder": "ex., Guadalajara",
+            "helpText": "Digite a cidade ou vila onde o beneficiário nasceu."
+          },
+          "countryOfBirth": {
+            "label": "País de Nascimento",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país onde o beneficiário nasceu."
+          },
+          "sex": {
+            "label": "Sexo",
+            "options": {
+              "male": "Masculino",
+              "female": "Feminino"
+            },
+            "helpText": "Selecione o sexo biológico do beneficiário."
+          }
+        },
+        "citizenship": {
+          "title": "Cidadania e Nacionalidade do Beneficiário",
+          "nationality": {
+            "label": "País de Cidadania ou Nacionalidade",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país de cidadania ou nacionalidade atual do beneficiário."
+          }
+        },
+        "maritalInfo": {
+          "title": "Informações Matrimoniais do Beneficiário",
+          "maritalStatus": {
+            "label": "Estado Civil Atual",
+            "options": {
+              "single": "Solteiro/a, Nunca Casado/a",
+              "married": "Casado/a",
+              "divorced": "Divorciado/a",
+              "widowed": "Viúvo/a",
+              "separated": "Separado/a Legalmente",
+              "annulled": "Casamento Anulado"
+            },
+            "helpText": "Selecione o estado civil atual do beneficiário."
+          },
+          "timesMarried": {
+            "label": "Quantas vezes o beneficiário foi casado(a)?",
+            "placeholder": "ex., 1",
+            "helpText": "Digite o número total de vezes que o beneficiário foi legalmente casado(a)."
+          }
+        },
+        "immigrationInfo": {
+          "title": "Informações Imigratórias do Beneficiário",
+          "inUS": {
+            "label": "O beneficiário está atualmente nos Estados Unidos?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário está atualmente nos Estados Unidos."
+          },
+          "classOfAdmission": {
+            "label": "Classe de Admissão de Não Imigrante",
+            "helpText": "ex.: B-2, F-1, H-1B",
+            "placeholder": "ex., B-2, F-1, H-1B"
+          },
+          "i94Number": {
+            "label": "Número do Registro de Chegada-Partida I-94",
+            "placeholder": "ex., 12345678901",
+            "helpText": "Digite o número de 11 dígitos do registro de chegada-partida I-94 do beneficiário."
+          },
+          "dateOfArrival": {
+            "label": "Data de Chegada",
+            "helpText": "Digite a data mais recente de chegada do beneficiário aos Estados Unidos."
+          },
+          "authorizedStayExpiration": {
+            "label": "Data de Expiração da Estadia Autorizada ou D/S",
+            "helpText": "Digite a data de expiração da estadia autorizada do beneficiário, ou \"D/S\" para duração do status."
+          },
+          "passportNumber": {
+            "label": "Número do Passaporte",
+            "placeholder": "ex., AB1234567",
+            "helpText": "Digite o número do passaporte do beneficiário."
+          },
+          "travelDocumentNumber": {
+            "label": "Número do Documento de Viagem",
+            "placeholder": "ex., TD1234567",
+            "helpText": "Digite o número do documento de viagem do beneficiário, se diferente do passaporte."
+          },
+          "passportCountry": {
+            "label": "País de Emissão do Passaporte/Documento de Viagem",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país que emitiu o passaporte ou documento de viagem do beneficiário."
+          },
+          "passportExpiration": {
+            "label": "Data de Validade do Passaporte/Documento de Viagem",
+            "helpText": "Digite a data de vencimento do passaporte ou documento de viagem do beneficiário."
+          }
+        },
+        "employmentInfo": {
+          "title": "Emprego Atual do Beneficiário",
+          "employerName": {
+            "label": "Nome do Empregador Atual (se houver)",
+            "placeholder": "ex., Empresa ABC",
+            "helpText": "Digite o nome do empregador atual do beneficiário, se empregado."
+          },
+          "employerStreet": {
+            "label": "Endereço do Empregador",
+            "placeholder": "ex., Av. Empresarial 100",
+            "helpText": "Digite o endereço do empregador do beneficiário."
+          },
+          "employerCity": {
+            "label": "Cidade do Empregador",
+            "placeholder": "ex., Houston",
+            "helpText": "Digite a cidade do empregador do beneficiário."
+          },
+          "employerState": {
+            "label": "Estado/Província do Empregador",
+            "placeholder": "ex., Texas",
+            "helpText": "Digite o estado ou província do empregador do beneficiário."
+          },
+          "employerCountry": {
+            "label": "País do Empregador",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país do empregador do beneficiário."
+          }
+        },
+        "parentInfo": {
+          "title": "Informações dos Pais do Beneficiário",
+          "description": "Forneça informações sobre os pais do beneficiário.",
+          "motherFamilyName": {
+            "label": "Sobrenome da Mãe",
+            "placeholder": "ex., Rodrigues",
+            "helpText": "Digite o sobrenome da mãe do beneficiário."
+          },
+          "motherGivenName": {
+            "label": "Nome da Mãe",
+            "placeholder": "ex., Carmen",
+            "helpText": "Digite o primeiro nome da mãe do beneficiário."
+          },
+          "motherMiddleName": {
+            "label": "Nome do Meio da Mãe",
+            "placeholder": "ex., Rosa",
+            "helpText": "Digite o nome do meio da mãe do beneficiário, se tiver."
+          },
+          "motherDateOfBirth": {
+            "label": "Data de Nascimento da Mãe",
+            "helpText": "Digite a data de nascimento da mãe do beneficiário."
+          },
+          "motherCountryOfBirth": {
+            "label": "País de Nascimento da Mãe",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país onde a mãe do beneficiário nasceu."
+          },
+          "fatherFamilyName": {
+            "label": "Sobrenome do Pai",
+            "placeholder": "ex., Garcia",
+            "helpText": "Digite o sobrenome do pai do beneficiário."
+          },
+          "fatherGivenName": {
+            "label": "Nome do Pai",
+            "placeholder": "ex., Carlos",
+            "helpText": "Digite o primeiro nome do pai do beneficiário."
+          },
+          "fatherMiddleName": {
+            "label": "Nome do Meio do Pai",
+            "placeholder": "ex., Alberto",
+            "helpText": "Digite o nome do meio do pai do beneficiário, se tiver."
+          },
+          "fatherDateOfBirth": {
+            "label": "Data de Nascimento do Pai",
+            "helpText": "Digite a data de nascimento do pai do beneficiário."
+          },
+          "fatherCountryOfBirth": {
+            "label": "País de Nascimento do Pai",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país onde o pai do beneficiário nasceu."
+          }
+        },
+        "proceedings": {
+          "title": "Procedimentos Imigratórios Anteriores",
+          "inProceedings": {
+            "label": "O beneficiário já esteve em procedimentos imigratórios?",
+            "helpText": "Isso inclui procedimentos de remoção, exclusão, rescisão ou deportação.",
+            "options": {
+              "no": "Não",
+              "yes_removal": "Sim - Remoção",
+              "yes_exclusion": "Sim - Exclusão/Deportação",
+              "yes_rescission": "Sim - Rescisão"
+            }
+          }
+        },
+        "processingChoice": {
+          "title": "Informações de Processamento",
+          "description": "Você DEVE selecionar a Opção 61 ou a Opção 62, mas NÃO ambas.",
+          "processingType": {
+            "label": "Como o beneficiário obterá a residência permanente?",
+            "helpText": "Selecione ajuste de status se o beneficiário estiver nos EUA, ou processamento consular se estiver no exterior.",
+            "options": {
+              "adjustment": "Ajuste de Status nos Estados Unidos (Item 61)",
+              "consular": "Visto de Imigrante em uma Embaixada/Consulado dos EUA no Exterior (Item 62)"
+            }
+          },
+          "consulateCity": {
+            "label": "Cidade da Embaixada ou Consulado dos EUA",
+            "placeholder": "ex., Ciudad Juárez",
+            "helpText": "Digite a cidade da Embaixada ou Consulado dos EUA onde o beneficiário solicitará o visto de imigrante."
+          },
+          "consulateCountry": {
+            "label": "País da Embaixada ou Consulado dos EUA",
+            "placeholder": "ex., México",
+            "helpText": "Digite o país da Embaixada ou Consulado dos EUA."
+          }
+        }
+      },
+      "part5": {
+        "title": "Parte 5. Outras Informações",
+        "otherInfo": {
+          "title": "Informações Adicionais Sobre o Beneficiário",
+          "inRemovalProceedings": {
+            "label": "O beneficiário está atualmente em procedimentos de remoção, deportação ou rescisão?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário está atualmente em procedimentos de remoção, deportação ou rescisão."
+          },
+          "previouslyInUS": {
+            "label": "O beneficiário já esteve nos Estados Unidos?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário já esteve fisicamente presente nos Estados Unidos."
+          },
+          "arrested": {
+            "label": "O beneficiário já foi preso, citado, acusado ou condenado por algum crime?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário já foi preso, citado, acusado ou condenado por qualquer crime em qualquer lugar do mundo."
+          },
+          "previouslyApplied": {
+            "label": "O beneficiário já solicitou residência permanente anteriormente?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário já solicitou ou recebeu anteriormente o status de residente permanente nos EUA."
+          },
+          "workedWithoutAuth": {
+            "label": "O beneficiário já trabalhou nos Estados Unidos sem autorização?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não"
+            },
+            "helpText": "Indique se o beneficiário já trabalhou nos Estados Unidos sem autorização de emprego adequada."
+          },
+          "additionalDetails": {
+            "label": "Se você respondeu \"Sim\" a qualquer pergunta acima, forneça detalhes",
+            "placeholder": "Forneça detalhes sobre quaisquer respostas \"Sim\" acima...",
+            "helpText": "Se você respondeu \"Sim\" a qualquer uma das perguntas acima, forneça os detalhes completos aqui."
+          }
+        }
+      },
+      "part6": {
+        "title": "Parte 6. Declaração do Peticionário",
+        "statement": {
+          "title": "Declaração, Contato e Assinatura do Peticionário",
+          "description": "Selecione a declaração apropriada e forneça suas informações de contato.",
+          "canReadEnglish": {
+            "label": "Eu consigo ler e entender inglês, e li e entendi cada pergunta e instrução nesta petição.",
+            "options": {
+              "yes": "Sim, eu consigo ler e entender inglês",
+              "no": "Não, um intérprete me auxiliou"
+            },
+            "helpText": "Selecione se você pode ler e entender inglês sem assistência."
+          },
+          "interpreterLanguage": {
+            "label": "Idioma do intérprete",
+            "placeholder": "ex., Português",
+            "helpText": "Digite o idioma usado pelo intérprete que o assistiu."
+          },
+          "preparerUsed": {
+            "label": "Outra pessoa além de você preparou esta petição?",
+            "options": {
+              "yes": "Sim",
+              "no": "Não, eu mesmo(a) preparei"
+            },
+            "helpText": "Indique se um advogado, representante credenciado ou outra pessoa preparou esta petição para você."
+          },
+          "daytimePhone": {
+            "label": "Número de Telefone Diurno do Peticionário",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Digite um número de telefone onde você pode ser contatado durante o horário comercial."
+          },
+          "mobilePhone": {
+            "label": "Número de Telefone Celular do Peticionário",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Digite seu número de celular."
+          },
+          "email": {
+            "label": "Endereço de E-mail do Peticionário",
+            "placeholder": "email@exemplo.com",
+            "helpText": "Digite um endereço de e-mail onde o USCIS possa contatá-lo."
+          }
+        }
+      },
+      "part7": {
+        "title": "Parte 7. Informações do Intérprete",
+        "interpreter": {
+          "title": "Informações de Contato do Intérprete",
+          "description": "Preencha esta seção apenas se um intérprete auxiliou o peticionário.",
+          "interpreterFamilyName": {
+            "label": "Sobrenome do Intérprete",
+            "placeholder": "ex., Martins",
+            "helpText": "Digite o sobrenome do intérprete."
+          },
+          "interpreterGivenName": {
+            "label": "Nome do Intérprete",
+            "placeholder": "ex., Ana",
+            "helpText": "Digite o primeiro nome do intérprete."
+          },
+          "interpreterBusinessName": {
+            "label": "Nome da Empresa ou Organização do Intérprete",
+            "placeholder": "ex., Serviços de Idiomas Ltda.",
+            "helpText": "Digite o nome da empresa ou organização do intérprete, se aplicável."
+          },
+          "interpreterPhone": {
+            "label": "Número de Telefone Diurno do Intérprete",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Digite o número de telefone diurno do intérprete."
+          },
+          "interpreterEmail": {
+            "label": "Endereço de E-mail do Intérprete",
+            "placeholder": "email@exemplo.com",
+            "helpText": "Digite o endereço de e-mail do intérprete."
+          },
+          "interpreterLanguage": {
+            "label": "Idioma Interpretado",
+            "placeholder": "ex., Português",
+            "helpText": "Digite o idioma interpretado durante o preenchimento deste formulário."
+          }
+        }
+      },
+      "part8": {
+        "title": "Parte 8. Informações do Preparador",
+        "preparer": {
+          "title": "Informações de Contato do Preparador",
+          "description": "Preencha esta seção apenas se outra pessoa além do peticionário preparou esta petição.",
+          "preparerFamilyName": {
+            "label": "Sobrenome do Preparador",
+            "placeholder": "ex., Santos",
+            "helpText": "Digite o sobrenome do preparador."
+          },
+          "preparerGivenName": {
+            "label": "Nome do Preparador",
+            "placeholder": "ex., Roberto",
+            "helpText": "Digite o primeiro nome do preparador."
+          },
+          "preparerBusinessName": {
+            "label": "Nome da Empresa ou Organização do Preparador",
+            "placeholder": "ex., Escritório de Imigração Ltda.",
+            "helpText": "Digite o nome da empresa ou organização do preparador, se aplicável."
+          },
+          "preparerPhone": {
+            "label": "Número de Telefone Diurno do Preparador",
+            "placeholder": "(XXX) XXX-XXXX",
+            "helpText": "Digite o número de telefone diurno do preparador."
+          },
+          "preparerEmail": {
+            "label": "Endereço de E-mail do Preparador",
+            "placeholder": "email@exemplo.com",
+            "helpText": "Digite o endereço de e-mail do preparador."
+          },
+          "isAttorney": {
+            "label": "Eu sou um advogado ou representante credenciado.",
+            "helpText": "Marque esta caixa se o preparador for um advogado ou representante credenciado."
+          }
+        }
+      }
+    }
+  },
+  "onboarding": {
+    "back": "Voltar",
+    "skipSetup": "Pular configuração",
+    "step1": "Tipo de perfil",
+    "step2": "Informação",
+    "welcome": "Bem-vindo ao EZMig",
+    "howWillYouUse": "Como você vai usar a plataforma?",
+    "recommended": "Recomendado",
+    "continue": "Continuar",
+    "profileTypes": {
+      "agency": {
+        "title": "Agência / Escritório",
+        "subtitle": "Gerencie múltiplos casos e equipes"
+      },
+      "freelancer": {
+        "title": "Freelancer",
+        "subtitle": "Trabalhe de forma independente"
+      }
+    },
+    "agencyForm": {
+      "title": "Informações da agência",
+      "subtitle": "Complete os dados básicos para começar"
+    },
+    "freelancerForm": {
+      "title": "Perfil profissional",
+      "subtitle": "Complete suas informações para aparecer no diretório"
+    },
+    "toasts": {
+      "profileCreated": "Perfil criado com sucesso!",
+      "profileError": "Erro ao criar o perfil"
+    },
+    "rightPanel": {
+      "headline": "Automatize sua prática legal",
+      "description": "Preencha formulários de imigração com precisão e conformidade total em menos tempo",
+      "uscisCompliant": "Conforme USCIS",
+      "accuracy": "Precisão",
+      "activeCases": "Casos ativos",
+      "processed": "Processados",
+      "forms": "Formulários",
+      "timeSaved": "Tempo economizado",
+      "compliance": "Conformidade",
+      "formName": "Formulário I-485",
+      "formSubtitle": "Ajuste de Status",
+      "readyToSubmit": "Pronto para enviar"
+    }
+  },
+  "agencies": {
+    "typeSelector": {
+      "title": "Tipo de Agência",
+      "description": "Selecione o tipo de serviços que sua agência oferece",
+      "selectedType": "Tipo selecionado",
+      "cannotChange": "Não pode ser alterado após o registro",
+      "servicesIncluded": "Serviços incluídos",
+      "types": {
+        "law_firm": {
+          "title": "Escritório de advocacia (Law Firm)",
+          "description": "Podemos representar clientes perante o USCIS e tribunais de imigração",
+          "features": [
+            "Representação legal completa",
+            "Comparecimento em tribunais",
+            "Defesa em processos de deportação",
+            "Consultas jurídicas especializadas"
+          ]
+        },
+        "immigration_services": {
+          "title": "Serviços de imigração (Immigration Services)",
+          "description": "Ajudamos a preencher formulários de imigração (sem representação legal)",
+          "features": [
+            "Preencher formulários USCIS",
+            "Revisão de documentos",
+            "Consultas informativas",
+            "Preparação de solicitações"
+          ]
+        }
+      }
+    },
+    "form": {
+      "registerTitle": "Registro de Agência",
+      "settingsTitle": "Configuração de Agência",
+      "subtitle": "Complete todos os campos obrigatórios para registrar sua agência",
+      "sections": {
+        "agencyType": "Tipo de agência",
+        "businessInfo": "Informações empresariais",
+        "location": "Localização",
+        "legalInfo": "Informações legais",
+        "owner": "Proprietário",
+        "disclaimer": "Declaração Legal"
+      },
+      "fields": {
+        "legalBusinessName": "Nome Legal da Empresa",
+        "dbaName": "Nome Comercial (DBA)",
+        "businessEmail": "Email Empresarial",
+        "businessPhone": "Telefone Empresarial",
+        "website": "Site",
+        "address": "Endereço do Escritório",
+        "addressPlaceholder": "Digite seu endereço...",
+        "city": "Cidade",
+        "state": "Estado",
+        "zipCode": "CEP",
+        "firmRegistrationNumber": "Número de Registro do Escritório",
+        "registrationState": "Estado de Registro",
+        "businessLicense": "Licença Comercial",
+        "ownerFullName": "Nome Completo",
+        "ownerPosition": "Cargo/Título",
+        "ownerEmail": "Email do Proprietário",
+        "ownerPhone": "Telefone do Proprietário"
+      },
+      "placeholders": {
+        "legalBusinessName": "Ex: Smith & Associates LLC",
+        "dbaName": "Ex: Smith Law Group",
+        "website": "https://seu-site.com",
+        "city": "Cidade",
+        "state": "CA",
+        "zipCode": "90210",
+        "firmRegistration": "Ex: 123456789",
+        "registrationState": "CA",
+        "businessLicense": "BL-2024-001234",
+        "ownerName": "Nome completo do proprietário",
+        "ownerPosition": "CEO, Sócio Gerente, etc."
+      },
+      "submit": "Completar registro",
+      "submitting": "Criando perfil...",
+      "requiredNote": "Campos com * são obrigatórios. Seu progresso é salvo automaticamente.",
+      "submitSuccess": "Registro enviado com sucesso",
+      "submitError": "Erro ao enviar o registro"
     }
   }
 }

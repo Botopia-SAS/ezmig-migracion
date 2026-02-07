@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, ShoppingCart, History, Settings, AlertCircle, CheckCircle } from 'lucide-react';
@@ -9,6 +10,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
+import { customerPortalAction } from '@/lib/payments/actions';
+import { TeamDataWithMembers } from '@/lib/db/schema';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -39,6 +42,38 @@ function TokenBalanceCard() {
         <p className="mt-2 text-sm text-violet-200">
           {t('info')}
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SubscriptionCard() {
+  const t = useTranslations('dashboard.team.subscription');
+  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p className="font-medium">
+            {t('plan')}: {teamData?.planName || 'Free'}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {teamData?.subscriptionStatus === 'active'
+              ? t('status')
+              : teamData?.subscriptionStatus === 'trialing'
+              ? t('status')
+              : t('noSubscription')}
+          </p>
+        </div>
+        <form action={customerPortalAction}>
+          <Button type="submit" variant="outline">
+            {t('managePlan')}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
@@ -152,7 +187,10 @@ export default function BillingPage() {
       </Suspense>
 
       <div className="space-y-6">
-        <TokenBalanceCard />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <SubscriptionCard />
+          <TokenBalanceCard />
+        </div>
         <QuickActions />
       </div>
     </section>

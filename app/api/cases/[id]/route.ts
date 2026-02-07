@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
-import { teamMembers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { withAuth } from '@/lib/api/middleware';
+import { successResponse, handleRouteError, notFoundResponse } from '@/lib/api/response';
+import { validateBody, requireIntParam } from '@/lib/api/validators';
 import {
   getCaseById,
   getCaseWithDetails,
@@ -12,7 +10,6 @@ import {
 } from '@/lib/cases/service';
 import { z } from 'zod';
 
-// Validation schema for updating a case
 const updateCaseSchema = z.object({
   caseType: z
     .enum([
@@ -36,185 +33,63 @@ const updateCaseSchema = z.object({
   internalNotes: z.string().nullable().optional(),
 });
 
-/**
- * GET /api/cases/[id]
- * Get a specific case by ID with full details
- */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const GET = withAuth(async (request, { teamId }, params) => {
   try {
-    const { id } = await params;
-    const caseId = parseInt(id);
+    const [caseId, err] = requireIntParam(params?.id, 'case ID');
+    if (err) return err;
 
-    if (isNaN(caseId)) {
-      return NextResponse.json({ error: 'Invalid case ID' }, { status: 400 });
-    }
-
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json(
-        { error: 'No team membership found' },
-        { status: 403 }
-      );
-    }
-
-    // Check if we want full details
     const { searchParams } = new URL(request.url);
     const includeDetails = searchParams.get('details') === 'true';
 
     const caseData = includeDetails
-      ? await getCaseWithDetails(caseId, membership.teamId)
-      : await getCaseById(caseId, membership.teamId);
+      ? await getCaseWithDetails(caseId, teamId)
+      : await getCaseById(caseId, teamId);
 
-    if (!caseData) {
-      return NextResponse.json({ error: 'Case not found' }, { status: 404 });
-    }
+    if (!caseData) return notFoundResponse('Case');
 
-    return NextResponse.json(caseData);
+    return successResponse(caseData);
   } catch (error) {
-    console.error('Error fetching case:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch case' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to fetch case');
   }
-}
+});
 
-/**
- * PUT /api/cases/[id]
- * Update a case
- */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const PUT = withAuth(async (request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const caseId = parseInt(id);
+    const [caseId, err] = requireIntParam(params?.id, 'case ID');
+    if (err) return err;
 
-    if (isNaN(caseId)) {
-      return NextResponse.json({ error: 'Invalid case ID' }, { status: 400 });
-    }
+    const existingCase = await getCaseById(caseId, teamId);
+    if (!existingCase) return notFoundResponse('Case');
 
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json(
-        { error: 'No team membership found' },
-        { status: 403 }
-      );
-    }
-
-    // Verify case exists and belongs to team
-    const existingCase = await getCaseById(caseId, membership.teamId);
-    if (!existingCase) {
-      return NextResponse.json({ error: 'Case not found' }, { status: 404 });
-    }
-
-    // Parse and validate request body
     const body = await request.json();
-    const validationResult = updateCaseSchema.safeParse(body);
+    const [data, validationError] = validateBody(updateCaseSchema, body);
+    if (validationError) return validationError;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.errors },
-        { status: 400 }
-      );
-    }
-
-    const data = validationResult.data;
-
-    // Handle assignment separately if provided
     if (data.assignedTo !== undefined) {
-      await assignCase(caseId, membership.teamId, data.assignedTo, user.id);
+      await assignCase(caseId, teamId, data.assignedTo, user.id);
       delete data.assignedTo;
     }
 
-    // Update the case with remaining fields
-    const updatedCase = await updateCase(caseId, membership.teamId, user.id, data);
+    const updatedCase = await updateCase(caseId, teamId, user.id, data);
 
-    return NextResponse.json(updatedCase);
+    return successResponse(updatedCase);
   } catch (error) {
-    console.error('Error updating case:', error);
-    return NextResponse.json(
-      { error: 'Failed to update case' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to update case');
   }
-}
+});
 
-/**
- * DELETE /api/cases/[id]
- * Soft delete a case
- */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const DELETE = withAuth(async (_request, { user, teamId }, params) => {
   try {
-    const { id } = await params;
-    const caseId = parseInt(id);
+    const [caseId, err] = requireIntParam(params?.id, 'case ID');
+    if (err) return err;
 
-    if (isNaN(caseId)) {
-      return NextResponse.json({ error: 'Invalid case ID' }, { status: 400 });
-    }
+    const existingCase = await getCaseById(caseId, teamId);
+    if (!existingCase) return notFoundResponse('Case');
 
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    await deleteCase(caseId, teamId, user.id);
 
-    // Get user's team
-    const [membership] = await db
-      .select({ teamId: teamMembers.teamId })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json(
-        { error: 'No team membership found' },
-        { status: 403 }
-      );
-    }
-
-    // Verify case exists and belongs to team
-    const existingCase = await getCaseById(caseId, membership.teamId);
-    if (!existingCase) {
-      return NextResponse.json({ error: 'Case not found' }, { status: 404 });
-    }
-
-    await deleteCase(caseId, membership.teamId, user.id);
-
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    console.error('Error deleting case:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete case' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Failed to delete case');
   }
-}
+});

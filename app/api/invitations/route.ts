@@ -1,33 +1,15 @@
-import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/middleware';
+import { successResponse } from '@/lib/api/response';
 import { db } from '@/lib/db/drizzle';
-import { invitations, teamMembers } from '@/lib/db/schema';
+import { invitations } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getUser } from '@/lib/db/queries';
 
-export async function GET() {
-  const user = await getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Get user's team
-  const [membership] = await db
-    .select({ teamId: teamMembers.teamId, role: teamMembers.role })
-    .from(teamMembers)
-    .where(eq(teamMembers.userId, user.id))
-    .limit(1);
-
-  if (!membership) {
-    return NextResponse.json({ error: 'No team found' }, { status: 404 });
-  }
-
+export const GET = withAuth(async (_request, { teamId, tenantRole }) => {
   // Only owners can see invitations
-  if (membership.role !== 'owner') {
-    return NextResponse.json({ invitations: [] });
+  if (tenantRole !== 'owner') {
+    return successResponse({ invitations: [] });
   }
 
-  // Get pending invitations for this team
   const pendingInvitations = await db
     .select({
       id: invitations.id,
@@ -39,11 +21,11 @@ export async function GET() {
     .from(invitations)
     .where(
       and(
-        eq(invitations.teamId, membership.teamId),
+        eq(invitations.teamId, teamId),
         eq(invitations.status, 'pending')
       )
     )
     .orderBy(invitations.invitedAt);
 
-  return NextResponse.json({ invitations: pendingInvitations });
-}
+  return successResponse({ invitations: pendingInvitations });
+});

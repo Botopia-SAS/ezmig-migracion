@@ -1,18 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withUser } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import { getFormTypes } from '@/lib/forms/service';
 
 /**
  * GET /api/form-types
  * Get all active form types (USCIS forms catalog)
  */
-export async function GET(request: NextRequest) {
+export const GET = withUser(async () => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const formTypes = await getFormTypes();
 
     // Return without the full schema for listing
@@ -27,12 +22,8 @@ export async function GET(request: NextRequest) {
       uscisEdition: ft.uscisEdition,
     }));
 
-    return NextResponse.json({ formTypes: simplified });
+    return successResponse({ formTypes: simplified });
   } catch (error) {
-    console.error('Error fetching form types:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch form types' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error fetching form types');
   }
-}
+});

@@ -1,22 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withAdmin } from '@/lib/api/middleware';
+import { successResponse, badRequestResponse, notFoundResponse, handleRouteError } from '@/lib/api/response';
+import { parseIntParam } from '@/lib/api/validators';
 import { getWalletByTeamId, getTransactionHistory } from '@/lib/tokens/service';
 import { db } from '@/lib/db/drizzle';
 import { teams, teamMembers, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const GET = withAdmin(async (_req, _user, params) => {
   try {
-    const user = await getUser();
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const teamId = parseIntParam(params?.id);
+    if (teamId === null) {
+      return badRequestResponse('Invalid team ID');
     }
-
-    const { id } = await params;
-    const teamId = parseInt(id);
 
     // Get team
     const [team] = await db
@@ -26,7 +21,7 @@ export async function GET(
       .limit(1);
 
     if (!team) {
-      return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+      return notFoundResponse('Team');
     }
 
     // Get wallet
@@ -65,7 +60,7 @@ export async function GET(
     // Get recent transactions
     const recentTransactions = await getTransactionHistory(teamId, 10);
 
-    return NextResponse.json({
+    return successResponse({
       team: {
         id: team.id,
         name: team.name,
@@ -80,7 +75,6 @@ export async function GET(
       recentTransactions,
     });
   } catch (error) {
-    console.error('Error fetching tenant details:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleRouteError(error, 'Error fetching tenant details');
   }
-}
+});

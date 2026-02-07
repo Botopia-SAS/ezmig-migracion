@@ -4,17 +4,18 @@ import {
   evidenceRules,
   cases,
   users,
-  activityLogs,
   ActivityType,
   type Evidence,
   type NewEvidence,
 } from '@/lib/db/schema';
 import { eq, and, desc, isNull, sql } from 'drizzle-orm';
+import { logActivity } from '@/lib/activity/service';
 
 // Types
 export interface CreateEvidenceInput {
   caseId: number;
   caseFormId?: number;
+  fieldPath?: string;
   fileName: string;
   fileType?: string;
   fileSize?: number;
@@ -34,6 +35,7 @@ export interface UpdateEvidenceInput {
 
 export interface EvidenceFilters {
   caseFormId?: number;
+  fieldPath?: string;
   category?: string;
   validationStatus?: string;
   limit?: number;
@@ -72,7 +74,7 @@ export async function getEvidencesForCase(
   teamId: number,
   filters: EvidenceFilters = {}
 ) {
-  const { caseFormId, category, validationStatus, limit = 100, offset = 0 } = filters;
+  const { caseFormId, fieldPath, category, validationStatus, limit = 100, offset = 0 } = filters;
 
   // Verify case belongs to team
   const [caseData] = await db
@@ -86,6 +88,9 @@ export async function getEvidencesForCase(
 
   if (caseFormId) {
     conditions.push(eq(evidences.caseFormId, caseFormId));
+  }
+  if (fieldPath) {
+    conditions.push(eq(evidences.fieldPath, fieldPath));
   }
   if (category) {
     conditions.push(eq(evidences.category, category));
@@ -148,6 +153,7 @@ export async function createEvidence(
     .values({
       caseId: input.caseId,
       caseFormId: input.caseFormId || null,
+      fieldPath: input.fieldPath || null,
       fileName: input.fileName,
       fileType: input.fileType,
       fileSize: input.fileSize,
@@ -160,10 +166,13 @@ export async function createEvidence(
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action: ActivityType.UPLOAD_EVIDENCE,
+    entityType: 'evidence',
+    entityId: newEvidence.id,
+    entityName: newEvidence.fileName,
   });
 
   return newEvidence;
@@ -229,10 +238,14 @@ export async function validateEvidence(
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action: ActivityType.VALIDATE_EVIDENCE,
+    entityType: 'evidence',
+    entityId: evidenceId,
+    entityName: existingEvidence.fileName,
+    metadata: { validationStatus: status },
   });
 
   return updatedEvidence;
@@ -251,10 +264,13 @@ export async function deleteEvidence(evidenceId: number, teamId: number, userId:
     .where(eq(evidences.id, evidenceId));
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
     userId,
     action: ActivityType.DELETE_EVIDENCE,
+    entityType: 'evidence',
+    entityId: evidenceId,
+    entityName: existingEvidence.fileName,
   });
 
   return { success: true };

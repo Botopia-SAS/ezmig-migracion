@@ -1,36 +1,16 @@
-import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { withAuth } from '@/lib/api/middleware';
+import { successResponse, handleRouteError } from '@/lib/api/response';
 import { getWalletByTeamId } from '@/lib/tokens/service';
-import { db } from '@/lib/db/drizzle';
-import { teamMembers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 
-export async function GET() {
+export const GET = withAuth(async (_request, { teamId }) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const wallet = await getWalletByTeamId(teamId);
 
-    // Get user's team
-    const [membership] = await db
-      .select()
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user.id))
-      .limit(1);
-
-    if (!membership) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    const wallet = await getWalletByTeamId(membership.teamId);
-
-    return NextResponse.json({
+    return successResponse({
       balance: wallet?.balance ?? 0,
-      teamId: membership.teamId,
+      teamId,
     });
   } catch (error) {
-    console.error('Error fetching token balance:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleRouteError(error, 'Failed to fetch token balance');
   }
-}
+});

@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { getUserWithTeam } from '@/lib/auth/rbac';
+import { withAuth, withOwner } from '@/lib/api/middleware';
+import { successResponse, notFoundResponse, handleRouteError } from '@/lib/api/response';
+import { requireIntParam, validateBody } from '@/lib/api/validators';
 import {
   getReferralLinkById,
   updateReferralLink,
@@ -14,106 +16,53 @@ const updateReferralLinkSchema = z.object({
   isActive: z.boolean().optional(),
   expiresAt: z.string().datetime().nullable().optional(),
   maxUses: z.number().min(1).max(100).optional(),
-  allowedForms: z.array(z.number()).nullable().optional(),
+  formTypeIds: z.array(z.number()).min(1).optional(),
   allowedSections: z.array(z.string()).nullable().optional(),
 });
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
 
 /**
  * GET /api/referrals/[id]
  * Get a specific referral link by ID
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAuth(async (_req, ctx, params) => {
   try {
-    const { id } = await params;
-    const linkId = parseInt(id, 10);
+    const [linkId, err] = requireIntParam(params?.id, 'link ID');
+    if (err) return err;
 
-    if (isNaN(linkId)) {
-      return NextResponse.json({ error: 'Invalid link ID' }, { status: 400 });
-    }
-
-    const userWithTeam = await getUserWithTeam();
-
-    if (!userWithTeam?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!userWithTeam.team) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    const link = await getReferralLinkById(linkId, userWithTeam.team.id);
+    const link = await getReferralLinkById(linkId, ctx.teamId);
 
     if (!link) {
-      return NextResponse.json({ error: 'Referral link not found' }, { status: 404 });
+      return notFoundResponse('Referral link');
     }
 
     // Get usage history
-    const usage = await getReferralLinkUsage(linkId, userWithTeam.team.id);
+    const usage = await getReferralLinkUsage(linkId, ctx.teamId);
 
     // Generate full URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const url = getReferralLinkUrl(link.code, baseUrl);
 
-    return NextResponse.json({
+    return successResponse({
       link: { ...link, url },
       usage,
     });
   } catch (error) {
-    console.error('Error fetching referral link:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch referral link' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error fetching referral link');
   }
-}
+});
 
 /**
  * PUT /api/referrals/[id]
- * Update a referral link
+ * Update a referral link (owner only)
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export const PUT = withOwner(async (req: NextRequest, ctx, params) => {
   try {
-    const { id } = await params;
-    const linkId = parseInt(id, 10);
+    const [linkId, err] = requireIntParam(params?.id, 'link ID');
+    if (err) return err;
 
-    if (isNaN(linkId)) {
-      return NextResponse.json({ error: 'Invalid link ID' }, { status: 400 });
-    }
-
-    const userWithTeam = await getUserWithTeam();
-
-    if (!userWithTeam?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!userWithTeam.team) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Only owners can update referral links
-    if (userWithTeam.tenantRole !== 'owner') {
-      return NextResponse.json(
-        { error: 'Only team owners can update referral links' },
-        { status: 403 }
-      );
-    }
-
-    // Parse and validate request body
-    const body = await request.json();
-    const validationResult = updateReferralLinkSchema.safeParse(body);
-
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.errors },
-        { status: 400 }
-      );
-    }
-
-    const data = validationResult.data;
+    const body = await req.json();
+    const [data, validationErr] = validateBody(updateReferralLinkSchema, body);
+    if (validationErr) return validationErr;
 
     const updates: Parameters<typeof updateReferralLink>[2] = {};
     if (data.isActive !== undefined) updates.isActive = data.isActive;
@@ -121,76 +70,46 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updates.expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
     }
     if (data.maxUses !== undefined) updates.maxUses = data.maxUses;
-    if (data.allowedForms !== undefined) updates.allowedForms = data.allowedForms;
+    if (data.formTypeIds !== undefined) updates.formTypeIds = data.formTypeIds;
     if (data.allowedSections !== undefined) updates.allowedSections = data.allowedSections;
 
     const updatedLink = await updateReferralLink(
       linkId,
-      userWithTeam.team.id,
+      ctx.teamId,
       updates
     );
 
     if (!updatedLink) {
-      return NextResponse.json({ error: 'Referral link not found' }, { status: 404 });
+      return notFoundResponse('Referral link');
     }
 
     // Generate full URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const url = getReferralLinkUrl(updatedLink.code, baseUrl);
 
-    return NextResponse.json({ link: { ...updatedLink, url } });
+    return successResponse({ link: { ...updatedLink, url } });
   } catch (error) {
-    console.error('Error updating referral link:', error);
-    return NextResponse.json(
-      { error: 'Failed to update referral link' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error updating referral link');
   }
-}
+});
 
 /**
  * DELETE /api/referrals/[id]
- * Delete a referral link
+ * Delete a referral link (owner only)
  */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export const DELETE = withOwner(async (_req, ctx, params) => {
   try {
-    const { id } = await params;
-    const linkId = parseInt(id, 10);
+    const [linkId, err] = requireIntParam(params?.id, 'link ID');
+    if (err) return err;
 
-    if (isNaN(linkId)) {
-      return NextResponse.json({ error: 'Invalid link ID' }, { status: 400 });
-    }
-
-    const userWithTeam = await getUserWithTeam();
-
-    if (!userWithTeam?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!userWithTeam.team) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Only owners can delete referral links
-    if (userWithTeam.tenantRole !== 'owner') {
-      return NextResponse.json(
-        { error: 'Only team owners can delete referral links' },
-        { status: 403 }
-      );
-    }
-
-    const deleted = await deleteReferralLink(linkId, userWithTeam.team.id);
+    const deleted = await deleteReferralLink(linkId, ctx.teamId);
 
     if (!deleted) {
-      return NextResponse.json({ error: 'Referral link not found' }, { status: 404 });
+      return notFoundResponse('Referral link');
     }
 
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    console.error('Error deleting referral link:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete referral link' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error deleting referral link');
   }
-}
+});

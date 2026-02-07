@@ -5,14 +5,15 @@ import {
   tokenTransactions,
   tokenPackages,
   teams,
-  activityLogs,
   teamMembers,
   users,
+  activityLogs,
   ActivityType,
   type TokenWallet,
   type TokenTransaction,
   type TokenPackage,
 } from '@/lib/db/schema';
+import { logActivity } from '@/lib/activity/service';
 import {
   sendLowBalanceNotification,
   sendAutoReloadSuccessNotification,
@@ -170,11 +171,13 @@ export async function purchaseTokens({
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
-    userId,
+    userId: userId ?? null,
     action: type === 'auto_reload' ? ActivityType.AUTO_RELOAD_TOKENS : ActivityType.PURCHASE_TOKENS,
-    ipAddress: null,
+    entityType: 'token',
+    entityId: transaction.id,
+    entityName: `${pkg.name} (${pkg.tokens} tokens)`,
   });
 
   return transaction;
@@ -263,11 +266,13 @@ export async function consumeToken({
     .returning();
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
-    userId,
+    userId: userId ?? null,
     action: ActivityType.CONSUME_TOKEN,
-    ipAddress: null,
+    entityType: 'token',
+    entityId: transaction.id,
+    metadata: { description, relatedEntityType, relatedEntityId },
   });
 
   // Check if auto-reload should be triggered
@@ -433,11 +438,13 @@ export async function updateAutoReloadSettings({
     .where(eq(teams.id, teamId));
 
   // Log activity
-  await db.insert(activityLogs).values({
+  await logActivity({
     teamId,
-    userId,
+    userId: userId ?? null,
     action: ActivityType.UPDATE_AUTO_RELOAD,
-    ipAddress: null,
+    entityType: 'team',
+    entityId: teamId,
+    metadata: { enabled, threshold, packageTokens },
   });
 }
 

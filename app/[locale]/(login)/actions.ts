@@ -21,16 +21,14 @@ import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
-import { createWalletForTeam } from '@/lib/tokens/service';
-import { getUser, getUserWithTeam } from '@/lib/db/queries';
-import { getTeamForUser } from '@/lib/db/queries';
+import { getUser, getUserWithTeam, getTeamForUser } from '@/lib/db/queries';
 import {
   validatedActionWithUser,
   type ActionState,
 } from '@/lib/auth/middleware';
 import { getTranslations } from 'next-intl/server';
 import { defaultLocale, locales, type Locale } from '@/i18n/config';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -230,46 +228,29 @@ export const signUp = validatedActionWithLocale(signUpSchema, async (data, formD
       return { error: t('invalidInvitation'), email, password };
     }
   } else {
-    // Create a new team if there's no invitation
-    const newTeam: NewTeam = {
-      name: `${email}'s Team`
-    };
-
-    [createdTeam] = await db.insert(teams).values(newTeam).returning();
-
-    if (!createdTeam) {
-      return {
-        error: t('createTeamFailed'),
-        email,
-        password
-      };
-    }
-
-    teamId = createdTeam.id;
-    userRole = 'owner';
-
-    // Create wallet for the new team
-    await createWalletForTeam(teamId);
-
-    await logActivity(teamId, createdUser.id, ActivityType.CREATE_TEAM);
+    // Don't create a team automatically - redirect to onboarding
+    // This allows the user to choose their profile type
+    await setSession(createdUser);
+    redirect(`/${locale}/onboarding`);
   }
 
+  // This code is only reached when user has an invitation
   const newTeamMember: NewTeamMember = {
     userId: createdUser.id,
-    teamId: teamId,
-    role: userRole
+    teamId: teamId!,
+    role: userRole!
   };
 
   await Promise.all([
     db.insert(teamMembers).values(newTeamMember),
-    logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
+    logActivity(teamId!, createdUser.id, ActivityType.SIGN_UP),
     setSession(createdUser)
   ]);
 
   const redirectTo = formData.get('redirect') as string | null;
   if (redirectTo === 'checkout') {
     const priceId = formData.get('priceId') as string;
-    return createCheckoutSession({ team: createdTeam, priceId });
+    return createCheckoutSession({ team: createdTeam!, priceId });
   }
 
   // Redirect admin users to /admin, others to /dashboard

@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 
 export const metadata: Metadata = {
   title: 'EZMig - Immigration Case Management Made Simple',
@@ -21,7 +21,7 @@ export const viewport: Viewport = {
   maximumScale: 1
 };
 
-const inter = Inter({ subsets: ['latin'] });
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
 
 export default function RootLayout({
   children
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html className={inter.className} suppressHydrationWarning>
+    <html className={manrope.variable} suppressHydrationWarning>
       <body className="min-h-[100dvh]">
         {children}
       </body>

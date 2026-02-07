@@ -9,6 +9,8 @@ import {
   boolean,
   date,
   jsonb,
+  index,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -91,6 +93,91 @@ export const validationStatusEnum = pgEnum('validation_status', [
   'needs_review',  // Necesita revisión
 ]);
 
+// Tipo de agencia (no puede cambiar después del registro)
+export const agencyTypeEnum = pgEnum('agency_type', [
+  'law_firm',           // Bufete de abogados
+  'immigration_services', // Servicios de inmigración
+]);
+
+// Estado de la agencia
+export const agencyStatusEnum = pgEnum('agency_status', [
+  'incomplete',  // < 7 campos completados
+  'pending',     // Completo, esperando aprobación
+  'active',      // Aprobado y operativo
+  'suspended',   // Suspendido temporalmente
+  'inactive',    // Desactivado
+]);
+
+// ============================================
+// NUEVOS ENUMS - TEAM MEMBERS & FREELANCERS
+// ============================================
+
+// Tipos de perfil de usuario
+export const userProfileTypeEnum = pgEnum('user_profile_type', [
+  'agency',
+  'team_member',
+  'freelancer'
+]);
+
+// Roles para Team Members
+export const teamMemberRoleEnum = pgEnum('team_member_role', [
+  'attorney',           // Abogado
+  'paralegal',         // Paralegal
+  'legal_assistant',   // Asistente legal
+  'admin_assistant',   // Asistente administrativo
+  'receptionist',      // Recepcionista
+  'other'              // Otro (especificar en custom_role_description)
+]);
+
+// Tipos de profesional Freelancer
+export const freelancerTypeEnum = pgEnum('freelancer_type', [
+  'immigration_attorney',  // Abogado de inmigración
+  'form_preparer'         // Preparador de formularios
+]);
+
+// Especialidades (compartidas entre Team Members y Freelancers)
+export const specialtyEnum = pgEnum('specialty', [
+  'asylum',                    // Asilo
+  'tps',                      // TPS (Temporary Protected Status)
+  'daca',                     // DACA
+  'adjustment_status_i485',   // Ajuste de estatus (I-485)
+  'family_petitions_i130',    // Peticiones familiares (I-130)
+  'employment_petitions_i140', // Peticiones laborales (I-140)
+  'work_permit_i765',         // Permiso de trabajo (I-765)
+  'naturalization',           // Naturalización
+  'deportation_defense',      // Defensa de deportación
+  'vawa',                     // VAWA
+  'u_visa',                   // U Visa
+  't_visa',                   // T Visa
+  'other'                     // Otra (especificar en custom)
+]);
+
+// Idiomas (compartidos entre Team Members y Freelancers)
+export const languageEnum = pgEnum('language', [
+  'english',
+  'spanish',
+  'mandarin',
+  'cantonese',
+  'tagalog',
+  'vietnamese',
+  'korean',
+  'french',
+  'haitian_creole',
+  'portuguese',
+  'arabic',
+  'russian',
+  'other'  // Otro (especificar en custom)
+]);
+
+// Tipos de entidad comercial para Freelancers
+export const businessEntityTypeEnum = pgEnum('business_entity_type', [
+  'sole_proprietor',    // Propietario único
+  'llc_single_member',  // LLC (Miembro único)
+  'llc_multi_member',   // LLC (Múltiples miembros)
+  'c_corp',            // Corporation (C-Corp)
+  's_corp'             // Corporation (S-Corp)
+]);
+
 // Tipo de notificación
 export const notificationTypeEnum = pgEnum('notification_type', [
   'case_update',        // Actualización de caso
@@ -113,6 +200,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   role: userRoleEnum('role').notNull().default('attorney'),
+  profileType: userProfileTypeEnum('profile_type'), // Nuevo campo para tipo de perfil
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   deletedAt: timestamp('deleted_at'),
@@ -136,6 +224,47 @@ export const teams = pgTable('teams', {
   autoReloadEnabled: boolean('auto_reload_enabled').notNull().default(false),
   autoReloadThreshold: integer('auto_reload_threshold').default(5),
   autoReloadPackage: varchar('auto_reload_package', { length: 20 }).default('10'),
+
+  // ============================================
+  // CAMPOS DE AGENCIA - REGISTRO
+  // ============================================
+
+  // Tipo y estado de agencia (INMUTABLE después del registro)
+  agencyType: agencyTypeEnum('agency_type'),
+  agencyStatus: agencyStatusEnum('agency_status').default('incomplete'),
+  completionPercentage: integer('completion_percentage').default(0),
+
+  // Información básica de la empresa (EDITABLES)
+  legalBusinessName: varchar('legal_business_name', { length: 255 }),
+  businessNameDba: varchar('business_name_dba', { length: 255 }),
+  businessEmail: varchar('business_email', { length: 255 }),
+  businessPhone: varchar('business_phone', { length: 20 }),
+  website: varchar('website', { length: 500 }),
+
+  // Dirección física (EDITABLES)
+  address: varchar('address', { length: 255 }),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 50 }),
+  zipCode: varchar('zip_code', { length: 20 }),
+  country: varchar('country', { length: 100 }).default('USA'),
+
+  // Google Maps data
+  googlePlaceId: varchar('google_place_id', { length: 255 }),
+  coordinatesLat: varchar('coordinates_lat', { length: 50 }), // Como string para mayor precisión
+  coordinatesLng: varchar('coordinates_lng', { length: 50 }),
+
+  // Campos específicos por tipo de agencia (SOLO OWNER)
+  firmRegistrationNumber: varchar('firm_registration_number', { length: 100 }),
+  firmRegistrationState: varchar('firm_registration_state', { length: 50 }),
+  businessLicenseNumber: varchar('business_license_number', { length: 100 }),
+  disclaimerAccepted: boolean('disclaimer_accepted').default(false),
+  disclaimerAcceptedAt: timestamp('disclaimer_accepted_at'),
+
+  // Información del contacto principal/owner (SOLO OWNER)
+  ownerFullName: varchar('owner_full_name', { length: 255 }),
+  ownerPosition: varchar('owner_position', { length: 100 }),
+  ownerEmail: varchar('owner_email', { length: 255 }),
+  ownerPhone: varchar('owner_phone', { length: 20 }),
 });
 
 export const teamMembers = pgTable('team_members', {
@@ -166,7 +295,9 @@ export const activityLogs = pgTable('activity_logs', {
   metadata: jsonb('metadata'), // Additional context as JSON
   changes: jsonb('changes'), // { field: { old: x, new: y } }
   userAgent: text('user_agent'), // Browser/device info
-});
+}, (t) => [
+  index('idx_activity_logs_team_timestamp').on(t.teamId, t.timestamp),
+]);
 
 export const invitations = pgTable('invitations', {
   id: serial('id').primaryKey(),
@@ -268,7 +399,7 @@ export const clients = pgTable('clients', {
 
   // Metadata
   notes: text('notes'),
-  createdBy: integer('created_by').references(() => users.id),
+  createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   deletedAt: timestamp('deleted_at'),
@@ -300,7 +431,7 @@ export const cases = pgTable('cases', {
   decisionDate: date('decision_date'),
 
   // Asignación
-  assignedTo: integer('assigned_to').references(() => users.id),
+  assignedTo: integer('assigned_to').references(() => users.id, { onDelete: 'set null' }),
 
   // Notas
   internalNotes: text('internal_notes'),
@@ -369,7 +500,9 @@ export const caseForms = pgTable('case_forms', {
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (t) => [
+  index('idx_case_forms_case_status').on(t.caseId, t.status),
+]);
 
 // Guardado automático por campo
 export const formFieldAutosaves = pgTable('form_field_autosaves', {
@@ -382,7 +515,9 @@ export const formFieldAutosaves = pgTable('form_field_autosaves', {
 
   savedBy: integer('saved_by').references(() => users.id),
   savedAt: timestamp('saved_at').notNull().defaultNow(),
-});
+}, (t) => [
+  uniqueIndex('idx_form_field_autosaves_case_form_field').on(t.caseFormId, t.fieldPath),
+]);
 
 // Historial de envíos
 export const formSubmissions = pgTable('form_submissions', {
@@ -420,6 +555,7 @@ export const evidences = pgTable('evidences', {
     .notNull()
     .references(() => cases.id),
   caseFormId: integer('case_form_id').references(() => caseForms.id), // Opcional
+  fieldPath: varchar('field_path', { length: 255 }), // "part1.section1.fieldId" — links to specific form field
 
   // Archivo
   fileName: varchar('file_name', { length: 255 }).notNull(),
@@ -442,7 +578,9 @@ export const evidences = pgTable('evidences', {
   uploadedBy: integer('uploaded_by').references(() => users.id),
   uploadedAt: timestamp('uploaded_at').notNull().defaultNow(),
   deletedAt: timestamp('deleted_at'),
-});
+}, (t) => [
+  index('idx_evidences_case_form_field_path').on(t.caseFormId, t.fieldPath),
+]);
 
 // Reglas de evidencia por tipo de caso/formulario
 export const evidenceRules = pgTable('evidence_rules', {
@@ -473,8 +611,7 @@ export const referralLinks = pgTable('referral_links', {
   teamId: integer('team_id')
     .notNull()
     .references(() => teams.id),
-  caseId: integer('case_id').references(() => cases.id),
-  clientId: integer('client_id').references(() => clients.id),
+  caseId: integer('case_id').references(() => cases.id, { onDelete: 'cascade' }),
 
   // Link
   code: varchar('code', { length: 50 }).notNull().unique(), // UUID corto
@@ -484,8 +621,8 @@ export const referralLinks = pgTable('referral_links', {
   maxUses: integer('max_uses').notNull().default(1),
   currentUses: integer('current_uses').notNull().default(0),
 
-  // Permisos
-  allowedForms: jsonb('allowed_forms'), // IDs de formularios permitidos
+  // Tipos de formulario obligatorios
+  formTypeIds: jsonb('form_type_ids').notNull().$type<number[]>().default([]),
   allowedSections: jsonb('allowed_sections'), // Secciones específicas
 
   // Estado
@@ -493,7 +630,9 @@ export const referralLinks = pgTable('referral_links', {
 
   createdBy: integer('created_by').references(() => users.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (t) => [
+  index('idx_referral_links_team_active').on(t.teamId, t.isActive, t.expiresAt),
+]);
 
 // Tracking de uso de links
 export const referralLinkUsage = pgTable('referral_link_usage', {
@@ -510,7 +649,9 @@ export const referralLinkUsage = pgTable('referral_link_usage', {
   metadata: jsonb('metadata'),
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (t) => [
+  index('idx_referral_link_usage_link').on(t.referralLinkId),
+]);
 
 // ============================================
 // NUEVAS TABLAS - M4: USCIS TRACKER
@@ -598,7 +739,7 @@ export const notifications = pgTable('notifications', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   teamId: integer('team_id').references(() => teams.id),
 
   // Contenido
@@ -607,8 +748,8 @@ export const notifications = pgTable('notifications', {
   message: text('message'),
 
   // Referencias
-  caseId: integer('case_id').references(() => cases.id),
-  caseFormId: integer('case_form_id').references(() => caseForms.id),
+  caseId: integer('case_id').references(() => cases.id, { onDelete: 'cascade' }),
+  caseFormId: integer('case_form_id').references(() => caseForms.id, { onDelete: 'cascade' }),
 
   // Estado
   isRead: boolean('is_read').notNull().default(false),
@@ -619,7 +760,119 @@ export const notifications = pgTable('notifications', {
   metadata: jsonb('metadata'),
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (t) => [
+  index('idx_notifications_user_read').on(t.userId, t.isRead, t.createdAt),
+]);
+
+// ============================================
+// NUEVAS TABLAS - TEAM MEMBERS & FREELANCERS
+// ============================================
+
+// Tabla para Team Members (empleados de agencias)
+export const teamMembersProfiles = pgTable('team_members_profiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  agencyId: integer('agency_id')
+    .notNull()
+    .references(() => teams.id, { onDelete: 'cascade' }),
+
+  // Información Básica (recomendados)
+  fullName: varchar('full_name', { length: 255 }),
+  email: varchar('email', { length: 255 }).unique(),
+  phone: varchar('phone', { length: 20 }),
+
+  // Rol y especialización
+  role: teamMemberRoleEnum('role').notNull(),
+  customRoleDescription: text('custom_role_description'),
+  specialties: varchar('specialties', { length: 50 }).array(),
+  customSpecialties: text('custom_specialties').array(),
+
+  // Campos específicos para abogados
+  barNumber: varchar('bar_number', { length: 100 }),
+  barState: varchar('bar_state', { length: 2 }),
+
+  // Perfil profesional
+  profilePhotoUrl: text('profile_photo_url'),
+  bio: text('bio'),
+  languages: varchar('languages', { length: 50 }).array(),
+  customLanguages: text('custom_languages').array(),
+
+  // Metadata
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => [
+  index('idx_team_members_profiles_agency').on(t.agencyId),
+  index('idx_team_members_profiles_role').on(t.role),
+  uniqueIndex('idx_team_members_profiles_user_agency').on(t.userId, t.agencyId),
+]);
+
+// Tabla para Freelancers (profesionales independientes)
+export const freelancersProfiles = pgTable('freelancers_profiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+
+  // Selector inicial obligatorio
+  professionalType: freelancerTypeEnum('professional_type').notNull(),
+
+  // Información personal (recomendados)
+  fullName: varchar('full_name', { length: 255 }),
+  email: varchar('email', { length: 255 }).unique(),
+  phone: varchar('phone', { length: 20 }),
+  primaryState: varchar('primary_state', { length: 2 }),
+  primaryCity: varchar('primary_city', { length: 100 }),
+
+  // Campos para abogados
+  barNumber: varchar('bar_number', { length: 100 }),
+  primaryBarState: varchar('primary_bar_state', { length: 2 }),
+  additionalBarStates: varchar('additional_bar_states', { length: 2 }).array(),
+  specialties: varchar('specialties', { length: 50 }).array(),
+  customSpecialties: text('custom_specialties').array(),
+
+  // Campos para preparadores
+  businessLicenseNumber: varchar('business_license_number', { length: 100 }),
+  disclaimerAccepted: boolean('disclaimer_accepted').default(false),
+  disclaimerAcceptedAt: timestamp('disclaimer_accepted_at'),
+
+  // Información de empresa (opcional)
+  hasBusiness: boolean('has_business').default(false),
+  businessName: varchar('business_name', { length: 255 }),
+  businessEntityType: businessEntityTypeEnum('business_entity_type'),
+  businessWebsite: text('business_website'),
+
+  // Perfil profesional completo
+  profilePhotoUrl: text('profile_photo_url'),
+  bio: text('bio'),
+  yearsExperience: integer('years_experience'),
+  languages: varchar('languages', { length: 50 }).array(),
+  customLanguages: text('custom_languages').array(),
+
+  // Ubicación y contacto profesional
+  officeAddress: text('office_address'),
+  officeCity: varchar('office_city', { length: 100 }),
+  officeState: varchar('office_state', { length: 2 }),
+  officeZipCode: varchar('office_zip_code', { length: 20 }),
+  googlePlaceId: text('google_place_id'),
+  coordinatesLat: text('coordinates_lat'),
+  coordinatesLng: text('coordinates_lng'),
+
+  // Redes y web
+  linkedinUrl: text('linkedin_url'),
+  personalWebsite: text('personal_website'),
+
+  // Metadata
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => [
+  index('idx_freelancers_profiles_type').on(t.professionalType),
+  index('idx_freelancers_profiles_state').on(t.primaryState),
+  index('idx_freelancers_profiles_specialties').on(t.specialties),
+]);
 
 // ============================================
 // RELACIONES
@@ -722,7 +975,6 @@ export const clientsRelations = relations(clients, ({ one, many }) => ({
     references: [users.id],
   }),
   cases: many(cases),
-  referralLinks: many(referralLinks),
 }));
 
 export const casesRelations = relations(cases, ({ one, many }) => ({
@@ -840,10 +1092,6 @@ export const referralLinksRelations = relations(referralLinks, ({ one, many }) =
     fields: [referralLinks.caseId],
     references: [cases.id],
   }),
-  client: one(clients, {
-    fields: [referralLinks.clientId],
-    references: [clients.id],
-  }),
   createdByUser: one(users, {
     fields: [referralLinks.createdBy],
     references: [users.id],
@@ -919,6 +1167,28 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
 }));
 
 // ============================================
+// RELACIONES NUEVAS TABLAS
+// ============================================
+
+export const teamMembersProfilesRelations = relations(teamMembersProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [teamMembersProfiles.userId],
+    references: [users.id],
+  }),
+  agency: one(teams, {
+    fields: [teamMembersProfiles.agencyId],
+    references: [teams.id],
+  }),
+}));
+
+export const freelancersProfilesRelations = relations(freelancersProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [freelancersProfiles.userId],
+    references: [users.id],
+  }),
+}));
+
+// ============================================
 // TIPOS EXPORTADOS
 // ============================================
 
@@ -969,6 +1239,12 @@ export type NewPdfVersion = typeof pdfVersions.$inferInsert;
 export type Notification = typeof notifications.$inferSelect;
 export type NewNotification = typeof notifications.$inferInsert;
 
+// Nuevos tipos - Team Members & Freelancers
+export type TeamMemberProfile = typeof teamMembersProfiles.$inferSelect;
+export type NewTeamMemberProfile = typeof teamMembersProfiles.$inferInsert;
+export type FreelancerProfile = typeof freelancersProfiles.$inferSelect;
+export type NewFreelancerProfile = typeof freelancersProfiles.$inferInsert;
+
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
@@ -998,6 +1274,195 @@ export type CaseFormWithType = CaseForm & {
 export type CaseWithForms = Case & {
   caseForms: CaseFormWithType[];
 };
+
+// ============================================
+// TIPOS ESPECÍFICOS DE AGENCIAS
+// ============================================
+
+// Tipo para datos de registro de agencia
+export interface AgencyRegistrationData {
+  // ÚNICO CAMPO OBLIGATORIO SEGÚN TIPO
+  agencyType: 'law_firm' | 'immigration_services';
+
+  // Información empresa (todos opcionales)
+  legalBusinessName?: string;
+  businessNameDba?: string;
+  businessEmail?: string;
+  businessPhone?: string;
+  website?: string;
+
+  // Dirección (todos opcionales)
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  googlePlaceId?: string;
+  coordinatesLat?: string;
+  coordinatesLng?: string;
+
+  // Específicos por tipo
+  firmRegistrationNumber?: string;     // solo law_firm
+  firmRegistrationState?: string;      // solo law_firm
+  businessLicenseNumber?: string;      // solo immigration_services
+  disclaimerAccepted?: boolean;        // OBLIGATORIO solo para immigration_services
+
+  // Contacto principal (todos opcionales)
+  ownerFullName?: string;
+  ownerPosition?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+}
+
+// Tipo para datos de Google Maps
+export interface AddressData {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  placeId: string;
+  coordinates: { lat: number; lng: number };
+}
+
+// Tipo para validación de campos
+export interface FieldPermission {
+  field: string;
+  editableBy: ('saas_admin' | 'agency_owner' | 'agency_staff')[];
+  immutableAfterRegistration?: boolean;
+  requiresEmailConfirmation?: boolean;
+}
+
+// Tipo para response de registro
+export interface AgencyRegistrationResponse {
+  success: boolean;
+  teamId: string;
+  agencyStatus: 'incomplete' | 'pending';
+  completionPercentage: number;
+  userCreated?: boolean;
+}
+
+// ============================================
+// TIPOS ESPECÍFICOS - TEAM MEMBERS & FREELANCERS
+// ============================================
+
+// Tipos para especialidades y idiomas
+export type SpecialtyType =
+  | 'asylum'
+  | 'tps'
+  | 'daca'
+  | 'adjustment_status_i485'
+  | 'family_petitions_i130'
+  | 'employment_petitions_i140'
+  | 'work_permit_i765'
+  | 'naturalization'
+  | 'deportation_defense'
+  | 'vawa'
+  | 'u_visa'
+  | 't_visa'
+  | 'other';
+
+export type LanguageType =
+  | 'english'
+  | 'spanish'
+  | 'mandarin'
+  | 'cantonese'
+  | 'tagalog'
+  | 'vietnamese'
+  | 'korean'
+  | 'french'
+  | 'haitian_creole'
+  | 'portuguese'
+  | 'arabic'
+  | 'russian'
+  | 'other';
+
+// Tipo para datos de registro de Team Member
+export interface TeamMemberRegistrationData {
+  // Información básica (recomendados)
+  fullName?: string;
+  email?: string;
+  phone?: string;
+
+  // Rol y especialización (rol es obligatorio)
+  role: 'attorney' | 'paralegal' | 'legal_assistant' | 'admin_assistant' | 'receptionist' | 'other';
+  customRoleDescription?: string;
+  specialties?: SpecialtyType[];
+  customSpecialties?: string[];
+
+  // Campos específicos para abogados (solo si role = 'attorney')
+  barNumber?: string;
+  barState?: string;
+
+  // Perfil profesional (opcionales)
+  profilePhotoUrl?: string;
+  bio?: string;
+  languages?: LanguageType[];
+  customLanguages?: string[];
+}
+
+// Tipo para datos de registro de Freelancer
+export interface FreelancerRegistrationData {
+  // Selector inicial OBLIGATORIO
+  professionalType: 'immigration_attorney' | 'form_preparer';
+
+  // Información personal (recomendados)
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  primaryState?: string;
+  primaryCity?: string;
+
+  // Campos para abogados (solo si professionalType = 'immigration_attorney')
+  barNumber?: string;
+  primaryBarState?: string;
+  additionalBarStates?: string[];
+  specialties?: SpecialtyType[];
+  customSpecialties?: string[];
+
+  // Campos para preparadores (solo si professionalType = 'form_preparer')
+  businessLicenseNumber?: string;
+  disclaimerAccepted?: boolean; // OBLIGATORIO para form_preparer
+  disclaimerAcceptedAt?: Date;
+
+  // Información de empresa (opcional)
+  hasBusiness?: boolean;
+  businessName?: string;
+  businessEntityType?: 'sole_proprietor' | 'llc_single_member' | 'llc_multi_member' | 'c_corp' | 's_corp';
+  businessWebsite?: string;
+
+  // Perfil profesional completo (opcionales)
+  profilePhotoUrl?: string;
+  bio?: string;
+  yearsExperience?: number;
+  languages?: LanguageType[];
+  customLanguages?: string[];
+
+  // Ubicación y contacto profesional (opcionales)
+  officeAddress?: string;
+  officeCity?: string;
+  officeState?: string;
+  officeZipCode?: string;
+  googlePlaceId?: string;
+  coordinatesLat?: string;
+  coordinatesLng?: string;
+
+  // Redes y web (opcionales)
+  linkedinUrl?: string;
+  personalWebsite?: string;
+}
+
+// Tipos de respuesta para registro
+export interface TeamMemberRegistrationResponse {
+  success: boolean;
+  teamMemberId: string;
+  agencyId: string;
+  userCreated?: boolean;
+}
+
+export interface FreelancerRegistrationResponse {
+  success: boolean;
+  freelancerId: string;
+  userCreated?: boolean;
+}
 
 // ============================================
 // ENUMS DE ACTIVIDAD
@@ -1044,6 +1509,10 @@ export enum ActivityType {
   USE_REFERRAL_LINK = 'USE_REFERRAL_LINK',
   // M2-M4: PDF activities
   GENERATE_PDF = 'GENERATE_PDF',
+  // Agency registration activities
+  REGISTER_AGENCY = 'REGISTER_AGENCY',
+  UPDATE_AGENCY_SETTINGS = 'UPDATE_AGENCY_SETTINGS',
+  COMPLETE_AGENCY_PROFILE = 'COMPLETE_AGENCY_PROFILE',
 }
 
 // Roles como constantes para uso en código

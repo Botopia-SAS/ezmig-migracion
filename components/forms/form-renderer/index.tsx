@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { CheckCircle2, Clock, Loader2, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,10 @@ import { FieldDate } from './field-date';
 import { FieldSelect } from './field-select';
 import { FieldRadio } from './field-radio';
 import { FieldCheckbox } from './field-checkbox';
+import { FieldCheckboxGroup } from './field-checkbox-group';
+import { FieldAttachments } from './field-attachments';
+import { useFieldEvidences } from '@/hooks/use-field-evidences';
+import { ChatWidget } from '@/components/ai-assistant';
 
 // Types
 export interface FormSchema {
@@ -26,6 +30,7 @@ export interface FormSchema {
 export interface FormPart {
   id: string;
   title: string;
+  translations?: Record<string, { title?: string }>;
   sections: FormSection[];
 }
 
@@ -33,7 +38,15 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
+  translations?: Record<string, { title?: string; description?: string }>;
   fields: FormField[];
+}
+
+export interface FieldTranslation {
+  label?: string;
+  helpText?: string;
+  placeholder?: string;
+  options?: Record<string, string>;
 }
 
 export interface FormField {
@@ -46,9 +59,11 @@ export interface FormField {
   helpText?: string;
   options?: { value: string; label: string }[] | string[];
   pdfField?: string;
+  translations?: Record<string, FieldTranslation>;
   conditionalDisplay?: {
     field: string;
-    value: string | boolean;
+    value: string | boolean | string[];
+    operator?: 'equals' | 'notEquals' | 'in' | 'notIn';
   };
 }
 
@@ -61,10 +76,12 @@ export interface ValidationRule {
 interface FormRendererProps {
   formSchema: FormSchema;
   initialData: Record<string, unknown>;
+  caseId?: number;
   caseFormId: number;
   onAutosave: (fieldPath: string, value: string | null) => Promise<void>;
   onSave: (data: Record<string, unknown>) => Promise<void>;
   readOnly?: boolean;
+  onProgressChange?: (progress: number) => void;
 }
 
 // Get nested value from object using path like "part1.section1.field1"
@@ -105,14 +122,145 @@ function setNestedValue(
   return result;
 }
 
+// Check if a field should be visible based on conditionalDisplay
+function isFieldVisible(
+  field: FormField,
+  formData: Record<string, unknown>
+): boolean {
+  if (!field.conditionalDisplay) return true;
+
+  const { field: depPath, value: expected, operator = 'equals' } = field.conditionalDisplay;
+  const actual = getNestedValue(formData, depPath);
+
+  switch (operator) {
+    case 'equals':
+      return actual === expected;
+    case 'notEquals':
+      return actual !== expected;
+    case 'in':
+      return Array.isArray(expected) && expected.includes(actual as string);
+    case 'notIn':
+      return Array.isArray(expected) && !expected.includes(actual as string);
+    default:
+      return actual === expected;
+  }
+}
+
+// Check if a section has all required visible fields filled
+// Returns false if the section has no visible required fields (e.g. all conditional & hidden)
+function isSectionComplete(
+  part: FormPart,
+  section: FormSection,
+  formData: Record<string, unknown>
+): boolean {
+  let hasVisibleRequired = false;
+  for (const field of section.fields) {
+    if (!field.required) continue;
+    if (!isFieldVisible(field, formData)) continue;
+    hasVisibleRequired = true;
+    const fieldPath = `${part.id}.${section.id}.${field.id}`;
+    const value = getNestedValue(formData, fieldPath);
+    if (value === undefined || value === null || value === '') return false;
+  }
+  return hasVisibleRequired;
+}
+
+// Check if a part has all sections complete
+// Returns false if the part has no visible required fields
+function isPartComplete(
+  part: FormPart,
+  formData: Record<string, unknown>
+): boolean {
+  let hasVisibleRequired = false;
+  for (const section of part.sections) {
+    for (const field of section.fields) {
+      if (!field.required) continue;
+      if (!isFieldVisible(field, formData)) continue;
+      hasVisibleRequired = true;
+      const fieldPath = `${part.id}.${section.id}.${field.id}`;
+      const value = getNestedValue(formData, fieldPath);
+      if (value === undefined || value === null || value === '') return false;
+    }
+  }
+  return hasVisibleRequired;
+}
+
 export function FormRenderer({
   formSchema,
   initialData,
+  caseId = 0,
   caseFormId,
   onAutosave,
   onSave,
   readOnly = false,
+  onProgressChange,
 }: FormRendererProps) {
+  const t = useTranslations('dashboard.forms.renderer');
+  const tForms = useTranslations('forms');
+  const locale = useLocale();
+  const formKey = formSchema.formCode.toLowerCase(); // e.g. "i-130"
+
+  // Translate schema text with fallback to English schema value
+  // Priority: schema translations[locale] → message files → fallback string
+  const tf = useCallback(
+    (key: string, fallback: string): string => {
+      const fullKey = `${formKey}.${key}`;
+      return tForms.has(fullKey) ? tForms(fullKey) : fallback;
+    },
+    [formKey, tForms]
+  );
+
+  // Translate a part title
+  const translatePartTitle = useCallback(
+    (part: FormPart): string => {
+      const schemaTitle = part.translations?.[locale]?.title;
+      if (schemaTitle) return schemaTitle;
+      return tf(`${part.id}.title`, part.title);
+    },
+    [locale, tf]
+  );
+
+  // Translate a section title/description
+  const translateSectionTitle = useCallback(
+    (partId: string, section: FormSection): string => {
+      const schemaTitle = section.translations?.[locale]?.title;
+      if (schemaTitle) return schemaTitle;
+      return tf(`${partId}.${section.id}.title`, section.title);
+    },
+    [locale, tf]
+  );
+
+  const translateSectionDescription = useCallback(
+    (partId: string, section: FormSection): string | undefined => {
+      const schemaDesc = section.translations?.[locale]?.description;
+      if (schemaDesc) return schemaDesc;
+      return section.description ? tf(`${partId}.${section.id}.description`, section.description) : undefined;
+    },
+    [locale, tf]
+  );
+
+  // Translate a field object before passing to child components
+  // Priority: schema translations[locale] → message files → field default
+  const translateField = useCallback(
+    (field: FormField, partId: string, sectionId: string): FormField => {
+      const base = `${partId}.${sectionId}.${field.id}`;
+      const ft = field.translations?.[locale];
+
+      return {
+        ...field,
+        label: ft?.label || tf(`${base}.label`, field.label),
+        helpText: ft?.helpText || (field.helpText ? tf(`${base}.helpText`, field.helpText) : undefined),
+        placeholder: ft?.placeholder || (field.placeholder ? tf(`${base}.placeholder`, field.placeholder) : undefined),
+        options: field.options?.map((opt) => {
+          if (typeof opt === 'string') return opt;
+          const translatedLabel = ft?.options?.[opt.value] || tf(`${base}.options.${opt.value}`, opt.label);
+          return { ...opt, label: translatedLabel };
+        }) as FormField['options'],
+      };
+    },
+    [locale, tf]
+  );
+
   const [formData, setFormData] = useState<Record<string, unknown>>(initialData);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
@@ -123,6 +271,10 @@ export function FormRenderer({
 
   const currentPart = formSchema.parts[currentPartIndex];
   const currentSection = currentPart?.sections[currentSectionIndex];
+
+  // Field evidence attachments
+  const { getForField, removeEvidence, refresh: refreshEvidences } = useFieldEvidences(caseId, caseFormId);
+  const hasEvidences = caseId > 0 && caseFormId > 0;
 
   // Debounced autosave
   const debouncedAutosave = useDebouncedCallback(
@@ -151,7 +303,7 @@ export function FormRenderer({
     [debouncedAutosave]
   );
 
-  // Calculate progress
+  // Calculate progress (skip conditionally hidden fields)
   const calculateProgress = useCallback(() => {
     let totalRequired = 0;
     let filledRequired = 0;
@@ -159,7 +311,7 @@ export function FormRenderer({
     for (const part of formSchema.parts) {
       for (const section of part.sections) {
         for (const field of section.fields) {
-          if (field.required) {
+          if (field.required && isFieldVisible(field, formData)) {
             totalRequired++;
             const fieldPath = `${part.id}.${section.id}.${field.id}`;
             const value = getNestedValue(formData, fieldPath);
@@ -174,6 +326,24 @@ export function FormRenderer({
     if (totalRequired === 0) return 100;
     return Math.round((filledRequired / totalRequired) * 100);
   }, [formSchema, formData]);
+
+  // Report progress to parent
+  const progress = calculateProgress();
+  const prevProgressRef = useRef(progress);
+  useEffect(() => {
+    if (onProgressChange && prevProgressRef.current !== progress) {
+      prevProgressRef.current = progress;
+      onProgressChange(progress);
+    }
+  }, [progress, onProgressChange]);
+
+  // Also report initial progress on mount
+  useEffect(() => {
+    if (onProgressChange) {
+      onProgressChange(calculateProgress());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Navigation
   const canGoNext = currentPartIndex < formSchema.parts.length - 1 ||
@@ -210,19 +380,25 @@ export function FormRenderer({
     }
   };
 
-  // Render a single field
+  // Render a single field (returns null if conditionally hidden)
   const renderField = (field: FormField, partId: string, sectionId: string) => {
+    // Check conditional visibility
+    if (!isFieldVisible(field, formData)) return null;
+
     const fieldPath = `${partId}.${sectionId}.${field.id}`;
     const value = getNestedValue(formData, fieldPath);
     const error = errors[fieldPath];
+    const translatedField = translateField(field, partId, sectionId);
 
     const commonProps = {
-      field,
+      field: translatedField,
       value: value as string | undefined,
       onChange: (v: string) => handleFieldChange(fieldPath, v),
       error,
       disabled: readOnly,
     };
+
+    let fieldElement: React.ReactNode;
 
     switch (field.type) {
       case 'text':
@@ -231,179 +407,306 @@ export function FormRenderer({
       case 'ssn':
       case 'alien_number':
       case 'number':
-        return <FieldText key={field.id} {...commonProps} type={field.type} />;
+        fieldElement = <FieldText {...commonProps} type={field.type} />;
+        break;
       case 'textarea':
-        return <FieldTextarea key={field.id} {...commonProps} />;
+        fieldElement = <FieldTextarea {...commonProps} />;
+        break;
       case 'date':
-        return <FieldDate key={field.id} {...commonProps} />;
+        fieldElement = <FieldDate {...commonProps} />;
+        break;
       case 'select':
-        return <FieldSelect key={field.id} {...commonProps} />;
+        fieldElement = <FieldSelect {...commonProps} />;
+        break;
       case 'radio':
-        return <FieldRadio key={field.id} {...commonProps} />;
+        fieldElement = <FieldRadio {...commonProps} />;
+        break;
       case 'checkbox':
-        return (
+        fieldElement = (
           <FieldCheckbox
-            key={field.id}
             {...commonProps}
             checked={value as boolean}
             onCheckedChange={(v) => handleFieldChange(fieldPath, v)}
           />
         );
+        break;
+      case 'checkbox_group':
+        fieldElement = (
+          <FieldCheckboxGroup
+            field={translatedField}
+            value={(value as string[]) || []}
+            onChange={(v) => handleFieldChange(fieldPath, v)}
+            error={error}
+            disabled={readOnly}
+          />
+        );
+        break;
       default:
-        return <FieldText key={field.id} {...commonProps} />;
+        fieldElement = <FieldText {...commonProps} />;
     }
+
+    return (
+      <div key={field.id}>
+        {fieldElement}
+        {hasEvidences && (
+          <FieldAttachments
+            caseId={caseId}
+            caseFormId={caseFormId}
+            fieldPath={fieldPath}
+            evidences={getForField(fieldPath)}
+            onUploadComplete={refreshEvidences}
+            onDelete={removeEvidence}
+            disabled={readOnly}
+          />
+        )}
+      </div>
+    );
   };
 
-  const progress = calculateProgress();
+  // Preparar contexto para el asistente IA
+  const formContext = {
+    formCode: formSchema.formCode,
+    currentPart: currentPart ? {
+      id: currentPart.id,
+      title: translatePartTitle(currentPart),
+      index: currentPartIndex + 1,
+      total: formSchema.parts.length
+    } : null,
+    currentSection: currentSection ? {
+      id: currentSection.id,
+      title: translateSectionTitle(currentPart.id, currentSection),
+      description: translateSectionDescription(currentPart.id, currentSection),
+      index: currentSectionIndex + 1,
+      total: currentPart.sections.length
+    } : null,
+    currentFields: currentSection?.fields.filter(field => isFieldVisible(field, formData)).map(field => {
+      const translatedField = translateField(field, currentPart.id, currentSection.id);
+      const fieldPath = `${currentPart.id}.${currentSection.id}.${field.id}`;
+      const value = getNestedValue(formData, fieldPath);
+      return {
+        id: field.id,
+        type: field.type,
+        label: translatedField.label,
+        required: field.required,
+        helpText: translatedField.helpText,
+        currentValue: value,
+        isEmpty: value === undefined || value === null || value === ''
+      };
+    }),
+    progress: progress,
+    locale: locale
+  };
 
   return (
-    <div className="grid grid-cols-12 gap-6">
-      {/* Sidebar Navigation */}
-      <aside className="col-span-12 lg:col-span-3">
-        <Card className="sticky top-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Progress
-            </CardTitle>
-            <div className="flex items-center gap-2 mt-2">
-              <Progress value={progress} className="h-2" />
-              <span className="text-sm font-medium">{progress}%</span>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <nav className="space-y-1">
-              {formSchema.parts.map((part, partIdx) => (
-                <div key={part.id}>
-                  <button
-                    onClick={() => {
-                      setCurrentPartIndex(partIdx);
-                      setCurrentSectionIndex(0);
-                    }}
+    <div className="space-y-4">
+      {/* Part Stepper (horizontal) */}
+      <div className="flex items-start px-1 pt-1 overflow-x-auto pb-1">
+        {formSchema.parts.map((part, idx) => {
+            const completed = isPartComplete(part, formData);
+            const active = idx === currentPartIndex;
+            const translatedPartTitle = translatePartTitle(part);
+            const shortTitle = translatedPartTitle.replace(/^Part\s*\d+\.\s*/i, '').replace(/^Parte\s*\d+\.\s*/i, '');
+
+            return (
+              <Fragment key={part.id}>
+                {/* Connector line (sibling, not child of step) */}
+                {idx > 0 && (
+                  <div
                     className={cn(
-                      'w-full text-left px-3 py-2 text-sm rounded-md transition-colors',
-                      partIdx === currentPartIndex
-                        ? 'bg-violet-100 text-violet-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      'h-0.5 flex-1 mt-4 min-w-2',
+                      isPartComplete(formSchema.parts[idx - 1], formData)
+                        ? 'bg-violet-400'
+                        : 'bg-gray-200'
+                    )}
+                  />
+                )}
+                {/* Step: circle + label */}
+                <button
+                  onClick={() => {
+                    setCurrentPartIndex(idx);
+                    setCurrentSectionIndex(0);
+                  }}
+                  title={translatedPartTitle}
+                  className="flex flex-col items-center gap-1 w-0 flex-1 min-w-0"
+                >
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all shrink-0',
+                      completed && !active && 'bg-violet-600 text-white',
+                      active && !completed && 'border-2 border-violet-600 text-violet-600 bg-white',
+                      active && completed && 'bg-violet-600 text-white ring-2 ring-violet-300 ring-offset-1',
+                      !completed && !active && 'bg-gray-200 text-gray-500'
                     )}
                   >
-                    {part.title}
-                  </button>
-                  {partIdx === currentPartIndex && (
-                    <div className="ml-3 mt-1 space-y-1">
-                      {part.sections.map((section, sectionIdx) => (
-                        <button
-                          key={section.id}
-                          onClick={() => setCurrentSectionIndex(sectionIdx)}
-                          className={cn(
-                            'w-full text-left px-3 py-1.5 text-xs rounded-md transition-colors',
-                            sectionIdx === currentSectionIndex
-                              ? 'bg-violet-50 text-violet-600 font-medium'
-                              : 'text-gray-500 hover:bg-gray-50'
-                          )}
-                        >
-                          {section.title}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </nav>
-          </CardContent>
-        </Card>
-      </aside>
+                    {completed && !active ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      idx + 1
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      'text-[10px] leading-tight text-center w-full truncate',
+                      active ? 'text-violet-600 font-medium' : completed ? 'text-violet-600' : 'text-gray-400'
+                    )}
+                  >
+                    {shortTitle}
+                  </span>
+                </button>
+              </Fragment>
+            );
+          })}
+      </div>
 
-      {/* Main Form Content */}
-      <main className="col-span-12 lg:col-span-9">
-        {/* Status Bar */}
-        <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
-          <div className="flex items-center gap-2">
+      {/* 2-column layout: Section sidebar + Form content */}
+      <div className="grid grid-cols-12 gap-4">
+        {/* Section Sidebar (current part only) */}
+        <aside className="col-span-12 lg:col-span-3">
+          <Card className="sticky top-16">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-700">
+                {currentPart ? translatePartTitle(currentPart) : ''}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <nav className="space-y-0.5">
+                {currentPart?.sections.map((section, sectionIdx) => {
+                  const sectionDone = isSectionComplete(currentPart, section, formData);
+                  const sectionActive = sectionIdx === currentSectionIndex;
+
+                  return (
+                    <button
+                      key={section.id}
+                      onClick={() => setCurrentSectionIndex(sectionIdx)}
+                      className={cn(
+                        'w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center gap-2.5',
+                        sectionActive
+                          ? 'bg-violet-50 text-violet-700 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      )}
+                    >
+                      {/* Completion circle */}
+                      <span
+                        className={cn(
+                          'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0',
+                          sectionDone && !sectionActive && 'bg-violet-600 text-white',
+                          sectionActive && !sectionDone && 'border-2 border-violet-600 text-violet-600 bg-white',
+                          sectionActive && sectionDone && 'bg-violet-600 text-white ring-1 ring-violet-300',
+                          !sectionDone && !sectionActive && 'bg-gray-200 text-gray-500'
+                        )}
+                      >
+                        {sectionDone && !sectionActive ? (
+                          <Check className="h-3 w-3" />
+                        ) : (
+                          sectionIdx + 1
+                        )}
+                      </span>
+                      <span className="truncate">{translateSectionTitle(currentPart.id, section)}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </CardContent>
+          </Card>
+        </aside>
+
+        {/* Main Form Content */}
+        <main className="col-span-12 lg:col-span-9">
+          {/* Current Section */}
+          {currentSection && (
+            <Card>
+              <CardHeader>
+                <div className="text-sm text-violet-600 font-medium">
+                  {translatePartTitle(currentPart)}
+                </div>
+                <CardTitle>{translateSectionTitle(currentPart.id, currentSection)}</CardTitle>
+                {currentSection.description && (
+                  <p className="text-sm text-gray-500">
+                    {translateSectionDescription(currentPart.id, currentSection)}
+                  </p>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {currentSection.fields.map((field) =>
+                  renderField(field, currentPart.id, currentSection.id)
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="outline"
+              onClick={handlePrev}
+              disabled={!canGoPrev}
+            >
+              {t('previous')}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleSave}
+                disabled={isSaving || readOnly}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t('saving')}
+                  </>
+                ) : (
+                  t('saveProgress')
+                )}
+              </Button>
+              {canGoNext ? (
+                <Button
+                  onClick={handleNext}
+                  className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
+                >
+                  {t('next')}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSave}
+                  disabled={readOnly}
+                  className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
+                >
+                  {t('completeForm')}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Autosave status */}
+          <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mt-3">
             {autosaveStatus === 'saving' && (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Saving...</span>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>{t('saving')}</span>
               </>
             )}
             {autosaveStatus === 'saved' && (
               <>
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                <span>Saved</span>
+                <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                <span className="text-green-600">{t('saved')}</span>
               </>
             )}
             {autosaveStatus === 'idle' && lastSaved && (
               <>
-                <Clock className="h-4 w-4" />
-                <span>Last saved {lastSaved.toLocaleTimeString()}</span>
+                <Clock className="h-3.5 w-3.5" />
+                <span>{t('lastSaved', { time: lastSaved.toLocaleTimeString() })}</span>
               </>
             )}
           </div>
-        </div>
+        </main>
+      </div>
 
-        {/* Current Section */}
-        {currentSection && (
-          <Card>
-            <CardHeader>
-              <div className="text-sm text-violet-600 font-medium">
-                {currentPart.title}
-              </div>
-              <CardTitle>{currentSection.title}</CardTitle>
-              {currentSection.description && (
-                <p className="text-sm text-gray-500">
-                  {currentSection.description}
-                </p>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {currentSection.fields.map((field) =>
-                renderField(field, currentPart.id, currentSection.id)
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex items-center justify-between mt-6">
-          <Button
-            variant="outline"
-            onClick={handlePrev}
-            disabled={!canGoPrev}
-          >
-            Previous
-          </Button>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleSave}
-              disabled={isSaving || readOnly}
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                'Save Progress'
-              )}
-            </Button>
-            {canGoNext ? (
-              <Button
-                onClick={handleNext}
-                className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSave}
-                disabled={readOnly}
-                className="bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
-              >
-                Complete Form
-              </Button>
-            )}
-          </div>
-        </div>
-      </main>
+      {/* AI Assistant Chat Widget */}
+      {!readOnly && (
+        <ChatWidget
+          formContext={formContext}
+        />
+      )}
     </div>
   );
 }
