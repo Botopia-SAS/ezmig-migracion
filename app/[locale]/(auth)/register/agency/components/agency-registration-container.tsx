@@ -8,17 +8,16 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { AgencyRegistrationForm } from '@/components/agencies';
 import type { AgencyRegistrationData } from '@/lib/db/schema';
-import type { User } from 'next-auth';
 
 interface AgencyRegistrationContainerProps {
-  user: User;
+  userId: number;
   preselectedType?: 'law_firm' | 'immigration_services';
   inviteCode?: string;
   locale: string;
 }
 
 export function AgencyRegistrationContainer({
-  user,
+  userId,
   preselectedType,
   inviteCode,
   locale
@@ -31,11 +30,9 @@ export function AgencyRegistrationContainer({
     setIsSubmitting(true);
 
     try {
-      // Preparar datos de registro incluyendo información del usuario
       const registrationPayload = {
         ...data,
-        userId: user.id,
-        userEmail: user.email,
+        userId,
         inviteCode: inviteCode || undefined,
       };
 
@@ -140,19 +137,10 @@ export function AgencyRegistrationContainer({
         </Button>
       </div>
 
-      {/* Información del usuario registrado */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-700">
-                Registrando agencia para:
-              </p>
-              <p className="font-medium text-blue-900">
-                {user.name} ({user.email})
-              </p>
-            </div>
-            {inviteCode && (
+      {inviteCode && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div className="text-right">
                 <p className="text-xs text-blue-600">
                   Código de invitación:
@@ -161,17 +149,14 @@ export function AgencyRegistrationContainer({
                   {inviteCode}
                 </p>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Formulario principal */}
       <AgencyRegistrationForm
         initialData={{
           agencyType: preselectedType,
-          ownerFullName: user.name || '',
-          ownerEmail: user.email || '',
         }}
         mode="register"
         onSubmit={handleSubmit}

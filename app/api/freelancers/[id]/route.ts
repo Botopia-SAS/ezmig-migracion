@@ -7,15 +7,12 @@ import {
 } from '@/lib/freelancers/service';
 import type { FreelancerRegistrationData } from '@/lib/db/schema';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const freelancer = await getFreelancerById(params.id);
+    const { id } = await params;
+    const freelancer = await getFreelancerById(id);
     if (!freelancer) {
       return Response.json({ error: 'Freelancer not found' }, { status: 404 });
     }
@@ -38,8 +35,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,8 +45,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json();
 
-    // Obtener el freelancer existente
-    const existingFreelancer = await getFreelancerById(params.id);
+    const existingFreelancer = await getFreelancerById(id);
     if (!existingFreelancer) {
       return Response.json({ error: 'Freelancer not found' }, { status: 404 });
     }
@@ -96,7 +93,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.personalWebsite !== undefined) updateData.personalWebsite = body.personalWebsite;
 
     const result = await updateFreelancer(
-      params.id,
+      id,
       updateData,
       session.user.id.toString()
     );
@@ -118,15 +115,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Obtener el freelancer existente
-    const existingFreelancer = await getFreelancerById(params.id);
+    const existingFreelancer = await getFreelancerById(id);
     if (!existingFreelancer) {
       return Response.json({ error: 'Freelancer not found' }, { status: 404 });
     }
@@ -138,7 +135,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       }, { status: 403 });
     }
 
-    const result = await deleteFreelancer(params.id, session.user.id.toString());
+    const result = await deleteFreelancer(id, session.user.id.toString());
 
     return Response.json({
       success: true,

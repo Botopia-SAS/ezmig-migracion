@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateEmailAvailability } from '@/lib/agencies/service';
 
-interface RouteParams {
-  params: {
-    email: string;
-  };
-}
-
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ email: string }> }
 ) {
   try {
-    const { email } = params;
+    const { email } = await params;
 
     // Validación básica de formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,10 +27,9 @@ export async function GET(
   } catch (error) {
     console.error('Error validating email:', error);
 
-    // Incluso en caso de error, devolver respuesta que no bloquee el flujo
     return NextResponse.json({
-      available: true, // Default a true para no bloquear
-      email: params.email,
+      available: true,
+      email: '',
       error: 'Could not validate email at this time'
     });
   }

@@ -8,25 +8,21 @@ import {
 import { getUserProfile } from '@/lib/db/queries';
 import type { TeamMemberRegistrationData } from '@/lib/db/schema';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const teamMember = await getTeamMemberById(params.id);
+    const teamMember = await getTeamMemberById(id);
     if (!teamMember) {
       return Response.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    // Verificar que el usuario tenga acceso a esta agencia
     const userProfile = await getUserProfile(session.user.id);
     if (!userProfile || userProfile.teamId !== teamMember.agencyId) {
       return Response.json({ error: 'Access denied to this team member' }, { status: 403 });
@@ -49,8 +45,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,19 +55,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json();
 
-    // Obtener el team member existente
-    const existingTeamMember = await getTeamMemberById(params.id);
+    const existingTeamMember = await getTeamMemberById(id);
     if (!existingTeamMember) {
       return Response.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    // Verificar que el usuario tenga acceso a esta agencia
     const userProfile = await getUserProfile(session.user.id);
     if (!userProfile || userProfile.teamId !== existingTeamMember.agencyId) {
       return Response.json({ error: 'Access denied to this team member' }, { status: 403 });
     }
 
-    // Verificar permisos de edición
     const canEdit = userProfile.role === 'admin' ||
                    userProfile.role === 'owner' ||
                    userProfile.userId === existingTeamMember.userId;
@@ -81,7 +75,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }, { status: 403 });
     }
 
-    // Preparar datos de actualización
     const updateData: Partial<TeamMemberRegistrationData> = {};
 
     if (body.fullName !== undefined) updateData.fullName = body.fullName;
@@ -99,7 +92,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.customLanguages !== undefined) updateData.customLanguages = body.customLanguages;
 
     const result = await updateTeamMember(
-      params.id,
+      id,
       updateData,
       session.user.id.toString()
     );
@@ -121,33 +114,31 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Obtener el team member existente
-    const existingTeamMember = await getTeamMemberById(params.id);
+    const existingTeamMember = await getTeamMemberById(id);
     if (!existingTeamMember) {
       return Response.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    // Verificar que el usuario tenga acceso a esta agencia
     const userProfile = await getUserProfile(session.user.id);
     if (!userProfile || userProfile.teamId !== existingTeamMember.agencyId) {
       return Response.json({ error: 'Access denied to this team member' }, { status: 403 });
     }
 
-    // Solo admins y owners pueden eliminar team members
     if (userProfile.role !== 'admin' && userProfile.role !== 'owner') {
       return Response.json({
         error: 'Insufficient permissions. Only admins and owners can remove team members.'
       }, { status: 403 });
     }
 
-    const result = await deleteTeamMember(params.id, session.user.id.toString());
+    const result = await deleteTeamMember(id, session.user.id.toString());
 
     return Response.json({
       success: true,

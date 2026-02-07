@@ -14,8 +14,12 @@ import {
   validateDisclaimer
 } from './utils';
 import { hashPassword } from '@/lib/auth/session';
-import { generateRandomPassword } from '@/lib/auth/utils';
+import crypto from 'crypto';
 import { eq } from 'drizzle-orm';
+
+function generateRandomPassword(length = 16): string {
+  return crypto.randomBytes(length).toString('base64url').slice(0, length);
+}
 
 /**
  * Registra una nueva agencia con todos sus datos
