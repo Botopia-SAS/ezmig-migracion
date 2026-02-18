@@ -35,7 +35,6 @@ const actionOptions: { value: ActivityType; label: string }[] = [
   { value: ActivityType.SUBMIT_FORM, label: 'Submit Form' },
   { value: ActivityType.CREATE_REFERRAL_LINK, label: 'Create Referral' },
   { value: ActivityType.SIGN_IN, label: 'Sign In' },
-  { value: ActivityType.PURCHASE_TOKENS, label: 'Purchase Tokens' },
 ];
 
 const entityTypeOptions: { value: EntityType; label: string }[] = [
@@ -43,7 +42,6 @@ const entityTypeOptions: { value: EntityType; label: string }[] = [
   { value: 'case', label: 'Cases' },
   { value: 'form', label: 'Forms' },
   { value: 'referral', label: 'Referrals' },
-  { value: 'token', label: 'Tokens' },
   { value: 'user', label: 'Users' },
 ];
 

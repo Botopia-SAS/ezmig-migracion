@@ -88,9 +88,6 @@ function getActionLabel(action: string) {
     REMOVE_TEAM_MEMBER: 'Eliminación de miembro',
     INVITE_TEAM_MEMBER: 'Invitación de miembro',
     ACCEPT_INVITATION: 'Aceptación de invitación',
-    PURCHASE_TOKENS: 'Compra de tokens',
-    CONSUME_TOKEN: 'Consumo de token',
-    AUTO_RELOAD_TOKENS: 'Auto-recarga de tokens',
   };
   return labels[action] || action.replace(/_/g, ' ');
 }

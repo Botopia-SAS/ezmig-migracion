@@ -10,7 +10,12 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { RevenueTimeSeriesPoint } from '@/lib/tokens/demo-data';
+
+export interface RevenueTimeSeriesPoint {
+  date: string;
+  estimatedRevenue: number;
+  transactionCount: number;
+}
 
 interface RevenueTrendsChartProps {
   data: RevenueTimeSeriesPoint[];
@@ -21,22 +26,17 @@ const chartConfig = {
     label: 'Revenue ($)',
     color: 'hsl(var(--chart-1))',
   },
-  tokensSold: {
-    label: 'Tokens Sold',
-    color: 'hsl(var(--chart-2))',
-  },
 } satisfies ChartConfig;
 
 export function RevenueTrendsChart({ data }: RevenueTrendsChartProps) {
   const totalRevenue = data.reduce((sum, d) => sum + d.estimatedRevenue, 0);
-  const totalTokens = data.reduce((sum, d) => sum + d.tokensSold, 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Revenue Trends</CardTitle>
         <CardDescription>
-          Last 30 days: ${totalRevenue.toLocaleString()} revenue, {totalTokens.toLocaleString()} tokens sold
+          Last 30 days: ${totalRevenue.toLocaleString()} revenue
         </CardDescription>
       </CardHeader>
       <CardContent>

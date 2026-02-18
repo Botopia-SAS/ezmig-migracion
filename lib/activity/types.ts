@@ -10,8 +10,7 @@ export type EntityType =
   | 'evidence'
   | 'referral'
   | 'user'
-  | 'team'
-  | 'token';
+  | 'team';
 
 /**
  * Represents a change to a field value

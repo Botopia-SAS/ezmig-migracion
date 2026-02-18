@@ -1,135 +1,253 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, ShoppingCart, History, Settings, AlertCircle, CheckCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle,
+  Crown,
+  CreditCard,
+  Check,
+  Loader2,
+  Sparkles,
+} from 'lucide-react';
 import useSWR from 'swr';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
-import { customerPortalAction } from '@/lib/payments/actions';
+import { useFormStatus } from 'react-dom';
+import { customerPortalAction, checkoutAction } from '@/lib/payments/actions';
 import { TeamDataWithMembers } from '@/lib/db/schema';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-function TokenBalanceCard() {
-  const t = useTranslations('dashboard.billing.balance');
-  const { data, isLoading } = useSWR<{ balance: number }>('/api/tokens/balance', fetcher);
+interface Plan {
+  id: string;
+  name: string;
+  description: string | null;
+  priceId: string | undefined;
+  price: number;
+  interval: string;
+  features: string[];
+}
+
+interface PlansData {
+  plans: Plan[];
+  currentPlan: string | null;
+  subscriptionStatus: string | null;
+}
+
+function SubscribeButton({ disabled }: { disabled?: boolean }) {
+  const t = useTranslations('dashboard.billing.plans');
+  const { pending } = useFormStatus();
 
   return (
-    <Card className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Coins className="h-5 w-5" />
-          {t('title')}
-        </CardTitle>
-        <CardDescription className="text-violet-100">
-          {t('description')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-baseline gap-2">
-          {isLoading ? (
-            <Skeleton className="h-12 w-24 bg-violet-400/50" />
-          ) : (
-            <span className="text-5xl font-bold">{data?.balance ?? 0}</span>
-          )}
-          <span className="text-xl text-violet-200">{t('tokens')}</span>
-        </div>
-        <p className="mt-2 text-sm text-violet-200">
-          {t('info')}
-        </p>
-      </CardContent>
-    </Card>
+    <Button
+      type="submit"
+      disabled={pending || disabled}
+      className="w-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {t('processing')}
+        </>
+      ) : (
+        t('subscribe')
+      )}
+    </Button>
   );
 }
 
-function SubscriptionCard() {
-  const t = useTranslations('dashboard.team.subscription');
+function CurrentPlanBadge({ status }: { status: string | null | undefined }) {
+  const t = useTranslations('dashboard.billing.subscription');
+
+  const statusLabel =
+    status === 'active'
+      ? t('active')
+      : status === 'trialing'
+        ? t('trialing')
+        : status === 'canceled'
+          ? t('canceled')
+          : t('noSubscription');
+
+  const statusColor =
+    status === 'active'
+      ? 'text-green-600 bg-green-50 border-green-200'
+      : status === 'trialing'
+        ? 'text-violet-600 bg-violet-50 border-violet-200'
+        : status === 'canceled'
+          ? 'text-red-600 bg-red-50 border-red-200'
+          : 'text-gray-500 bg-gray-50 border-gray-200';
+
+  return (
+    <span
+      className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full border ${statusColor}`}
+    >
+      {statusLabel}
+    </span>
+  );
+}
+
+function BillingContent() {
+  const t = useTranslations('dashboard.billing');
+  const tp = useTranslations('dashboard.billing.plans');
+  const ts = useTranslations('dashboard.billing.subscription');
+
   const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="font-medium">
-            {t('plan')}: {teamData?.planName || 'Free'}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {teamData?.subscriptionStatus === 'active'
-              ? t('status')
-              : teamData?.subscriptionStatus === 'trialing'
-              ? t('status')
-              : t('noSubscription')}
-          </p>
-        </div>
-        <form action={customerPortalAction}>
-          <Button type="submit" variant="outline">
-            {t('managePlan')}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+  const { data: plansData, isLoading: plansLoading } = useSWR<PlansData>(
+    '/api/billing/plans',
+    fetcher
   );
-}
 
-function QuickActions() {
-  const t = useTranslations('dashboard.billing.quickActions');
+  const planName = teamData?.planName || ts('free');
+  const status = teamData?.subscriptionStatus;
+  const hasActiveSubscription = status === 'active' || status === 'trialing';
+
+  const plans = plansData?.plans ?? [];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Link href="/dashboard/billing/packages">
-        <Card className="hover:border-violet-500 transition-colors cursor-pointer h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ShoppingCart className="h-5 w-5 text-violet-500" />
-              {t('buyTokens.title')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              {t('buyTokens.description')}
-            </p>
-          </CardContent>
-        </Card>
-      </Link>
+    <div className="max-w-3xl space-y-6">
+      {/* Current Plan */}
+      <Card>
+        <CardContent className="flex items-center justify-between py-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-violet-100 rounded-lg">
+              <Crown className="h-5 w-5 text-violet-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-lg">{planName}</p>
+              <CurrentPlanBadge status={status} />
+            </div>
+          </div>
+          {hasActiveSubscription && (
+            <form action={customerPortalAction}>
+              <Button type="submit" variant="outline" size="sm">
+                {ts('manageSub')}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
 
-      <Link href="/dashboard/billing/history">
-        <Card className="hover:border-violet-500 transition-colors cursor-pointer h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <History className="h-5 w-5 text-violet-500" />
-              {t('history.title')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              {t('history.description')}
-            </p>
-          </CardContent>
-        </Card>
-      </Link>
+      {/* Plans */}
+      <div>
+        <h2 className="text-base font-medium text-gray-900 mb-1">
+          {tp('title')}
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">{tp('subtitle')}</p>
 
-      <Link href="/dashboard/billing/settings">
-        <Card className="hover:border-violet-500 transition-colors cursor-pointer h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Settings className="h-5 w-5 text-violet-500" />
-              {t('autoReload.title')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              {t('autoReload.description')}
-            </p>
-          </CardContent>
-        </Card>
-      </Link>
+        {plansLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+          </div>
+        ) : plans.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-gray-500 text-sm">
+              {tp('noPlans')}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {plans.map((plan, index) => {
+              const isCurrent =
+                hasActiveSubscription && plansData?.currentPlan === plan.name;
+              const isHighlighted = index === plans.length - 1;
+              const isAvailable = Boolean(plan.priceId);
+
+              return (
+                <Card
+                  key={plan.id}
+                  className={`relative flex flex-col ${
+                    isHighlighted
+                      ? 'border-violet-500 border-2 shadow-md'
+                      : ''
+                  }`}
+                >
+                  {isHighlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="bg-violet-500 text-white text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        {tp('recommended')}
+                      </span>
+                    </div>
+                  )}
+
+                  <CardHeader className="pb-3 pt-6">
+                    <CardTitle className="text-lg">{plan.name}</CardTitle>
+                    {plan.description && (
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {plan.description}
+                      </p>
+                    )}
+                    <div className="mt-3">
+                      <span className="text-3xl font-bold">
+                        ${(plan.price / 100).toFixed(0)}
+                      </span>
+                      <span className="text-gray-500 text-sm ml-1">
+                        {tp('perMonth')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-violet-600">{tp('trialInfo')}</p>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 pt-0">
+                    <ul className="space-y-2">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-700">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter className="flex flex-col gap-2 pt-0">
+                    {isCurrent ? (
+                      <>
+                        <Button disabled className="w-full" variant="outline">
+                          {tp('currentPlan')}
+                        </Button>
+                        <form action={customerPortalAction} className="w-full">
+                          <Button
+                            type="submit"
+                            variant="ghost"
+                            className="w-full text-violet-600"
+                            size="sm"
+                          >
+                            {tp('manageSub')}
+                          </Button>
+                        </form>
+                      </>
+                    ) : hasActiveSubscription ? (
+                      <form action={customerPortalAction} className="w-full">
+                        <Button
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white"
+                        >
+                          {tp('switchPlan')}
+                        </Button>
+                      </form>
+                    ) : (
+                      <form action={checkoutAction} className="w-full">
+                        <input
+                          type="hidden"
+                          name="priceId"
+                          value={plan.priceId || ''}
+                        />
+                        <SubscribeButton disabled={!isAvailable} />
+                      </form>
+                    )}
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -142,10 +260,12 @@ function StatusMessage() {
 
   if (success) {
     return (
-      <Alert variant="success" className="mb-6">
+      <Alert variant="success" className="mb-6 max-w-3xl">
         <CheckCircle className="h-4 w-4" />
         <AlertDescription>
-          {t('success')}
+          {success === 'subscription'
+            ? t('subscriptionSuccess')
+            : t('success')}
         </AlertDescription>
       </Alert>
     );
@@ -153,7 +273,7 @@ function StatusMessage() {
 
   if (error) {
     return (
-      <Alert variant="destructive" className="mb-6">
+      <Alert variant="destructive" className="mb-6 max-w-3xl">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           {error === 'payment_failed' ? t('paymentFailed') : t('error')}
@@ -172,7 +292,7 @@ export default function BillingPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-violet-100 rounded-lg">
-          <Coins className="h-6 w-6 text-violet-600" />
+          <CreditCard className="h-6 w-6 text-violet-600" />
         </div>
         <div>
           <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
@@ -186,13 +306,7 @@ export default function BillingPage() {
         <StatusMessage />
       </Suspense>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <SubscriptionCard />
-          <TokenBalanceCard />
-        </div>
-        <QuickActions />
-      </div>
+      <BillingContent />
     </section>
   );
 }

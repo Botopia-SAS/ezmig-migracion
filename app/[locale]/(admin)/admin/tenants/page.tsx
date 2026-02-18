@@ -1,32 +1,27 @@
 export const dynamic = 'force-dynamic';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building, Users, Coins, ExternalLink } from 'lucide-react';
-import { getAllWalletsWithTeams } from '@/lib/tokens/service';
+import { Building, Users, ExternalLink } from 'lucide-react';
 import { db } from '@/lib/db/drizzle';
-import { teamMembers, users } from '@/lib/db/schema';
+import { teams, teamMembers, users } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
 async function getTenantsWithDetails() {
-  const walletsWithTeams = await getAllWalletsWithTeams();
+  const allTeams = await db.select().from(teams);
 
   const tenantsWithDetails = await Promise.all(
-    walletsWithTeams.map(async ({ wallet, team }) => {
-      // Get member count
+    allTeams.map(async (team) => {
       const [memberCount] = await db
         .select({ count: sql<number>`count(*)` })
         .from(teamMembers)
         .where(eq(teamMembers.teamId, team.id));
 
-      // Get owner info
       const [ownerMembership] = await db
-        .select({
-          userId: teamMembers.userId,
-        })
+        .select({ userId: teamMembers.userId })
         .from(teamMembers)
         .where(eq(teamMembers.teamId, team.id))
         .limit(1);
@@ -45,10 +40,10 @@ async function getTenantsWithDetails() {
         id: team.id,
         name: team.name,
         type: team.type,
-        tokenBalance: wallet.balance,
         memberCount: memberCount?.count ?? 0,
         ownerEmail,
-        autoReloadEnabled: team.autoReloadEnabled,
+        subscriptionStatus: team.subscriptionStatus,
+        planName: team.planName,
         createdAt: team.createdAt,
       };
     })
@@ -95,12 +90,13 @@ export default async function TenantsPage() {
                           <Users className="h-4 w-4" />
                           {t('members', { count: tenant.memberCount })}
                         </span>
-                        <span className="flex items-center gap-1 text-violet-600 font-medium">
-                          <Coins className="h-4 w-4" />
-                          {t('tokens', { count: tenant.tokenBalance })}
-                        </span>
-                        {tenant.autoReloadEnabled && (
-                          <Badge variant="success">{t('autoReload')}</Badge>
+                        {tenant.planName && (
+                          <Badge variant="secondary">{tenant.planName}</Badge>
+                        )}
+                        {tenant.subscriptionStatus && (
+                          <Badge variant={tenant.subscriptionStatus === 'active' ? 'success' : 'secondary'}>
+                            {tenant.subscriptionStatus}
+                          </Badge>
                         )}
                       </div>
                     </div>

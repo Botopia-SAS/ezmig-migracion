@@ -275,7 +275,9 @@
     "welcomeBack": "Welcome back",
     "createAccount": "Create your account",
     "signInSubtitle": "Sign in to manage your immigration cases",
-    "signUpSubtitle": "Start your 7-day free trial today",
+    "signUpSubtitle": "",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
     "email": "Email",
     "emailPlaceholder": "you@lawfirm.com",
     "password": "Password",
@@ -324,6 +326,12 @@
     "createTeamFailed": "Failed to create team. Please try again.",
     "invalidInvitation": "Invalid or expired invitation.",
     "genericAuthError": "Something went wrong. Please try again.",
+    "invitedToTeam": "You've been invited to join",
+    "joinTeam": "Join Team",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "invitationExpired": "This invitation is no longer valid.",
+    "loadingInvitation": "Loading invitation...",
+    "setYourPassword": "Set your password to get started",
     "heroTitle": "Immigration made simple",
     "heroSubtitle": "Join thousands of immigration attorneys using AI-powered tools to complete USCIS forms faster and with fewer RFEs.",
     "heroStatFormsLabel": "Forms",
@@ -343,6 +351,11 @@
   "dashboard": {
     "title": "Dashboard",
     "signOut": "Sign out",
+    "profileBanner": {
+      "message": "Your profile information is incomplete",
+      "completion": "{percentage}% complete",
+      "goComplete": "Complete profile"
+    },
     "sidebar": {
       "settings": "Settings",
       "team": "Team",
@@ -351,9 +364,6 @@
       "security": "Security",
       "billing": "Billing",
       "overview": "Overview",
-      "buyTokens": "Buy Tokens",
-      "history": "History",
-      "autoReload": "Auto-Reload",
       "legal": "Legal",
       "clients": "Clients",
       "cases": "Cases",
@@ -376,7 +386,12 @@
         "owner": "Owner",
         "member": "Member",
         "staff": "Staff",
-        "remove": "Remove"
+        "remove": "Remove",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleteAccountTitle": "Delete Team Member Account",
+        "deleteAccountDescription": "This will permanently delete this user's account and all their associated data. This action cannot be undone.",
+        "deleteAccountConfirm": "Delete Account"
       },
       "invite": {
         "title": "Invite Team Member",
@@ -393,7 +408,10 @@
         "title": "Pending Invitations",
         "description": "Manage your team's pending invitations",
         "noInvitations": "No pending invitations",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "revokeTitle": "Revoke Invitation",
+        "revokeDescription": "Are you sure you want to revoke this invitation? The recipient will no longer be able to join the team using this link.",
+        "revokeConfirm": "Revoke"
       }
     },
     "general": {
@@ -415,6 +433,75 @@
         "helper": "PNG/JPG, recommended square ratio.",
         "save": "Save logo",
         "saving": "Saving logo..."
+      },
+      "profile": {
+        "agencyTitle": "Agency Profile",
+        "teamMemberTitle": "Team Member Profile",
+        "freelancerTitle": "Freelancer Profile",
+        "saved": "Profile saved successfully",
+        "save": "Save Profile",
+        "saving": "Saving...",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter your full name",
+        "email": "Email",
+        "emailPlaceholder": "Enter your email",
+        "phone": "Phone",
+        "phonePlaceholder": "Enter your phone number",
+        "role": "Role",
+        "rolePlaceholder": "Select a role",
+        "roles": {
+          "attorney": "Attorney",
+          "paralegal": "Paralegal",
+          "legal_assistant": "Legal Assistant",
+          "admin_assistant": "Admin Assistant",
+          "receptionist": "Receptionist",
+          "other": "Other"
+        },
+        "specialties": "Specialties",
+        "specialtiesPlaceholder": "Select specialties (max 5)",
+        "barNumber": "Bar Number",
+        "barNumberPlaceholder": "Enter your bar number",
+        "barState": "Bar State",
+        "barStatePlaceholder": "Select state",
+        "bio": "Bio",
+        "bioPlaceholder": "Write a short professional bio",
+        "languages": "Languages",
+        "languagesPlaceholder": "Select languages",
+        "clientTitle": "My Profile",
+        "personalInfo": "Personal Information",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "Enter your first name",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Enter your last name",
+        "emailReadOnly": "Email",
+        "emailHelp": "Contact your attorney to update your email",
+        "dateOfBirth": "Date of Birth",
+        "countryOfBirth": "Country of Birth",
+        "countryOfBirthPlaceholder": "Select country",
+        "nationality": "Nationality",
+        "nationalityPlaceholder": "Select nationality",
+        "immigrationInfo": "Immigration Information",
+        "alienNumber": "A-Number",
+        "alienNumberPlaceholder": "e.g., A012345678",
+        "uscisAccount": "USCIS Online Account",
+        "uscisAccountPlaceholder": "Enter your USCIS account number",
+        "currentStatus": "Current Immigration Status",
+        "currentStatusPlaceholder": "Select status",
+        "addressInfo": "Address",
+        "addressLine1": "Street Address",
+        "addressLine1Placeholder": "Enter street address",
+        "addressLine2": "Apt / Suite / Unit",
+        "addressLine2Placeholder": "Apartment, suite, unit, etc.",
+        "city": "City",
+        "cityPlaceholder": "Enter city",
+        "stateProv": "State",
+        "stateProvPlaceholder": "Select state",
+        "zipCode": "ZIP Code",
+        "zipCodePlaceholder": "Enter ZIP code",
+        "addressCountry": "Country",
+        "addressCountryPlaceholder": "Select country",
+        "noClientProfile": "Profile not found. Contact your attorney.",
+        "saveError": "Failed to save profile"
       }
     },
     "activity": {
@@ -432,10 +519,6 @@
         "REMOVE_TEAM_MEMBER": "Removed team member",
         "INVITE_TEAM_MEMBER": "Invited team member",
         "ACCEPT_INVITATION": "Accepted invitation",
-        "PURCHASE_TOKENS": "Purchased tokens",
-        "CONSUME_TOKEN": "Consumed token",
-        "AUTO_RELOAD_TOKENS": "Auto-reloaded tokens",
-        "UPDATE_AUTO_RELOAD": "Updated auto-reload",
         "CREATE_CLIENT": "Created client",
         "UPDATE_CLIENT": "Updated client",
         "DELETE_CLIENT": "Deleted client",
@@ -477,86 +560,42 @@
       }
     },
     "billing": {
-      "title": "Billing & Tokens",
-      "subtitle": "Manage your tokens and view transaction history",
-      "balance": {
-        "title": "Token Balance",
-        "description": "Available tokens for form submissions",
-        "tokens": "tokens",
-        "info": "1 token = 1 form submission"
+      "title": "Billing",
+      "subtitle": "Manage your subscription and billing",
+      "subscription": {
+        "title": "Subscription",
+        "free": "Free",
+        "active": "Active",
+        "trialing": "Trial",
+        "canceled": "Canceled",
+        "noSubscription": "No active subscription",
+        "viewPlans": "View Plans",
+        "manageSub": "Manage Subscription"
+      },
+      "plans": {
+        "title": "Subscription Plans",
+        "back": "Back to Billing",
+        "subtitle": "Choose the plan that works for your practice",
+        "currentPlan": "Current Plan",
+        "subscribe": "Subscribe",
+        "switchPlan": "Switch Plan",
+        "manageSub": "Manage Subscription",
+        "perMonth": "/month",
+        "trialInfo": "14-day free trial included",
+        "recommended": "Recommended",
+        "processing": "Processing...",
+        "noPlans": "No subscription plans available at the moment."
       },
       "quickActions": {
-        "buyTokens": {
-          "title": "Buy Tokens",
-          "description": "Purchase token packages to continue submitting forms"
-        },
-        "history": {
-          "title": "Transaction History",
-          "description": "View your token purchases and usage history"
-        },
-        "autoReload": {
-          "title": "Auto-Reload",
-          "description": "Set up automatic token reloading when balance is low"
+        "plans": {
+          "title": "Subscription Plans",
+          "description": "View and manage your subscription plan"
         }
       },
       "status": {
-        "success": "Tokens purchased successfully! Your balance has been updated.",
+        "subscriptionSuccess": "Subscription activated successfully! Welcome to your new plan.",
         "paymentFailed": "Payment failed. Please try again.",
         "error": "An error occurred. Please try again."
-      },
-      "packages": {
-        "title": "Buy Tokens",
-        "subtitle": "Select a token package to purchase",
-        "tokens": "tokens",
-        "perToken": "per token",
-        "mostPopular": "Most Popular",
-        "bestValue": "Best Value",
-        "buy": "Buy Now",
-        "processing": "Processing...",
-        "back": "Back to Billing"
-      },
-      "historyPage": {
-        "title": "Transaction History",
-        "subtitle": "View your token transactions",
-        "noTransactions": "No transactions yet",
-        "noTransactionsDescription": "Your token purchases and usage will appear here",
-        "buyFirst": "Buy your first tokens",
-        "table": {
-          "date": "Date",
-          "type": "Type",
-          "amount": "Amount",
-          "balance": "Balance",
-          "description": "Description"
-        },
-        "types": {
-          "purchase": "Purchase",
-          "consumption": "Usage",
-          "refund": "Refund",
-          "auto_reload": "Auto-Reload",
-          "bonus": "Bonus"
-        },
-        "back": "Back to Billing"
-      },
-      "settings": {
-        "title": "Auto-Reload Settings",
-        "subtitle": "Configure automatic token reloading",
-        "enable": {
-          "title": "Enable Auto-Reload",
-          "description": "Automatically purchase tokens when your balance falls below a threshold"
-        },
-        "threshold": {
-          "title": "Reload Threshold",
-          "description": "When your balance drops below this number, we'll automatically reload"
-        },
-        "package": {
-          "title": "Reload Package",
-          "description": "The package to purchase when auto-reload triggers"
-        },
-        "save": "Save Settings",
-        "saving": "Saving...",
-        "ownerOnly": "Only team owners can modify auto-reload settings",
-        "noPaymentMethod": "You need to make a purchase first to enable auto-reload",
-        "back": "Back to Billing"
       }
     },
     "clients": {
@@ -733,6 +772,22 @@
         "updated": "Case updated successfully",
         "deleted": "Case deleted successfully",
         "error": "An error occurred"
+      },
+      "relationshipSetup": {
+        "title": "Personalize Your Forms",
+        "description": "Configure petitioner and beneficiary information to show personalized form questions with actual names instead of generic terms.",
+        "setupButton": "Setup Relationships",
+        "quickSetup": {
+          "title": "Form Personalization",
+          "description": "Set up petitioner and beneficiary relationships to get personalized form questions with real names.",
+          "button": "Setup Now"
+        },
+        "benefits": {
+          "title": "Benefits:",
+          "personalized": "Questions show actual names: \"What is Santiago's relationship to María?\"",
+          "clarity": "Reduces confusion with clear, personalized language",
+          "experience": "Better user experience for clients filling forms"
+        }
       }
     },
     "overview": {
@@ -800,6 +855,15 @@
       "formNotFound": "Form not found",
       "invalidFormSchema": "Invalid form schema",
       "formSubmittedReadOnly": "This form has been submitted and is now read-only.",
+      "interpolation": {
+        "backToCase": "Back to {{petitioner.firstName}}'s Case",
+        "relationshipQuestion": "What is {{petitioner.firstName}}'s relationship to {{beneficiary.firstName}}?",
+        "filingFor": "{{petitioner.firstName}} is filing this petition for {{beneficiary.firstName}} who is {{petitioner.firstName}}'s...",
+        "personalInfo": "{{petitioner.firstName}}'s Personal Information",
+        "beneficiaryInfo": "{{beneficiary.firstName}}'s Information",
+        "questionAboutBeneficiary": "Question about {{beneficiary.firstName}}",
+        "questionAboutPetitioner": "Question about {{petitioner.firstName}}"
+      },
       "addForm": "Add Form",
       "selectForm": "Select Form",
       "selectFormPlaceholder": "Choose a form to add...",
@@ -851,7 +915,37 @@
           "deleted": "Attachment removed",
           "deleteError": "Failed to remove attachment"
         }
+      },
+      "pdf": {
+        "generate": "Generate PDF",
+        "regenerate": "Regenerate PDF",
+        "download": "Download",
+        "generating": "Generating...",
+        "generated": "PDF generated successfully",
+        "error": "Failed to generate PDF"
       }
+    },
+    "efiling": {
+      "sendToExtension": "Send to Extension",
+      "sendingData": "Sending...",
+      "sentToExtension": "Sent!",
+      "installExtension": "Install Extension",
+      "panelTitle": "E-Filing Progress",
+      "panelDescription": "The extension is filling the USCIS form...",
+      "steps": {
+        "prepare": "Preparing form data",
+        "send_to_extension": "Sending to extension",
+        "waiting_login": "Waiting for USCIS login",
+        "extracting": "Extracting form fields",
+        "mapping": "Mapping fields with AI",
+        "filling": "Filling form fields",
+        "done": "Complete"
+      },
+      "fieldsSummary": "{filled} filled, {skipped} skipped, {failed} failed",
+      "completeSummary": "{filled} of {total} fields filled",
+      "reviewMessage": "Form filled. Review the USCIS page before submitting.",
+      "stopButton": "Cancel",
+      "closeButton": "Close"
     },
     "referrals": {
       "title": "Referral Links",
@@ -862,7 +956,7 @@
       "noLinksDescription": "Create a referral link to invite clients to complete forms",
       "addFirst": "Create your first link",
       "table": {
-        "code": "Code",
+        "name": "Name",
         "formTypes": "Form Types",
         "case": "Case",
         "status": "Status",
@@ -895,6 +989,9 @@
         "noCase": "No specific case (auto-create)",
         "expiresAt": "Expiration Date (optional)",
         "maxUses": "Maximum Uses",
+        "unlimited": "Unlimited",
+        "use": "use",
+        "uses": "uses",
         "linkSettings": "Link Settings",
         "linkSettingsDescription": "Configure access and expiration for this referral link"
       },
@@ -911,6 +1008,7 @@
         "linkUrl": "Link URL",
         "formTypes": "Form Types",
         "autoCreateCase": "Auto-create on registration",
+        "usesLabel": "uses",
         "usageHistory": "Usage History",
         "noUsage": "No usage recorded yet",
         "usageTable": {
@@ -1055,7 +1153,7 @@
         },
         "payment": {
           "title": "4. Payment Terms",
-          "content": "Paid services are billed according to the pricing plan selected. Tokens are non-refundable once purchased. Subscription fees are billed in advance on a recurring basis."
+          "content": "Paid services are billed according to the pricing plan selected. Subscription fees are billed in advance on a recurring basis."
         },
         "intellectual": {
           "title": "5. Intellectual Property",
@@ -1121,10 +1219,9 @@
         "dashboard": "Dashboard",
         "tenants": "Tenants",
         "users": "Users",
-        "transactions": "Transactions",
-        "packages": "Packages",
         "stats": "Stats",
-        "forms": "Forms"
+        "forms": "Forms",
+        "plans": "Plans"
       },
       "fallback": {
         "userName": "Admin User",
@@ -1150,13 +1247,9 @@
           "label": "Users",
           "sub": "Across all tenants"
         },
-        "tokensUsed": {
-          "label": "Tokens used",
-          "sub": "Last 30 days"
-        },
         "revenue": {
           "label": "Est. revenue",
-          "sub": "Based on token sales"
+          "sub": "Monthly recurring"
         }
       },
       "currency": "{value, number, ::currency/USD}"
@@ -1173,50 +1266,21 @@
       "total": "Total tenants: {count}",
       "empty": "No tenants found.",
       "members": "{count} members",
-      "tokens": "{count} tokens",
-      "autoReload": "Auto-reload",
       "unknown": "Unknown",
       "details": "Details"
     },
-    "transactions": {
-      "title": "Transactions",
-      "subtitle": "Last 100 token movements",
-      "history": "History",
-      "empty": "No transactions yet."
-    },
-    "packages": {
-      "title": "Token Packages",
-      "activeCount": "Active packages: {count}",
-      "money": "{value, number, ::currency/USD}",
-      "create": {
-        "title": "Create package",
-        "submit": "Create"
-      },
-      "fields": {
-        "name": "Name",
-        "tokens": "Tokens",
-        "price": "Price (USD)",
-        "priceShort": "Price",
-        "pricePerToken": "Price per token",
-        "sort": "Sort order",
-        "active": "Active"
-      },
-      "placeholders": {
-        "name": "e.g. Starter Pack"
-      },
-      "status": {
-        "active": "Active",
-        "inactive": "Inactive"
-      },
-      "update": {
-        "save": "Save",
-        "deactivate": "Deactivate"
-      },
-      "help": {
-        "title": "How this works",
-        "body": "Packages are synced with Stripe. Updating price or token amount will create new Stripe prices for checkout.",
-        "tip": "Keep sort order aligned with your pricing page to avoid confusion."
-      }
+    "plans": {
+      "title": "Plan Management",
+      "subtitle": "Manage subscription plans and pricing",
+      "currentPrice": "Current Price",
+      "newPrice": "New Price (USD)",
+      "features": "Features",
+      "updatePrice": "Update Price",
+      "updateFeatures": "Update Features",
+      "perMonth": "/month",
+      "noPlans": "No subscription plans found in Stripe",
+      "priceUpdated": "Price updated successfully",
+      "featuresUpdated": "Features updated successfully"
     },
     "forms": {
       "title": "Form Types",
@@ -1228,7 +1292,6 @@
         "name": "Name",
         "category": "Category",
         "edition": "Edition",
-        "tokenCost": "Token Cost",
         "status": "Status",
         "caseForms": "Usage",
         "actions": "Actions"
@@ -1248,7 +1311,16 @@
       },
       "create": {
         "title": "Create Form Type",
-        "submit": "Create & Open Builder"
+        "submit": "Create & Open Builder",
+        "aiGenerate": "Generate from PDF with AI",
+        "aiGenerateDescription": "Upload the USCIS PDF form and Claude will generate the wizard schema automatically.",
+        "uploadPdf": "Click to upload PDF files",
+        "uploadPdfHint": "Accepts PDF files of USCIS forms",
+        "generateSchema": "Generate Schema with AI",
+        "generating": "Analyzing PDF with AI...",
+        "schemaGenerated": "Schema generated successfully!",
+        "schemaGeneratedHint": "The schema will be saved when you create the form. You can edit it in the Builder.",
+        "codeRequiredForAI": "Please enter the form code first (e.g. I-130)"
       },
       "editMeta": {
         "title": "Edit Form Type",
@@ -1268,7 +1340,6 @@
         "categoryPlaceholder": "Select category",
         "uscisEdition": "USCIS Edition",
         "uscisEditionPlaceholder": "e.g. 03/22/2023",
-        "tokenCost": "Token Cost",
         "estimatedTime": "Estimated Time (min)"
       },
       "categories": {
@@ -1282,9 +1353,11 @@
       "caseFormCount": "{count} case forms",
       "deleteConfirm": {
         "title": "Delete Form Type",
+        "deactivateTitle": "Deactivate Form Type",
         "message": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
-        "messageWithCases": "This form type is used by {count} case forms. It will be deactivated instead of deleted.",
+        "messageWithCases": "The form type \"{name}\" is used by {count} case forms. It will be deactivated instead of deleted.",
         "confirm": "Delete",
+        "deactivate": "Deactivate",
         "cancel": "Cancel"
       }
     },
@@ -1300,7 +1373,16 @@
         "preview": "Preview",
         "back": "Back to Forms",
         "export": "Export JSON",
-        "import": "Import JSON"
+        "import": "Import JSON",
+        "editJson": "Edit JSON"
+      },
+      "jsonEditor": {
+        "title": "Edit Form Schema (JSON)",
+        "apply": "Apply Changes",
+        "cancel": "Cancel",
+        "copy": "Copy to clipboard",
+        "invalidJson": "Invalid JSON syntax",
+        "invalidSchema": "Schema must contain a \"parts\" array"
       },
       "outline": {
         "title": "Structure",
@@ -1343,6 +1425,7 @@
           "label": "Label",
           "type": "Field Type",
           "required": "Required",
+          "allowEvidences": "Allow Evidence Attachments",
           "placeholder": "Placeholder",
           "helpText": "Help Text",
           "maxLength": "Max Length",
@@ -1371,7 +1454,7 @@
           "title": "Options",
           "addOption": "Add Option",
           "bulkAdd": "Bulk Add",
-          "bulkAddHelp": "One option per line. Format: value|label or just label.",
+          "bulkAddHelp": "One option per line. Format: value|EN|ES|PT or value|label.",
           "value": "Value",
           "label": "Label",
           "noOptions": "No options yet. Add one below.",
@@ -1397,6 +1480,22 @@
         "choice": "Choice Fields",
         "special": "Special Fields"
       },
+      "addDialog": {
+        "titlePart": "Add Part",
+        "titleSection": "Add Section",
+        "titleField": "Add {type} Field",
+        "titleOption": "Add Option",
+        "description": "Enter the name in all languages. English is required.",
+        "elementTitle": "Title",
+        "fieldLabel": "Label",
+        "optionDescription": "Enter the option value and labels in all languages.",
+        "optionValue": "Value (ID)",
+        "optionLabel": "Label",
+        "missingTranslationsWarning": "Spanish and Portuguese translations are missing.",
+        "duplicateValue": "This value already exists.",
+        "cancel": "Cancel",
+        "confirm": "Add"
+      },
       "stats": {
         "parts": "Parts",
         "sections": "Sections",
@@ -1419,17 +1518,6 @@
         "revenue": {
           "title": "Revenue (est.)",
           "subtitle": "Purchases: {count}"
-        },
-        "sold": {
-          "title": "Tokens sold"
-        },
-        "consumed": {
-          "title": "Tokens consumed",
-          "subtitle": "Net tokens used"
-        },
-        "wallets": {
-          "title": "Wallets",
-          "subtitle": "{count} tokens in circulation"
         }
       },
       "allTime": "All time",
@@ -2595,6 +2683,33 @@
         "ownerName": "Owner full name",
         "ownerPosition": "CEO, Managing Partner, etc."
       },
+      "settingsSubtitle": "Update your agency information",
+      "notEditable": "(not editable)",
+      "required": "Required",
+      "autosaving": "Auto-saving...",
+      "descriptions": {
+        "businessEmail": "Primary email for official communications",
+        "ownerEmail": "For important communications and configuration changes"
+      },
+      "actions": {
+        "title": "Actions",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "register": "Register Agency",
+        "update": "Update Information",
+        "pendingTitle": "Pending fields",
+        "disclaimerRequired": "You must accept the legal disclaimer to continue.",
+        "requiredFieldsMessage": "Complete the required fields marked with * to continue."
+      },
+      "help": {
+        "title": "Need help?",
+        "required": "Fields with * are required",
+        "autosave": "Your progress is saved automatically every 2 seconds",
+        "multipleSessions": "You can complete registration across multiple sessions",
+        "contact": "Contact us if you need assistance:"
+      },
+      "saveSuccess": "Changes saved successfully",
+      "saveError": "Error saving changes",
       "submit": "Complete registration",
       "submitting": "Creating profile...",
       "requiredNote": "Fields marked with * are required. Your progress is saved automatically.",

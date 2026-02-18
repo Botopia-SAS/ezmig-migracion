@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/payments/stripe';
+import { getProductTier, getPlanFeatures } from '@/lib/payments/plans';
 
 function pickLatestPrice(prices: Stripe.Price[], productId?: string) {
   if (!productId) return null;
@@ -17,18 +18,19 @@ export async function GET() {
       stripe.prices.list({ active: true, type: 'recurring', limit: 100 }),
     ]);
 
-    const baseProduct = products.data.find(
-      (product) => product.name.toLowerCase() === 'base'
+    const starterProduct = products.data.find(
+      (product) => getProductTier(product) === 'starter'
     );
-    const plusProduct = products.data.find(
-      (product) => product.name.toLowerCase() === 'plus'
+    const professionalProduct = products.data.find(
+      (product) => getProductTier(product) === 'professional'
     );
 
-    const basePrice = pickLatestPrice(prices.data, baseProduct?.id);
-    const plusPrice = pickLatestPrice(prices.data, plusProduct?.id);
+    const starterPrice = pickLatestPrice(prices.data, starterProduct?.id);
+    const professionalPrice = pickLatestPrice(prices.data, professionalProduct?.id);
 
     const serialize = (price: Stripe.Price | null, product?: Stripe.Product) => {
       if (!price || !product) return null;
+      const tier = getProductTier(product);
       return {
         productId: product.id,
         priceId: price.id,
@@ -37,12 +39,13 @@ export async function GET() {
         currency: price.currency,
         trialDays: price.recurring?.trial_period_days ?? 0,
         productName: product.name,
+        features: tier ? getPlanFeatures(tier, product.metadata) : [],
       };
     };
 
     const body = {
-      base: serialize(basePrice, baseProduct),
-      plus: serialize(plusPrice, plusProduct),
+      base: serialize(starterPrice, starterProduct),
+      plus: serialize(professionalPrice, professionalProduct),
     };
 
     return NextResponse.json(body, {

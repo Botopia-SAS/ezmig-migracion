@@ -1,6 +1,4 @@
 export { AlertCard } from './alert-card';
-export { TopTenantsList } from './top-tenants-list';
-export { TransactionsChart } from './transactions-chart';
 export { SystemStatusBadge } from './system-status-badge';
 export { ActivityFeed } from './activity-feed';
 
@@ -11,8 +9,5 @@ export { NotificationBell, NotificationDropdown, useNotifications } from './noti
 export {
   RevenueTrendsChart,
   GrowthChart,
-  TokenFlowChart,
-  PackagePerformanceChart,
-  EngagementRadial,
   ActivityDayChart,
 } from './charts';

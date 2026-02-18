@@ -33,15 +33,6 @@ export const tenantRoleEnum = pgEnum('tenant_role', [
   'client',  // Cliente del abogado
 ]);
 
-// Tipos de transacciones de tokens
-export const transactionTypeEnum = pgEnum('transaction_type', [
-  'purchase',     // Compra de tokens
-  'consumption',  // Uso de token (form submit)
-  'refund',       // Reembolso
-  'auto_reload',  // Recarga automática
-  'bonus',        // Tokens de bonificación
-]);
-
 // ============================================
 // NUEVOS ENUMS - M2-M4
 // ============================================
@@ -190,6 +181,22 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'client_registered',  // Nuevo cliente registrado via referral
 ]);
 
+// Tipos de relación para casos (peticionario-beneficiario)
+export const relationshipTypeEnum = pgEnum('relationship_type', [
+  'spouse',             // Esposo/Esposa
+  'parent',             // Padre/Madre
+  'child',              // Hijo/Hija
+  'sibling',            // Hermano/Hermana
+  'grandparent',        // Abuelo/Abuela
+  'grandchild',         // Nieto/Nieta
+  'stepparent',         // Padrastro/Madrastra
+  'stepchild',          // Hijastro/Hijastra
+  'employer',           // Empleador
+  'employee',           // Empleado
+  'self',               // Uno mismo (para casos donde peticionario = beneficiario)
+  'other',              // Otro
+]);
+
 // ============================================
 // TABLAS EXISTENTES (MODIFICADAS)
 // ============================================
@@ -214,17 +221,12 @@ export const teams = pgTable('teams', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   // Stripe fields
   stripeCustomerId: text('stripe_customer_id').unique(),
-  stripeSubscriptionId: text('stripe_subscription_id').unique(), // Legacy - suscripciones
-  stripeProductId: text('stripe_product_id'), // Legacy
-  planName: varchar('plan_name', { length: 50 }), // Legacy
-  subscriptionStatus: varchar('subscription_status', { length: 20 }), // Legacy
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  stripeProductId: text('stripe_product_id'),
+  planName: varchar('plan_name', { length: 50 }),
+  subscriptionStatus: varchar('subscription_status', { length: 20 }),
   // Tipo de tenant
   type: varchar('type', { length: 20 }).notNull().default('law_firm'),
-  // Auto-recarga settings
-  autoReloadEnabled: boolean('auto_reload_enabled').notNull().default(false),
-  autoReloadThreshold: integer('auto_reload_threshold').default(5),
-  autoReloadPackage: varchar('auto_reload_package', { length: 20 }).default('10'),
-
   // ============================================
   // CAMPOS DE AGENCIA - REGISTRO
   // ============================================
@@ -314,54 +316,30 @@ export const invitations = pgTable('invitations', {
 });
 
 // ============================================
-// NUEVAS TABLAS - SISTEMA DE TOKENS
+// API KEYS - Bearer Token Authentication
 // ============================================
 
-// Wallet de tokens por tenant
-export const tokenWallets = pgTable('token_wallets', {
+export const apiKeys = pgTable('api_keys', {
   id: serial('id').primaryKey(),
   teamId: integer('team_id')
     .notNull()
-    .references(() => teams.id)
-    .unique(),
-  balance: integer('balance').notNull().default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
-// Historial de transacciones de tokens
-export const tokenTransactions = pgTable('token_transactions', {
-  id: serial('id').primaryKey(),
-  walletId: integer('wallet_id')
+    .references(() => teams.id, { onDelete: 'cascade' }),
+  userId: integer('user_id')
     .notNull()
-    .references(() => tokenWallets.id),
-  type: transactionTypeEnum('type').notNull(),
-  amount: integer('amount').notNull(), // Positivo = crédito, Negativo = débito
-  balanceAfter: integer('balance_after').notNull(),
-  // Idempotencia para consumos
-  idempotencyKey: varchar('idempotency_key', { length: 255 }).unique(),
-  // Metadata
-  description: text('description'),
-  stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
-  relatedEntityType: varchar('related_entity_type', { length: 50 }),
-  relatedEntityId: integer('related_entity_id'),
-  // Quien realizó la transacción
-  userId: integer('user_id').references(() => users.id),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
-
-// Paquetes de tokens disponibles
-export const tokenPackages = pgTable('token_packages', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }).notNull(),
-  tokens: integer('tokens').notNull(),
-  priceInCents: integer('price_in_cents').notNull(),
-  stripePriceId: varchar('stripe_price_id', { length: 255 }).notNull(),
-  stripeProductId: varchar('stripe_product_id', { length: 255 }),
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 100 }).notNull(),
+  keyHash: text('key_hash').notNull(),
+  keyPrefix: varchar('key_prefix', { length: 12 }).notNull(),
+  scopes: jsonb('scopes').notNull().$type<string[]>(),
+  expiresAt: timestamp('expires_at'),
+  lastUsedAt: timestamp('last_used_at'),
   isActive: boolean('is_active').notNull().default(true),
-  sortOrder: integer('sort_order').notNull().default(0),
+  revokedAt: timestamp('revoked_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (t) => [
+  index('idx_api_keys_team_id').on(t.teamId),
+  index('idx_api_keys_key_prefix').on(t.keyPrefix),
+]);
 
 // ============================================
 // NUEVAS TABLAS - M2: CLIENTES Y CASOS
@@ -443,6 +421,37 @@ export const cases = pgTable('cases', {
   deletedAt: timestamp('deleted_at'),
 });
 
+// Relaciones entre personas en un caso (peticionario-beneficiario)
+export const caseRelationships = pgTable('case_relationships', {
+  id: serial('id').primaryKey(),
+  caseId: integer('case_id')
+    .notNull()
+    .references(() => cases.id, { onDelete: 'cascade' }),
+
+  // Peticionario (quien solicita)
+  petitionerId: integer('petitioner_id')
+    .notNull()
+    .references(() => clients.id),
+
+  // Beneficiario (para quien se solicita)
+  beneficiaryId: integer('beneficiary_id')
+    .references(() => clients.id), // Puede ser NULL si aún no está registrado
+
+  // Tipo de relación
+  relationshipType: relationshipTypeEnum('relationship_type').notNull(),
+  relationshipDetails: text('relationship_details'), // Detalles adicionales si es 'other'
+
+  // Información adicional para contexto
+  isPrimaryRelationship: boolean('is_primary_relationship').notNull().default(true),
+  marriageDate: date('marriage_date'), // Si aplica
+  divorceDate: date('divorce_date'), // Si aplica
+
+  // Metadata
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ============================================
 // NUEVAS TABLAS - M3: FORMULARIOS
 // ============================================
@@ -459,7 +468,6 @@ export const formTypes = pgTable('form_types', {
   validationRules: jsonb('validation_rules'), // Reglas de validación
 
   // Configuración
-  tokenCost: integer('token_cost').notNull().default(1),
   estimatedTimeMinutes: integer('estimated_time_minutes'),
   category: varchar('category', { length: 50 }), // family, employment, humanitarian
 
@@ -493,10 +501,6 @@ export const caseForms = pgTable('case_forms', {
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),
   submittedAt: timestamp('submitted_at'),
-
-  // Token consumption
-  tokenConsumed: boolean('token_consumed').notNull().default(false),
-  tokenTransactionId: integer('token_transaction_id').references(() => tokenTransactions.id),
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -618,7 +622,7 @@ export const referralLinks = pgTable('referral_links', {
 
   // Configuración
   expiresAt: timestamp('expires_at'),
-  maxUses: integer('max_uses').notNull().default(1),
+  maxUses: integer('max_uses'),
   currentUses: integer('current_uses').notNull().default(0),
 
   // Tipos de formulario obligatorios
@@ -878,31 +882,28 @@ export const freelancersProfiles = pgTable('freelancers_profiles', {
 // RELACIONES
 // ============================================
 
-export const teamsRelations = relations(teams, ({ many, one }) => ({
+export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
   invitations: many(invitations),
-  tokenWallet: one(tokenWallets, {
-    fields: [teams.id],
-    references: [tokenWallets.teamId],
-  }),
   // M2-M4 relations
   clients: many(clients),
   cases: many(cases),
   referralLinks: many(referralLinks),
   aiLogs: many(aiLogs),
   notifications: many(notifications),
+  apiKeys: many(apiKeys),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
-  tokenTransactions: many(tokenTransactions),
   // M2-M4 relations
   clientAccount: many(clients), // If user is linked as a client
   assignedCases: many(cases),
   notifications: many(notifications),
   aiLogs: many(aiLogs),
+  apiKeys: many(apiKeys),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -927,6 +928,17 @@ export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
   }),
 }));
 
+export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
+  team: one(teams, {
+    fields: [apiKeys.teamId],
+    references: [teams.id],
+  }),
+  user: one(users, {
+    fields: [apiKeys.userId],
+    references: [users.id],
+  }),
+}));
+
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   team: one(teams, {
     fields: [activityLogs.teamId],
@@ -934,25 +946,6 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   }),
   user: one(users, {
     fields: [activityLogs.userId],
-    references: [users.id],
-  }),
-}));
-
-export const tokenWalletsRelations = relations(tokenWallets, ({ one, many }) => ({
-  team: one(teams, {
-    fields: [tokenWallets.teamId],
-    references: [teams.id],
-  }),
-  transactions: many(tokenTransactions),
-}));
-
-export const tokenTransactionsRelations = relations(tokenTransactions, ({ one }) => ({
-  wallet: one(tokenWallets, {
-    fields: [tokenTransactions.walletId],
-    references: [tokenWallets.id],
-  }),
-  user: one(users, {
-    fields: [tokenTransactions.userId],
     references: [users.id],
   }),
 }));
@@ -975,6 +968,12 @@ export const clientsRelations = relations(clients, ({ one, many }) => ({
     references: [users.id],
   }),
   cases: many(cases),
+  relationshipsAsPetitioner: many(caseRelationships, {
+    relationName: 'petitioner',
+  }),
+  relationshipsAsBeneficiary: many(caseRelationships, {
+    relationName: 'beneficiary',
+  }),
 }));
 
 export const casesRelations = relations(cases, ({ one, many }) => ({
@@ -997,6 +996,7 @@ export const casesRelations = relations(cases, ({ one, many }) => ({
   caseForms: many(caseForms),
   evidences: many(evidences),
   referralLinks: many(referralLinks),
+  relationships: many(caseRelationships),
   uscisCaseStatus: one(uscisCaseStatus, {
     fields: [cases.id],
     references: [uscisCaseStatus.caseId],
@@ -1010,6 +1010,27 @@ export const formTypesRelations = relations(formTypes, ({ many }) => ({
   evidenceRules: many(evidenceRules),
 }));
 
+export const caseRelationshipsRelations = relations(caseRelationships, ({ one }) => ({
+  case: one(cases, {
+    fields: [caseRelationships.caseId],
+    references: [cases.id],
+  }),
+  petitioner: one(clients, {
+    fields: [caseRelationships.petitionerId],
+    references: [clients.id],
+    relationName: 'petitioner',
+  }),
+  beneficiary: one(clients, {
+    fields: [caseRelationships.beneficiaryId],
+    references: [clients.id],
+    relationName: 'beneficiary',
+  }),
+  createdByUser: one(users, {
+    fields: [caseRelationships.createdBy],
+    references: [users.id],
+  }),
+}));
+
 export const caseFormsRelations = relations(caseForms, ({ one, many }) => ({
   case: one(cases, {
     fields: [caseForms.caseId],
@@ -1018,10 +1039,6 @@ export const caseFormsRelations = relations(caseForms, ({ one, many }) => ({
   formType: one(formTypes, {
     fields: [caseForms.formTypeId],
     references: [formTypes.id],
-  }),
-  tokenTransaction: one(tokenTransactions, {
-    fields: [caseForms.tokenTransactionId],
-    references: [tokenTransactions.id],
   }),
   formFieldAutosaves: many(formFieldAutosaves),
   formSubmissions: many(formSubmissions),
@@ -1202,13 +1219,6 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
-export type TokenWallet = typeof tokenWallets.$inferSelect;
-export type NewTokenWallet = typeof tokenWallets.$inferInsert;
-export type TokenTransaction = typeof tokenTransactions.$inferSelect;
-export type NewTokenTransaction = typeof tokenTransactions.$inferInsert;
-export type TokenPackage = typeof tokenPackages.$inferSelect;
-export type NewTokenPackage = typeof tokenPackages.$inferInsert;
-
 // M2-M4 Types
 export type Client = typeof clients.$inferSelect;
 export type NewClient = typeof clients.$inferInsert;
@@ -1249,10 +1259,6 @@ export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
   })[];
-};
-
-export type TeamWithWallet = Team & {
-  tokenWallet: TokenWallet | null;
 };
 
 // M2-M4 Composite Types
@@ -1479,11 +1485,6 @@ export enum ActivityType {
   REMOVE_TEAM_MEMBER = 'REMOVE_TEAM_MEMBER',
   INVITE_TEAM_MEMBER = 'INVITE_TEAM_MEMBER',
   ACCEPT_INVITATION = 'ACCEPT_INVITATION',
-  // Token activities
-  PURCHASE_TOKENS = 'PURCHASE_TOKENS',
-  CONSUME_TOKEN = 'CONSUME_TOKEN',
-  AUTO_RELOAD_TOKENS = 'AUTO_RELOAD_TOKENS',
-  UPDATE_AUTO_RELOAD = 'UPDATE_AUTO_RELOAD',
   // M2-M4: Client activities
   CREATE_CLIENT = 'CREATE_CLIENT',
   UPDATE_CLIENT = 'UPDATE_CLIENT',
@@ -1509,10 +1510,18 @@ export enum ActivityType {
   USE_REFERRAL_LINK = 'USE_REFERRAL_LINK',
   // M2-M4: PDF activities
   GENERATE_PDF = 'GENERATE_PDF',
+  DEMO_EFILING = 'DEMO_EFILING',
   // Agency registration activities
   REGISTER_AGENCY = 'REGISTER_AGENCY',
   UPDATE_AGENCY_SETTINGS = 'UPDATE_AGENCY_SETTINGS',
   COMPLETE_AGENCY_PROFILE = 'COMPLETE_AGENCY_PROFILE',
+  // Member & invitation management
+  DELETE_TEAM_MEMBER_ACCOUNT = 'DELETE_TEAM_MEMBER_ACCOUNT',
+  REVOKE_INVITATION = 'REVOKE_INVITATION',
+  // API Key activities
+  CREATE_API_KEY = 'CREATE_API_KEY',
+  REVOKE_API_KEY = 'REVOKE_API_KEY',
+  ROTATE_API_KEY = 'ROTATE_API_KEY',
 }
 
 // Roles como constantes para uso en código
@@ -1531,3 +1540,7 @@ export const TenantRoles = {
 
 export type UserRoleType = typeof UserRoles[keyof typeof UserRoles];
 export type TenantRoleType = typeof TenantRoles[keyof typeof TenantRoles];
+
+// API Keys types
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type NewApiKey = typeof apiKeys.$inferInsert;

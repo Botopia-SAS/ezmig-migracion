@@ -128,7 +128,6 @@ export const Permissions = {
   // Billing permissions
   canViewBilling: async () => hasTenantRole('owner', 'staff'),
   canManageBilling: async () => hasTenantRole('owner'),
-  canPurchaseTokens: async () => hasTenantRole('owner'),
   canConfigureAutoReload: async () => hasTenantRole('owner'),
 
   // Team permissions
@@ -142,5 +141,4 @@ export const Permissions = {
   canManageTenants: async () => hasRole('admin'),
   canManagePackages: async () => hasRole('admin'),
   canViewGlobalStats: async () => hasRole('admin'),
-  canAddBonusTokens: async () => hasRole('admin'),
 };

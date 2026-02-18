@@ -8,7 +8,7 @@ export const checkoutAction = withTeam(async (formData, team) => {
   const priceId = formData.get('priceId') as string;
   if (!priceId) {
     // Missing priceId usually means pricing data failed to load; send user back safely
-    redirect('/pricing?error=missing_price');
+    redirect('/dashboard/billing/plans');
   }
 
   await createCheckoutSession({ team: team, priceId });

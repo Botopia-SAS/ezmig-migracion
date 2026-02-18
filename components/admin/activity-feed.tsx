@@ -5,15 +5,19 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   LogIn,
   UserPlus,
-  Coins,
-  Zap,
-  RefreshCw,
   UserCheck,
-  Settings,
   Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ActivityFeedItem } from '@/lib/tokens/demo-data';
+
+export interface ActivityFeedItem {
+  id: number;
+  action: string;
+  timestamp: string;
+  userName: string | null;
+  userEmail: string | null;
+  teamName: string | null;
+}
 
 interface ActivityFeedProps {
   items: ActivityFeedItem[];
@@ -22,11 +26,7 @@ interface ActivityFeedProps {
 const ACTION_CONFIG: Record<string, { icon: typeof Activity; label: string; color: string }> = {
   SIGN_UP: { icon: UserPlus, label: 'signed up', color: 'text-green-500 bg-green-50' },
   SIGN_IN: { icon: LogIn, label: 'signed in', color: 'text-blue-500 bg-blue-50' },
-  PURCHASE_TOKENS: { icon: Coins, label: 'purchased tokens', color: 'text-violet-500 bg-violet-50' },
-  CONSUME_TOKEN: { icon: Zap, label: 'used a token', color: 'text-orange-500 bg-orange-50' },
-  AUTO_RELOAD_TOKENS: { icon: RefreshCw, label: 'auto-reload triggered', color: 'text-indigo-500 bg-indigo-50' },
   INVITE_TEAM_MEMBER: { icon: UserCheck, label: 'invited team member', color: 'text-cyan-500 bg-cyan-50' },
-  UPDATE_AUTO_RELOAD: { icon: Settings, label: 'updated auto-reload settings', color: 'text-gray-500 bg-gray-50' },
 };
 
 const DEFAULT_ACTION = { icon: Activity, label: '', color: 'text-gray-500 bg-gray-50' };
