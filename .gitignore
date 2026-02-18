@@ -39,3 +39,25 @@ next-env.d.ts
 # Docker
 postgres_data/
 .env*.local
+
+# Local PDF uploads
+public/uploads/
+
+# Chrome extension build artifacts
+chrome-extension/node_modules/
+chrome-extension/dist/
+
+# Claude Code
+.claude/
+.mcp.json
+
+# Dev artifacts
+test.json
+test-email.js
+messages/ppsierra.json
+simple-update-i130.js
+update-i130-evidences.js
+update-i130-i18n.js
+update-i130-schema-with-evidences.js
+*.pdf
+!public/**/*.pdf

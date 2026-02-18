@@ -1,7 +1,6 @@
 import {
   userRoleEnum,
   tenantRoleEnum,
-  transactionTypeEnum,
   caseTypeEnum,
   caseStatusEnum,
   casePriorityEnum,
@@ -13,7 +12,6 @@ import {
 // Strict enum types inferred from Drizzle schema
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
 export type TenantRole = (typeof tenantRoleEnum.enumValues)[number];
-export type TransactionType = (typeof transactionTypeEnum.enumValues)[number];
 export type CaseType = (typeof caseTypeEnum.enumValues)[number];
 export type CaseStatus = (typeof caseStatusEnum.enumValues)[number];
 export type CasePriority = (typeof casePriorityEnum.enumValues)[number];

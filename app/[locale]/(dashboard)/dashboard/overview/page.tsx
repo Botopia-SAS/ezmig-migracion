@@ -31,7 +31,6 @@ interface OverviewResponse {
     filingDeadline: string;
     daysRemaining: number;
   }[];
-  tokenBalance: number | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

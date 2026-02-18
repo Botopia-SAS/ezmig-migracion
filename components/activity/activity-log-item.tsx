@@ -14,7 +14,6 @@ import {
   FileCheck,
   Link2,
   LogIn,
-  Coins,
   HelpCircle,
   MapPin,
   Monitor,
@@ -44,8 +43,6 @@ const actionConfig: Record<string, { icon: typeof UserPlus; color: string; label
   CREATE_REFERRAL_LINK: { icon: Link2, color: 'text-violet-600 bg-violet-100', label: 'Created referral link' },
   SIGN_IN: { icon: LogIn, color: 'text-gray-600 bg-gray-100', label: 'Signed in' },
   SIGN_UP: { icon: UserPlus, color: 'text-green-600 bg-green-100', label: 'Signed up' },
-  PURCHASE_TOKENS: { icon: Coins, color: 'text-amber-600 bg-amber-100', label: 'Purchased tokens' },
-  USE_TOKENS: { icon: Coins, color: 'text-orange-600 bg-orange-100', label: 'Used tokens' },
 };
 
 const defaultConfig = { icon: HelpCircle, color: 'text-gray-600 bg-gray-100', label: 'Activity' };

@@ -5,9 +5,7 @@ import {
   getTeamByStripeCustomerId,
   getUser,
   updateTeamSubscription,
-  updateTeamStripeCustomerId,
 } from '@/lib/db/queries';
-import { getPackageById, purchaseTokens } from '@/lib/tokens/service';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil'
@@ -36,7 +34,7 @@ export async function createCheckoutSession({
     ],
     mode: 'subscription',
     success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.BASE_URL}/pricing`,
+    cancel_url: `${process.env.BASE_URL}/dashboard/billing/plans`,
     customer: team.stripeCustomerId || undefined,
     client_reference_id: user.id.toString(),
     allow_promotion_codes: true,
@@ -50,7 +48,7 @@ export async function createCheckoutSession({
 
 export async function createCustomerPortalSession(team: Team) {
   if (!team.stripeCustomerId || !team.stripeProductId) {
-    redirect('/pricing');
+    redirect('/dashboard/billing/plans');
   }
 
   let configuration: Stripe.BillingPortal.Configuration;
@@ -111,7 +109,7 @@ export async function createCustomerPortalSession(team: Team) {
 
   return stripe.billingPortal.sessions.create({
     customer: team.stripeCustomerId,
-    return_url: `${process.env.BASE_URL}/dashboard`,
+    return_url: `${process.env.BASE_URL}/dashboard/billing`,
     configuration: configuration.id
   });
 }
@@ -132,10 +130,16 @@ export async function handleSubscriptionChange(
 
   if (status === 'active' || status === 'trialing') {
     const plan = subscription.items.data[0]?.plan;
+    const productId = typeof plan?.product === 'string'
+      ? plan.product
+      : (plan?.product as Stripe.Product)?.id;
+    const productObj = typeof plan?.product === 'string'
+      ? await stripe.products.retrieve(plan.product)
+      : plan?.product as Stripe.Product;
     await updateTeamSubscription(team.id, {
       stripeSubscriptionId: subscriptionId,
-      stripeProductId: plan?.product as string,
-      planName: (plan?.product as Stripe.Product).name,
+      stripeProductId: productId ?? null,
+      planName: productObj?.name ?? null,
       subscriptionStatus: status
     });
   } else if (status === 'canceled' || status === 'unpaid') {
@@ -184,153 +188,3 @@ export async function getStripeProducts() {
   }));
 }
 
-// ============================================
-// TOKEN PURCHASE (ONE-TIME PAYMENT)
-// ============================================
-
-/**
- * Create a checkout session for purchasing tokens
- */
-export async function createTokenCheckoutSession({
-  team,
-  packageId,
-  userId,
-}: {
-  team: Team;
-  packageId: number;
-  userId: number;
-}) {
-  const pkg = await getPackageById(packageId);
-  if (!pkg) {
-    throw new Error(`Package with ID ${packageId} not found`);
-  }
-
-  // Create or get Stripe customer
-  let customerId = team.stripeCustomerId;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      metadata: {
-        teamId: team.id.toString(),
-      },
-    });
-    customerId = customer.id;
-    await updateTeamStripeCustomerId(team.id, customerId);
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price: pkg.stripePriceId,
-        quantity: 1,
-      },
-    ],
-    mode: 'payment', // One-time payment, not subscription
-    success_url: `${process.env.BASE_URL}/api/stripe/token-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.BASE_URL}/dashboard/billing`,
-    customer: customerId,
-    client_reference_id: userId.toString(),
-    metadata: {
-      teamId: team.id.toString(),
-      packageId: packageId.toString(),
-      tokenAmount: pkg.tokens.toString(),
-      type: 'token_purchase',
-    },
-    // Save payment method for future auto-reload
-    payment_intent_data: {
-      setup_future_usage: 'off_session',
-      metadata: {
-        teamId: team.id.toString(),
-        packageId: packageId.toString(),
-        tokenAmount: pkg.tokens.toString(),
-      },
-    },
-  });
-
-  return session;
-}
-
-/**
- * Handle successful token purchase from webhook or redirect
- */
-export async function handleTokenPurchaseSuccess(sessionId: string) {
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-  if (session.payment_status !== 'paid') {
-    throw new Error('Payment not completed');
-  }
-
-  const { teamId, packageId } = session.metadata || {};
-  if (!teamId || !packageId) {
-    throw new Error('Missing metadata in session');
-  }
-
-  const paymentIntentId = session.payment_intent as string;
-
-  // Credit tokens to the team
-  const transaction = await purchaseTokens({
-    teamId: parseInt(teamId),
-    packageId: parseInt(packageId),
-    stripePaymentIntentId: paymentIntentId,
-    userId: session.client_reference_id ? parseInt(session.client_reference_id) : undefined,
-  });
-
-  return transaction;
-}
-
-/**
- * Execute auto-reload for a team
- */
-export async function executeAutoReload({
-  teamId,
-  customerId,
-  packageId,
-}: {
-  teamId: number;
-  customerId: string;
-  packageId: number;
-}) {
-  const pkg = await getPackageById(packageId);
-  if (!pkg) {
-    throw new Error(`Package with ID ${packageId} not found`);
-  }
-
-  // Get customer's default payment method
-  const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-  const paymentMethodId = customer.invoice_settings?.default_payment_method as string;
-
-  if (!paymentMethodId) {
-    console.log(`Team ${teamId} has no default payment method for auto-reload`);
-    return null;
-  }
-
-  // Create and confirm PaymentIntent
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: pkg.priceInCents,
-    currency: 'usd',
-    customer: customerId,
-    payment_method: paymentMethodId,
-    off_session: true,
-    confirm: true,
-    metadata: {
-      teamId: teamId.toString(),
-      packageId: packageId.toString(),
-      tokenAmount: pkg.tokens.toString(),
-      type: 'auto_reload',
-    },
-  });
-
-  if (paymentIntent.status === 'succeeded') {
-    // Credit tokens
-    const transaction = await purchaseTokens({
-      teamId,
-      packageId,
-      stripePaymentIntentId: paymentIntent.id,
-      type: 'auto_reload',
-    });
-
-    return transaction;
-  }
-
-  return null;
-}

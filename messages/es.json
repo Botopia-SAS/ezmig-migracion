@@ -275,7 +275,9 @@
     "welcomeBack": "Bienvenido de nuevo",
     "createAccount": "Crea tu cuenta",
     "signInSubtitle": "Inicia sesion para gestionar tus casos de inmigracion",
-    "signUpSubtitle": "Comienza tu prueba gratuita de 7 dias hoy",
+    "signUpSubtitle": "",
+    "name": "Nombre completo",
+    "namePlaceholder": "Ingresa tu nombre completo",
     "email": "Correo electronico",
     "emailPlaceholder": "tu@bufete.com",
     "password": "Contrasena",
@@ -324,6 +326,12 @@
     "createTeamFailed": "No se pudo crear el equipo. Inténtalo de nuevo.",
     "invalidInvitation": "Invitación inválida o expirada.",
     "genericAuthError": "Algo salió mal. Inténtalo de nuevo.",
+    "invitedToTeam": "Has sido invitado a unirte a",
+    "joinTeam": "Unirse al equipo",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "invitationExpired": "Esta invitación ya no es válida.",
+    "loadingInvitation": "Cargando invitación...",
+    "setYourPassword": "Establece tu contraseña para comenzar",
     "heroTitle": "Inmigración, pero sencilla",
     "heroSubtitle": "Únete a miles de abogados de inmigración que usan herramientas con IA para completar formularios USCIS más rápido y con menos RFEs.",
     "heroStatFormsLabel": "Formularios",
@@ -343,6 +351,11 @@
   "dashboard": {
     "title": "Panel de Control",
     "signOut": "Cerrar sesión",
+    "profileBanner": {
+      "message": "Tu perfil tiene informacion incompleta",
+      "completion": "{percentage}% completado",
+      "goComplete": "Completar perfil"
+    },
     "sidebar": {
       "settings": "Configuración",
       "team": "Equipo",
@@ -351,9 +364,6 @@
       "security": "Seguridad",
       "billing": "Facturación",
       "overview": "Resumen",
-      "buyTokens": "Comprar Tokens",
-      "history": "Historial",
-      "autoReload": "Recarga Automática",
       "legal": "Legal",
       "clients": "Clientes",
       "cases": "Casos",
@@ -376,7 +386,12 @@
         "owner": "Propietario",
         "member": "Miembro",
         "staff": "Personal",
-        "remove": "Eliminar"
+        "remove": "Eliminar",
+        "delete": "Eliminar",
+        "cancel": "Cancelar",
+        "deleteAccountTitle": "Eliminar cuenta de miembro",
+        "deleteAccountDescription": "Esto eliminará permanentemente la cuenta de este usuario y todos sus datos asociados. Esta acción no se puede deshacer.",
+        "deleteAccountConfirm": "Eliminar cuenta"
       },
       "invite": {
         "title": "Invitar Miembro",
@@ -393,7 +408,10 @@
         "title": "Invitaciones Pendientes",
         "description": "Administra las invitaciones pendientes de tu equipo",
         "noInvitations": "No hay invitaciones pendientes",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "revokeTitle": "Revocar invitación",
+        "revokeDescription": "¿Estás seguro de que deseas revocar esta invitación? El destinatario ya no podrá unirse al equipo usando este enlace.",
+        "revokeConfirm": "Revocar"
       }
     },
     "general": {
@@ -415,6 +433,75 @@
         "helper": "PNG/JPG, ideal proporción cuadrada.",
         "save": "Guardar logo",
         "saving": "Guardando logo..."
+      },
+      "profile": {
+        "agencyTitle": "Perfil de Agencia",
+        "teamMemberTitle": "Perfil de Miembro del Equipo",
+        "freelancerTitle": "Perfil de Freelancer",
+        "saved": "Perfil guardado exitosamente",
+        "save": "Guardar Perfil",
+        "saving": "Guardando...",
+        "fullName": "Nombre completo",
+        "fullNamePlaceholder": "Ingresa tu nombre completo",
+        "email": "Correo electronico",
+        "emailPlaceholder": "Ingresa tu correo electronico",
+        "phone": "Telefono",
+        "phonePlaceholder": "Ingresa tu numero de telefono",
+        "role": "Rol",
+        "rolePlaceholder": "Selecciona un rol",
+        "roles": {
+          "attorney": "Abogado",
+          "paralegal": "Paralegal",
+          "legal_assistant": "Asistente Legal",
+          "admin_assistant": "Asistente Administrativo",
+          "receptionist": "Recepcionista",
+          "other": "Otro"
+        },
+        "specialties": "Especialidades",
+        "specialtiesPlaceholder": "Selecciona especialidades (max 5)",
+        "barNumber": "Numero de Colegiado",
+        "barNumberPlaceholder": "Ingresa tu numero de colegiado",
+        "barState": "Estado del Colegio",
+        "barStatePlaceholder": "Selecciona estado",
+        "bio": "Bio",
+        "bioPlaceholder": "Escribe una breve bio profesional",
+        "languages": "Idiomas",
+        "languagesPlaceholder": "Selecciona idiomas",
+        "clientTitle": "Mi Perfil",
+        "personalInfo": "Información Personal",
+        "firstName": "Nombre",
+        "firstNamePlaceholder": "Ingresa tu nombre",
+        "lastName": "Apellido",
+        "lastNamePlaceholder": "Ingresa tu apellido",
+        "emailReadOnly": "Correo Electrónico",
+        "emailHelp": "Contacta a tu abogado para actualizar tu correo",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "countryOfBirth": "País de Nacimiento",
+        "countryOfBirthPlaceholder": "Selecciona país",
+        "nationality": "Nacionalidad",
+        "nationalityPlaceholder": "Selecciona nacionalidad",
+        "immigrationInfo": "Información Migratoria",
+        "alienNumber": "Número A",
+        "alienNumberPlaceholder": "Ej: A012345678",
+        "uscisAccount": "Cuenta USCIS en Línea",
+        "uscisAccountPlaceholder": "Ingresa tu número de cuenta USCIS",
+        "currentStatus": "Estatus Migratorio Actual",
+        "currentStatusPlaceholder": "Selecciona estatus",
+        "addressInfo": "Dirección",
+        "addressLine1": "Dirección",
+        "addressLine1Placeholder": "Ingresa tu dirección",
+        "addressLine2": "Apt / Suite / Unidad",
+        "addressLine2Placeholder": "Apartamento, suite, unidad, etc.",
+        "city": "Ciudad",
+        "cityPlaceholder": "Ingresa la ciudad",
+        "stateProv": "Estado",
+        "stateProvPlaceholder": "Selecciona estado",
+        "zipCode": "Código Postal",
+        "zipCodePlaceholder": "Ingresa el código postal",
+        "addressCountry": "País",
+        "addressCountryPlaceholder": "Selecciona país",
+        "noClientProfile": "Perfil no encontrado. Contacta a tu abogado.",
+        "saveError": "Error al guardar el perfil"
       }
     },
     "activity": {
@@ -432,10 +519,6 @@
         "REMOVE_TEAM_MEMBER": "Eliminó miembro del equipo",
         "INVITE_TEAM_MEMBER": "Invitó miembro al equipo",
         "ACCEPT_INVITATION": "Aceptó invitación",
-        "PURCHASE_TOKENS": "Compró tokens",
-        "CONSUME_TOKEN": "Consumió token",
-        "AUTO_RELOAD_TOKENS": "Recarga automática de tokens",
-        "UPDATE_AUTO_RELOAD": "Actualizó auto-recarga",
         "CREATE_CLIENT": "Creó cliente",
         "UPDATE_CLIENT": "Actualizó cliente",
         "DELETE_CLIENT": "Eliminó cliente",
@@ -477,86 +560,42 @@
       }
     },
     "billing": {
-      "title": "Facturación y Tokens",
-      "subtitle": "Administra tus tokens y consulta el historial de transacciones",
-      "balance": {
-        "title": "Balance de Tokens",
-        "description": "Tokens disponibles para envío de formularios",
-        "tokens": "tokens",
-        "info": "1 token = 1 envío de formulario"
+      "title": "Facturación",
+      "subtitle": "Administra tu suscripción y facturación",
+      "subscription": {
+        "title": "Suscripción",
+        "free": "Gratis",
+        "active": "Activa",
+        "trialing": "Prueba",
+        "canceled": "Cancelada",
+        "noSubscription": "Sin suscripción activa",
+        "viewPlans": "Ver Planes",
+        "manageSub": "Administrar Suscripción"
+      },
+      "plans": {
+        "title": "Planes de Suscripción",
+        "back": "Volver a Facturación",
+        "subtitle": "Elige el plan ideal para tu práctica",
+        "currentPlan": "Plan Actual",
+        "subscribe": "Suscribirse",
+        "switchPlan": "Cambiar Plan",
+        "manageSub": "Administrar Suscripción",
+        "perMonth": "/mes",
+        "trialInfo": "Incluye 14 días de prueba gratis",
+        "recommended": "Recomendado",
+        "processing": "Procesando...",
+        "noPlans": "No hay planes de suscripción disponibles en este momento."
       },
       "quickActions": {
-        "buyTokens": {
-          "title": "Comprar Tokens",
-          "description": "Compra paquetes de tokens para seguir enviando formularios"
-        },
-        "history": {
-          "title": "Historial de Transacciones",
-          "description": "Ver tus compras de tokens e historial de uso"
-        },
-        "autoReload": {
-          "title": "Recarga Automática",
-          "description": "Configura la recarga automática de tokens cuando el balance esté bajo"
+        "plans": {
+          "title": "Planes de Suscripción",
+          "description": "Ver y administrar tu plan de suscripción"
         }
       },
       "status": {
-        "success": "¡Tokens comprados exitosamente! Tu balance ha sido actualizado.",
+        "subscriptionSuccess": "¡Suscripción activada exitosamente! Bienvenido a tu nuevo plan.",
         "paymentFailed": "Pago fallido. Por favor intenta de nuevo.",
         "error": "Ocurrió un error. Por favor intenta de nuevo."
-      },
-      "packages": {
-        "title": "Comprar Tokens",
-        "subtitle": "Selecciona un paquete de tokens para comprar",
-        "tokens": "tokens",
-        "perToken": "por token",
-        "mostPopular": "Más Popular",
-        "bestValue": "Mejor Valor",
-        "buy": "Comprar Ahora",
-        "processing": "Procesando...",
-        "back": "Volver a Facturación"
-      },
-      "historyPage": {
-        "title": "Historial de Transacciones",
-        "subtitle": "Ver tus transacciones de tokens",
-        "noTransactions": "Sin transacciones aún",
-        "noTransactionsDescription": "Tus compras y uso de tokens aparecerán aquí",
-        "buyFirst": "Compra tus primeros tokens",
-        "table": {
-          "date": "Fecha",
-          "type": "Tipo",
-          "amount": "Cantidad",
-          "balance": "Balance",
-          "description": "Descripción"
-        },
-        "types": {
-          "purchase": "Compra",
-          "consumption": "Uso",
-          "refund": "Reembolso",
-          "auto_reload": "Recarga Automática",
-          "bonus": "Bonificación"
-        },
-        "back": "Volver a Facturación"
-      },
-      "settings": {
-        "title": "Configuración de Recarga Automática",
-        "subtitle": "Configura la recarga automática de tokens",
-        "enable": {
-          "title": "Habilitar Recarga Automática",
-          "description": "Comprar tokens automáticamente cuando tu balance caiga por debajo de un umbral"
-        },
-        "threshold": {
-          "title": "Umbral de Recarga",
-          "description": "Cuando tu balance caiga por debajo de este número, recargaremos automáticamente"
-        },
-        "package": {
-          "title": "Paquete de Recarga",
-          "description": "El paquete a comprar cuando se active la recarga automática"
-        },
-        "save": "Guardar Configuración",
-        "saving": "Guardando...",
-        "ownerOnly": "Solo los propietarios del equipo pueden modificar la configuración de recarga automática",
-        "noPaymentMethod": "Necesitas hacer una compra primero para habilitar la recarga automática",
-        "back": "Volver a Facturación"
       }
     },
     "clients": {
@@ -733,6 +772,22 @@
         "updated": "Caso actualizado exitosamente",
         "deleted": "Caso eliminado exitosamente",
         "error": "Ha ocurrido un error"
+      },
+      "relationshipSetup": {
+        "title": "Personaliza Tus Formularios",
+        "description": "Configura la información del peticionario y beneficiario para mostrar preguntas personalizadas con nombres reales en lugar de términos genéricos.",
+        "setupButton": "Configurar Relaciones",
+        "quickSetup": {
+          "title": "Personalización de Formularios",
+          "description": "Configura las relaciones de peticionario y beneficiario para obtener preguntas personalizadas con nombres reales.",
+          "button": "Configurar Ahora"
+        },
+        "benefits": {
+          "title": "Beneficios:",
+          "personalized": "Las preguntas muestran nombres reales: \"¿Cuál es la relación de Santiago con María?\"",
+          "clarity": "Reduce la confusión con lenguaje claro y personalizado",
+          "experience": "Mejor experiencia de usuario para clientes llenando formularios"
+        }
       }
     },
     "overview": {
@@ -800,6 +855,15 @@
       "formNotFound": "Formulario no encontrado",
       "invalidFormSchema": "Esquema de formulario inválido",
       "formSubmittedReadOnly": "Este formulario ha sido enviado y ahora es de solo lectura.",
+      "interpolation": {
+        "backToCase": "Volver al Caso de {{petitioner.firstName}}",
+        "relationshipQuestion": "¿Qué relación tiene {{petitioner.firstName}} con {{beneficiary.firstName}}?",
+        "filingFor": "{{petitioner.firstName}} está presentando esta petición para {{beneficiary.firstName}} quien es {{relationshipLabel}} de {{petitioner.firstName}}...",
+        "personalInfo": "Información Personal de {{petitioner.firstName}}",
+        "beneficiaryInfo": "Información de {{beneficiary.firstName}}",
+        "questionAboutBeneficiary": "Pregunta sobre {{beneficiary.firstName}}",
+        "questionAboutPetitioner": "Pregunta sobre {{petitioner.firstName}}"
+      },
       "addForm": "Agregar Formulario",
       "selectForm": "Seleccionar Formulario",
       "selectFormPlaceholder": "Elige un formulario para agregar...",
@@ -851,7 +915,37 @@
           "deleted": "Adjunto eliminado",
           "deleteError": "Error al eliminar el adjunto"
         }
+      },
+      "pdf": {
+        "generate": "Generar PDF",
+        "regenerate": "Regenerar PDF",
+        "download": "Descargar",
+        "generating": "Generando...",
+        "generated": "PDF generado exitosamente",
+        "error": "Error al generar el PDF"
       }
+    },
+    "efiling": {
+      "sendToExtension": "Enviar a la Extensión",
+      "sendingData": "Enviando...",
+      "sentToExtension": "¡Enviado!",
+      "installExtension": "Instalar Extensión",
+      "panelTitle": "Progreso del E-Filing",
+      "panelDescription": "La extensión está llenando el formulario en USCIS...",
+      "steps": {
+        "prepare": "Preparando datos del formulario",
+        "send_to_extension": "Enviando a la extensión",
+        "waiting_login": "Esperando inicio de sesión en USCIS",
+        "extracting": "Extrayendo campos del formulario",
+        "mapping": "Mapeando campos con IA",
+        "filling": "Llenando campos del formulario",
+        "done": "Completado"
+      },
+      "fieldsSummary": "{filled} llenados, {skipped} omitidos, {failed} fallidos",
+      "completeSummary": "{filled} de {total} campos llenados",
+      "reviewMessage": "Formulario llenado. Revisa la página de USCIS antes de enviar.",
+      "stopButton": "Cancelar",
+      "closeButton": "Cerrar"
     },
     "referrals": {
       "title": "Enlaces de Referencia",
@@ -862,7 +956,7 @@
       "noLinksDescription": "Crea un enlace de referencia para invitar clientes a completar formularios",
       "addFirst": "Crea tu primer enlace",
       "table": {
-        "code": "Codigo",
+        "name": "Nombre",
         "formTypes": "Tipos de Formulario",
         "case": "Caso",
         "status": "Estado",
@@ -894,7 +988,10 @@
         "selectCasePlaceholder": "Elige un caso...",
         "noCase": "Sin caso especifico (crear automaticamente)",
         "expiresAt": "Fecha de Expiracion (opcional)",
-        "maxUses": "Usos Maximos",
+        "maxUses": "Usos Máximos",
+        "unlimited": "Ilimitado",
+        "use": "uso",
+        "uses": "usos",
         "linkSettings": "Configuración del Enlace",
         "linkSettingsDescription": "Configura el acceso y la expiración de este enlace de referencia"
       },
@@ -910,7 +1007,8 @@
         "title": "Detalles del Enlace de Referencia",
         "linkUrl": "URL del Enlace",
         "formTypes": "Tipos de Formulario",
-        "autoCreateCase": "Se creara automaticamente al registrarse",
+        "autoCreateCase": "Se creará automáticamente al registrarse",
+        "usesLabel": "usos",
         "usageHistory": "Historial de Uso",
         "noUsage": "Sin registros de uso",
         "usageTable": {
@@ -1055,7 +1153,7 @@
         },
         "payment": {
           "title": "4. Términos de Pago",
-          "content": "Los servicios pagos se facturan según el plan de precios seleccionado. Los tokens no son reembolsables una vez comprados. Las tarifas de suscripción se facturan por adelantado de forma recurrente."
+          "content": "Los servicios pagos se facturan según el plan de precios seleccionado. Las tarifas de suscripción se facturan por adelantado de forma recurrente."
         },
         "intellectual": {
           "title": "5. Propiedad Intelectual",
@@ -1121,10 +1219,9 @@
         "dashboard": "Panel",
         "tenants": "Equipos",
         "users": "Usuarios",
-        "transactions": "Transacciones",
-        "packages": "Paquetes",
         "stats": "Estadísticas",
-        "forms": "Formularios"
+        "forms": "Formularios",
+        "plans": "Planes"
       },
       "fallback": {
         "userName": "Usuario admin",
@@ -1150,13 +1247,9 @@
           "label": "Usuarios",
           "sub": "En todos los equipos"
         },
-        "tokensUsed": {
-          "label": "Tokens usados",
-          "sub": "Últimos 30 días"
-        },
         "revenue": {
           "label": "Ingresos est.",
-          "sub": "Basado en ventas de tokens"
+          "sub": "Recurrente mensual"
         }
       },
       "currency": "{value, number, ::currency/USD}"
@@ -1173,50 +1266,21 @@
       "total": "Equipos totales: {count}",
       "empty": "No hay equipos registrados.",
       "members": "{count} miembros",
-      "tokens": "{count} tokens",
-      "autoReload": "Recarga automática",
       "unknown": "Desconocido",
       "details": "Detalles"
     },
-    "transactions": {
-      "title": "Transacciones",
-      "subtitle": "Últimos 100 movimientos de tokens",
-      "history": "Historial",
-      "empty": "Aún no hay transacciones."
-    },
-    "packages": {
-      "title": "Paquetes de tokens",
-      "activeCount": "Paquetes activos: {count}",
-      "money": "{value, number, ::currency/USD}",
-      "create": {
-        "title": "Crear paquete",
-        "submit": "Crear"
-      },
-      "fields": {
-        "name": "Nombre",
-        "tokens": "Tokens",
-        "price": "Precio (USD)",
-        "priceShort": "Precio",
-        "pricePerToken": "Precio por token",
-        "sort": "Orden",
-        "active": "Activo"
-      },
-      "placeholders": {
-        "name": "Ej. Paquete Inicial"
-      },
-      "status": {
-        "active": "Activo",
-        "inactive": "Inactivo"
-      },
-      "update": {
-        "save": "Guardar",
-        "deactivate": "Desactivar"
-      },
-      "help": {
-        "title": "Cómo funciona",
-        "body": "Los paquetes se sincronizan con Stripe. Actualizar precio o tokens crea nuevos precios en Stripe para el checkout.",
-        "tip": "Mantén el orden alineado con tu página de precios para evitar confusión."
-      }
+    "plans": {
+      "title": "Gestión de Planes",
+      "subtitle": "Gestionar planes de suscripción y precios",
+      "currentPrice": "Precio Actual",
+      "newPrice": "Nuevo Precio (USD)",
+      "features": "Características",
+      "updatePrice": "Actualizar Precio",
+      "updateFeatures": "Actualizar Características",
+      "perMonth": "/mes",
+      "noPlans": "No se encontraron planes de suscripción en Stripe",
+      "priceUpdated": "Precio actualizado exitosamente",
+      "featuresUpdated": "Características actualizadas exitosamente"
     },
     "forms": {
       "title": "Tipos de Formulario",
@@ -1228,7 +1292,6 @@
         "name": "Nombre",
         "category": "Categoría",
         "edition": "Edición",
-        "tokenCost": "Costo en Tokens",
         "status": "Estado",
         "caseForms": "Uso",
         "actions": "Acciones"
@@ -1248,7 +1311,16 @@
       },
       "create": {
         "title": "Crear Tipo de Formulario",
-        "submit": "Crear y Abrir Constructor"
+        "submit": "Crear y Abrir Constructor",
+        "aiGenerate": "Generar desde PDF con IA",
+        "aiGenerateDescription": "Sube el PDF del formulario USCIS y Claude generará el esquema del wizard automáticamente.",
+        "uploadPdf": "Haz clic para subir archivos PDF",
+        "uploadPdfHint": "Acepta archivos PDF de formularios USCIS",
+        "generateSchema": "Generar Esquema con IA",
+        "generating": "Analizando PDF con IA...",
+        "schemaGenerated": "¡Esquema generado exitosamente!",
+        "schemaGeneratedHint": "El esquema se guardará al crear el formulario. Puedes editarlo en el Constructor.",
+        "codeRequiredForAI": "Ingresa primero el código del formulario (ej. I-130)"
       },
       "editMeta": {
         "title": "Editar Tipo de Formulario",
@@ -1268,7 +1340,6 @@
         "categoryPlaceholder": "Seleccionar categoría",
         "uscisEdition": "Edición USCIS",
         "uscisEditionPlaceholder": "ej. 22/03/2023",
-        "tokenCost": "Costo en Tokens",
         "estimatedTime": "Tiempo Estimado (min)"
       },
       "categories": {
@@ -1282,9 +1353,11 @@
       "caseFormCount": "{count} formularios de caso",
       "deleteConfirm": {
         "title": "Eliminar Tipo de Formulario",
+        "deactivateTitle": "Desactivar Tipo de Formulario",
         "message": "¿Estás seguro de que deseas eliminar \"{name}\"? Esta acción no se puede deshacer.",
-        "messageWithCases": "Este tipo de formulario es usado por {count} formularios de caso. Se desactivará en lugar de eliminarse.",
+        "messageWithCases": "El tipo de formulario \"{name}\" es usado por {count} formularios de caso. Se desactivará en lugar de eliminarse.",
         "confirm": "Eliminar",
+        "deactivate": "Desactivar",
         "cancel": "Cancelar"
       }
     },
@@ -1300,7 +1373,16 @@
         "preview": "Vista previa",
         "back": "Volver a Formularios",
         "export": "Exportar JSON",
-        "import": "Importar JSON"
+        "import": "Importar JSON",
+        "editJson": "Editar JSON"
+      },
+      "jsonEditor": {
+        "title": "Editar Esquema del Formulario (JSON)",
+        "apply": "Aplicar Cambios",
+        "cancel": "Cancelar",
+        "copy": "Copiar al portapapeles",
+        "invalidJson": "Sintaxis JSON inválida",
+        "invalidSchema": "El esquema debe contener un arreglo \"parts\""
       },
       "outline": {
         "title": "Estructura",
@@ -1343,6 +1425,7 @@
           "label": "Etiqueta",
           "type": "Tipo de Campo",
           "required": "Obligatorio",
+          "allowEvidences": "Permitir Adjuntar Evidencias",
           "placeholder": "Placeholder",
           "helpText": "Texto de Ayuda",
           "maxLength": "Longitud Máxima",
@@ -1371,7 +1454,7 @@
           "title": "Opciones",
           "addOption": "Agregar Opción",
           "bulkAdd": "Agregar en Bloque",
-          "bulkAddHelp": "Una opción por línea. Formato: valor|etiqueta o solo etiqueta.",
+          "bulkAddHelp": "Una opción por línea. Formato: valor|EN|ES|PT o valor|etiqueta.",
           "value": "Valor",
           "label": "Etiqueta",
           "noOptions": "Sin opciones aún. Agrega una abajo.",
@@ -1397,6 +1480,22 @@
         "choice": "Campos de Selección",
         "special": "Campos Especiales"
       },
+      "addDialog": {
+        "titlePart": "Agregar Parte",
+        "titleSection": "Agregar Sección",
+        "titleField": "Agregar Campo {type}",
+        "titleOption": "Agregar Opción",
+        "description": "Ingrese el nombre en todos los idiomas. Inglés es obligatorio.",
+        "elementTitle": "Título",
+        "fieldLabel": "Etiqueta",
+        "optionDescription": "Ingrese el valor y las etiquetas de la opción en todos los idiomas.",
+        "optionValue": "Valor (ID)",
+        "optionLabel": "Etiqueta",
+        "missingTranslationsWarning": "Faltan las traducciones en español y portugués.",
+        "duplicateValue": "Este valor ya existe.",
+        "cancel": "Cancelar",
+        "confirm": "Agregar"
+      },
       "stats": {
         "parts": "Partes",
         "sections": "Secciones",
@@ -1419,17 +1518,6 @@
         "revenue": {
           "title": "Ingresos (est.)",
           "subtitle": "Compras: {count}"
-        },
-        "sold": {
-          "title": "Tokens vendidos"
-        },
-        "consumed": {
-          "title": "Tokens consumidos",
-          "subtitle": "Tokens netos usados"
-        },
-        "wallets": {
-          "title": "Wallets",
-          "subtitle": "{count} tokens en circulación"
         }
       },
       "allTime": "Todo el tiempo",
@@ -2577,6 +2665,33 @@
         "ownerName": "Nombre completo del propietario",
         "ownerPosition": "CEO, Managing Partner, etc."
       },
+      "settingsSubtitle": "Actualiza la información de tu agencia",
+      "notEditable": "(no editable)",
+      "required": "Requerido",
+      "autosaving": "Guardando automáticamente...",
+      "descriptions": {
+        "businessEmail": "Email principal para comunicaciones oficiales",
+        "ownerEmail": "Para comunicaciones importantes y cambios de configuración"
+      },
+      "actions": {
+        "title": "Acciones",
+        "save": "Guardar Cambios",
+        "saving": "Guardando...",
+        "register": "Registrar Agencia",
+        "update": "Actualizar Información",
+        "pendingTitle": "Campos pendientes",
+        "disclaimerRequired": "Debes aceptar la declaración legal para continuar.",
+        "requiredFieldsMessage": "Completa los campos obligatorios marcados con * para continuar."
+      },
+      "help": {
+        "title": "¿Necesitas ayuda?",
+        "required": "Los campos con * son obligatorios",
+        "autosave": "Tu progreso se guarda automáticamente cada 2 segundos",
+        "multipleSessions": "Puedes completar el registro en múltiples sesiones",
+        "contact": "Contáctanos si necesitas asistencia:"
+      },
+      "saveSuccess": "Cambios guardados correctamente",
+      "saveError": "Error al guardar los cambios",
       "submit": "Completar registro",
       "submitting": "Creando perfil...",
       "requiredNote": "Los campos con * son obligatorios. Tu progreso se guarda automáticamente.",

@@ -10,7 +10,11 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { GrowthTimeSeriesPoint } from '@/lib/tokens/demo-data';
+
+export interface GrowthTimeSeriesPoint {
+  date: string;
+  cumulativeCount: number;
+}
 
 interface GrowthChartProps {
   userData: GrowthTimeSeriesPoint[];

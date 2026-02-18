@@ -2,7 +2,6 @@ import { withStaffOrOwner } from '@/lib/api/middleware';
 import { successResponse, handleRouteError } from '@/lib/api/response';
 import { getCaseStats, getUpcomingDeadlines } from '@/lib/cases/service';
 import { getClientStats } from '@/lib/clients/service';
-import { getWalletBalance } from '@/lib/tokens/service';
 
 export const GET = withStaffOrOwner(async (_req, ctx) => {
   try {
@@ -12,16 +11,6 @@ export const GET = withStaffOrOwner(async (_req, ctx) => {
       getClientStats(ctx.teamId),
       getUpcomingDeadlines(ctx.teamId, 30), // Next 30 days
     ]);
-
-    // Token balance - only for owner role
-    let tokenBalance: number | null = null;
-    if (ctx.tenantRole === 'owner') {
-      try {
-        tokenBalance = await getWalletBalance(ctx.teamId);
-      } catch {
-        tokenBalance = null;
-      }
-    }
 
     // Calculate days remaining for deadlines
     const today = new Date();
@@ -60,7 +49,6 @@ export const GET = withStaffOrOwner(async (_req, ctx) => {
         withCases: clientStats.withCases,
       },
       upcomingDeadlines: deadlinesWithDays,
-      tokenBalance,
     });
   } catch (error) {
     return handleRouteError(error, 'Error fetching overview stats');

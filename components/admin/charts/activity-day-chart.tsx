@@ -8,7 +8,12 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { DayOfWeekActivity } from '@/lib/tokens/demo-data';
+
+export interface DayOfWeekActivity {
+  day: string;
+  dayName: string;
+  activityCount: number;
+}
 
 interface ActivityDayChartProps {
   data: DayOfWeekActivity[];
