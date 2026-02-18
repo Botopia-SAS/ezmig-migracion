@@ -11,7 +11,7 @@ import {
   ActivityType
 } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { createWalletForTeam } from '@/lib/tokens/service';
+import { createDefaultReferralLinks } from '@/lib/referrals/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(users.id, userId));
 
-    // Create wallet for the team
-    await createWalletForTeam(createdTeam.id);
+    // Create default referral links (one per form type)
+    await createDefaultReferralLinks(createdTeam.id, userId);
 
     // Log activity
     await db.insert(activityLogs).values({

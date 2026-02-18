@@ -16,13 +16,13 @@ export default async function OnboardingPage({
   }
 
   // Get full user data
-  const user = await getUser(session.user.id);
+  const user = await getUser();
   if (!user) {
     redirect({ href: '/sign-in', locale });
   }
 
   // Check if user already has a profile type set
-  const userProfile = await getUserProfile(session.user.id);
+  const userProfile = await getUserProfile(user.id);
 
   // If user already has a profile type and team, redirect to dashboard
   if (userProfile?.profileType && userProfile?.teamId) {

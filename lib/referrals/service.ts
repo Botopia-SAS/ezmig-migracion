@@ -24,7 +24,7 @@ export interface CreateReferralLinkInput {
   caseId?: number;
   formTypeIds: number[];
   expiresAt?: Date;
-  maxUses?: number;
+  maxUses?: number | null;
   allowedSections?: string[];
   createdBy: number;
 }
@@ -173,7 +173,7 @@ export async function createReferralLink(
       caseId: input.caseId,
       code,
       expiresAt: input.expiresAt,
-      maxUses: input.maxUses ?? 1,
+      maxUses: input.maxUses === undefined ? 1 : input.maxUses,
       currentUses: 0,
       formTypeIds: input.formTypeIds,
       allowedSections: input.allowedSections ? input.allowedSections : null,
@@ -620,6 +620,7 @@ export async function useReferralLinkForRegistration(
           caseType,
           status: 'intake',
           priority: 'normal',
+          createdBy: link.createdBy,
         })
         .returning();
 
@@ -758,4 +759,52 @@ export async function getActiveReferralLinksCount(teamId: number): Promise<numbe
     );
 
   return result[0]?.count ?? 0;
+}
+
+/**
+ * Create one default referral link per active form type for a team.
+ * Each link allows unlimited uses and never expires.
+ * Idempotent: skips form types that already have a referral link.
+ */
+export async function createDefaultReferralLinks(
+  teamId: number,
+  createdBy: number
+): Promise<ReferralLink[]> {
+  // Get all active form types
+  const activeFormTypes = await db
+    .select({ id: formTypes.id })
+    .from(formTypes)
+    .where(eq(formTypes.isActive, true));
+
+  if (activeFormTypes.length === 0) return [];
+
+  // Get existing referral links for this team to avoid duplicates
+  const existingLinks = await db
+    .select({ formTypeIds: referralLinks.formTypeIds })
+    .from(referralLinks)
+    .where(eq(referralLinks.teamId, teamId));
+
+  // Collect form type IDs that already have a dedicated link
+  const coveredFormTypeIds = new Set<number>();
+  for (const link of existingLinks) {
+    if (Array.isArray(link.formTypeIds) && link.formTypeIds.length === 1) {
+      coveredFormTypeIds.add(link.formTypeIds[0]);
+    }
+  }
+
+  const created: ReferralLink[] = [];
+
+  for (const ft of activeFormTypes) {
+    if (coveredFormTypeIds.has(ft.id)) continue;
+
+    const link = await createReferralLink({
+      teamId,
+      formTypeIds: [ft.id],
+      maxUses: null,
+      createdBy,
+    });
+    created.push(link);
+  }
+
+  return created;
 }

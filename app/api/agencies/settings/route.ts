@@ -7,6 +7,9 @@ import type { AgencyRegistrationData } from '@/lib/db/schema';
 
 // Schema para actualizaciones de configuración
 const updateSettingsSchema = z.object({
+  // Tipo de agencia (solo editable si está vacío)
+  agencyType: z.enum(['law_firm', 'immigration_services', 'business_services']).optional(),
+
   // Información básica (editables por owner/staff)
   legalBusinessName: z.string().min(2).max(255).optional(),
   businessNameDba: z.string().min(2).max(255).optional(),
@@ -134,6 +137,20 @@ export const PUT = withAuth(async (request, { user, teamId, tenantRole }) => {
         },
         { status: 400 }
       );
+    }
+
+    // Validar que agencyType solo se puede actualizar si está vacío
+    if (validationResult.data.agencyType) {
+      const currentAgency = await getAgencyById(teamId);
+      if (currentAgency?.agencyType) {
+        return NextResponse.json(
+          {
+            error: 'VALIDATION_ERROR',
+            message: 'Agency type cannot be changed once it has been set'
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // TODO: Validar permisos para cada campo

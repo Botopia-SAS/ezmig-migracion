@@ -2,6 +2,8 @@ import { createHash } from 'crypto';
 import { withAuth } from '@/lib/api/middleware';
 import { createdResponse, badRequestResponse, handleRouteError, errorResponse } from '@/lib/api/response';
 import { createEvidence } from '@/lib/evidences/service';
+import { getCaseById } from '@/lib/cases/service';
+import { notifyEvidenceUploaded } from '@/lib/notifications/service';
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
@@ -88,6 +90,14 @@ export const POST = withAuth(async (request, { user, teamId }) => {
       teamId,
       user.id
     );
+
+    // Notify team about new evidence (fire-and-forget)
+    getCaseById(caseId, teamId).then(caseData => {
+      if (caseData) {
+        notifyEvidenceUploaded(teamId, caseId, caseData.caseNumber || String(caseId), file.name, user.name || user.email)
+          .catch(err => console.error('Failed to notify evidence uploaded:', err));
+      }
+    }).catch(err => console.error('Failed to look up case for evidence notification:', err));
 
     return createdResponse(evidence);
   } catch (error) {

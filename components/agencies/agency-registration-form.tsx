@@ -133,10 +133,10 @@ export function AgencyRegistrationForm({
     setIsSaving(true);
     try {
       await onSave(formData);
-      toast.success('Cambios guardados correctamente');
+      toast.success(t('saveSuccess'));
       setHasUnsavedChanges(false);
     } catch (error) {
-      toast.error('Error al guardar los cambios');
+      toast.error(t('saveError'));
       console.error('Save error:', error);
     } finally {
       setIsSaving(false);
@@ -181,9 +181,9 @@ export function AgencyRegistrationForm({
       if (mode === 'register') {
         localStorage.removeItem(STORAGE_KEY);
       }
-      toast.success('Registro enviado correctamente');
+      toast.success(t('submitSuccess'));
     } catch (error) {
-      toast.error('Error al enviar el registro');
+      toast.error(t('submitError'));
       console.error('Submit error:', error);
     }
   };
@@ -439,18 +439,332 @@ export function AgencyRegistrationForm({
     );
   }
 
+  // Minimal layout for settings inside dashboard
+  if (mode === 'settings') {
+    return (
+      <div className={cn('space-y-6', className)}>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+            {t('settingsTitle')}
+          </p>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {t('settingsSubtitle')}
+          </h1>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="space-y-8">
+            {/* Agency Type */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  {t('sections.agencyType')}
+                </p>
+                {formData.agencyType ? (
+                  <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
+                    {t('notEditable')}
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs text-amber-700">
+                    {t('required')}
+                  </span>
+                )}
+              </div>
+              <div className={cn(
+                "rounded-xl border p-4",
+                formData.agencyType
+                  ? "border-dashed border-gray-200 bg-gray-50"
+                  : "border-amber-200 bg-amber-50/50"
+              )}>
+                <AgencyTypeSelector
+                  value={formData.agencyType || null}
+                  onChange={(type) => updateField('agencyType', type)}
+                  disabled={!!formData.agencyType}
+                />
+              </div>
+            </div>
+
+            {/* Business Info */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-gray-900">
+                {t('sections.businessInfo')}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="legal-name" className="text-sm text-gray-700">
+                    {t('fields.legalBusinessName')}
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                  <Input
+                    id="legal-name"
+                    value={formData.legalBusinessName || ''}
+                    onChange={(e) => updateField('legalBusinessName', e.target.value)}
+                    placeholder={t('placeholders.legalBusinessName')}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="dba-name" className="text-sm text-gray-700">{t('fields.dbaName')}</Label>
+                  <Input
+                    id="dba-name"
+                    value={formData.businessNameDba || ''}
+                    onChange={(e) => updateField('businessNameDba', e.target.value)}
+                    placeholder={t('placeholders.dbaName')}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <EmailInput
+                  label={t('fields.businessEmail')}
+                  value={formData.businessEmail || ''}
+                  onChange={(value) => updateField('businessEmail', value)}
+                  checkAvailability={false}
+                  required
+                  disabled={isLoading}
+                  description={t('descriptions.businessEmail')}
+                />
+
+                <PhoneInput
+                  label={t('fields.businessPhone')}
+                  value={formData.businessPhone || ''}
+                  onChange={(value) => updateField('businessPhone', value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="website" className="text-sm text-gray-700">{t('fields.website')}</Label>
+                <Input
+                  id="website"
+                  type="url"
+                  value={formData.website || ''}
+                  onChange={(e) => updateField('website', e.target.value)}
+                  placeholder={t('placeholders.website')}
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-gray-900">
+                {t('sections.location')}
+              </p>
+
+              <GoogleMapsAutocomplete
+                value={formData.address || ''}
+                onAddressSelect={handleAddressSelect}
+                label={t('fields.address')}
+                placeholder={t('fields.addressPlaceholder')}
+                required
+                disabled={isLoading}
+              />
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label htmlFor="city" className="text-sm text-gray-700">{t('fields.city')}</Label>
+                  <Input
+                    id="city"
+                    value={formData.city || ''}
+                    onChange={(e) => updateField('city', e.target.value)}
+                    placeholder={t('placeholders.city')}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="state" className="text-sm text-gray-700">{t('fields.state')}</Label>
+                  <Input
+                    id="state"
+                    value={formData.state || ''}
+                    onChange={(e) => updateField('state', e.target.value)}
+                    placeholder={t('placeholders.state')}
+                    maxLength={2}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="zipcode" className="text-sm text-gray-700">{t('fields.zipCode')}</Label>
+                  <Input
+                    id="zipcode"
+                    value={formData.zipCode || ''}
+                    onChange={(e) => updateField('zipCode', e.target.value)}
+                    placeholder={t('placeholders.zipCode')}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Legal Info - Law Firms only */}
+            {formData.agencyType === 'law_firm' && (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  {t('sections.legalInfo')}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="firm-registration" className="text-sm text-gray-700">{t('fields.firmRegistrationNumber')}</Label>
+                    <Input
+                      id="firm-registration"
+                      value={formData.firmRegistrationNumber || ''}
+                      onChange={(e) => updateField('firmRegistrationNumber', e.target.value)}
+                      placeholder={t('placeholders.firmRegistration')}
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="registration-state" className="text-sm text-gray-700">{t('fields.registrationState')}</Label>
+                    <Input
+                      id="registration-state"
+                      value={formData.firmRegistrationState || ''}
+                      onChange={(e) => updateField('firmRegistrationState', e.target.value)}
+                      placeholder={t('placeholders.registrationState')}
+                      maxLength={2}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="business-license" className="text-sm text-gray-700">{t('fields.businessLicense')}</Label>
+                  <Input
+                    id="business-license"
+                    value={formData.businessLicenseNumber || ''}
+                    onChange={(e) => updateField('businessLicenseNumber', e.target.value)}
+                    placeholder={t('placeholders.businessLicense')}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Owner Info */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-gray-900">
+                {t('sections.owner')}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="owner-name" className="text-sm text-gray-700">
+                    {t('fields.ownerFullName')}
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                  <Input
+                    id="owner-name"
+                    value={formData.ownerFullName || ''}
+                    onChange={(e) => updateField('ownerFullName', e.target.value)}
+                    placeholder={t('placeholders.ownerName')}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="owner-position" className="text-sm text-gray-700">{t('fields.ownerPosition')}</Label>
+                  <Input
+                    id="owner-position"
+                    value={formData.ownerPosition || ''}
+                    onChange={(e) => updateField('ownerPosition', e.target.value)}
+                    placeholder={t('placeholders.ownerPosition')}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <EmailInput
+                  label={t('fields.ownerEmail')}
+                  value={formData.ownerEmail || ''}
+                  onChange={(value) => updateField('ownerEmail', value)}
+                  required
+                  disabled={isLoading}
+                  description={t('descriptions.ownerEmail')}
+                />
+
+                <PhoneInput
+                  label={t('fields.ownerPhone')}
+                  value={formData.ownerPhone || ''}
+                  onChange={(value) => updateField('ownerPhone', value)}
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Disclaimer - immigration_services only */}
+            {formData.agencyType === 'immigration_services' && (
+              <div className="space-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                  {t('sections.disclaimer')}
+                  <span className="text-red-500">*</span>
+                </p>
+                <DisclaimerCheckbox
+                  value={disclaimerAccepted}
+                  onChange={setDisclaimerAccepted}
+                  agencyType={formData.agencyType}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-gray-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            {hasUnsavedChanges && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                <Save className="h-4 w-4" />
+                {t('autosaving')}
+              </div>
+            )}
+
+            <div className="flex gap-3 sm:ml-auto">
+              {onSave && (
+                <Button
+                  variant="outline"
+                  onClick={handleSave}
+                  disabled={isLoading || isSaving || !canSubmit()}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {t('actions.saving')}
+                    </>
+                  ) : (
+                    t('actions.save')
+                  )}
+                </Button>
+              )}
+
+              {onSubmit && (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading || !canSubmit()}
+                >
+                  {mode === 'register' ? t('actions.register') : t('actions.update')}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('max-w-4xl mx-auto space-y-8', className)}>
       {/* Header */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {mode === 'register' ? 'Registro de Agencia' : 'Configuración de Agencia'}
+          {mode === 'register' ? t('registerTitle') : t('settingsTitle')}
         </h1>
         <p className="text-gray-600">
-          {mode === 'register'
-            ? 'Completa la información para registrar tu agencia en EZMig'
-            : 'Actualiza la información de tu agencia'
-          }
+          {mode === 'register' ? t('subtitle') : t('settingsSubtitle')}
         </p>
       </div>
 
@@ -468,7 +782,7 @@ export function AgencyRegistrationForm({
       {mode === 'register' && hasUnsavedChanges && (
         <div className="flex items-center justify-center space-x-2 text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
           <Save className="h-4 w-4 animate-pulse" />
-          <span>Guardando automáticamente...</span>
+          <span>{t('autosaving')}</span>
         </div>
       )}
 
@@ -479,8 +793,8 @@ export function AgencyRegistrationForm({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <span>Tipo de Agencia</span>
-                {mode === 'settings' && <span className="text-xs text-gray-500">(no editable)</span>}
+                <span>{t('sections.agencyType')}</span>
+                {mode === 'settings' && <span className="text-xs text-gray-500">{t('notEditable')}</span>}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -492,34 +806,34 @@ export function AgencyRegistrationForm({
             </CardContent>
           </Card>
 
-          {/* Información Empresarial */}
+          {/* Business Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Información Empresarial</CardTitle>
+              <CardTitle>{t('sections.businessInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="legal-name">
-                    Nombre Legal del Negocio
+                    {t('fields.legalBusinessName')}
                     <span className="text-red-500 ml-1">*</span>
                   </Label>
                   <Input
                     id="legal-name"
                     value={formData.legalBusinessName || ''}
                     onChange={(e) => updateField('legalBusinessName', e.target.value)}
-                    placeholder="Ej: Smith & Associates Law Firm LLC"
+                    placeholder={t('placeholders.legalBusinessName')}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="dba-name">Nombre Comercial (DBA)</Label>
+                  <Label htmlFor="dba-name">{t('fields.dbaName')}</Label>
                   <Input
                     id="dba-name"
                     value={formData.businessNameDba || ''}
                     onChange={(e) => updateField('businessNameDba', e.target.value)}
-                    placeholder="Ej: Smith Law Group"
+                    placeholder={t('placeholders.dbaName')}
                     disabled={isLoading}
                   />
                 </div>
@@ -527,17 +841,17 @@ export function AgencyRegistrationForm({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <EmailInput
-                  label="Email Empresarial"
+                  label={t('fields.businessEmail')}
                   value={formData.businessEmail || ''}
                   onChange={(value) => updateField('businessEmail', value)}
                   checkAvailability={mode === 'register'}
                   required
                   disabled={isLoading}
-                  description="Email principal para comunicaciones oficiales"
+                  description={t('descriptions.businessEmail')}
                 />
 
                 <PhoneInput
-                  label="Teléfono Empresarial"
+                  label={t('fields.businessPhone')}
                   value={formData.businessPhone || ''}
                   onChange={(value) => updateField('businessPhone', value)}
                   required
@@ -546,65 +860,65 @@ export function AgencyRegistrationForm({
               </div>
 
               <div>
-                <Label htmlFor="website">Sitio Web</Label>
+                <Label htmlFor="website">{t('fields.website')}</Label>
                 <Input
                   id="website"
                   type="url"
                   value={formData.website || ''}
                   onChange={(e) => updateField('website', e.target.value)}
-                  placeholder="https://tu-sitio-web.com"
+                  placeholder={t('placeholders.website')}
                   disabled={isLoading}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Ubicación */}
+          {/* Location */}
           <Card>
             <CardHeader>
-              <CardTitle>Ubicación</CardTitle>
+              <CardTitle>{t('sections.location')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <GoogleMapsAutocomplete
                 value={formData.address || ''}
                 onAddressSelect={handleAddressSelect}
-                label="Dirección de la Oficina"
-                placeholder="Ingresa tu dirección..."
+                label={t('fields.address')}
+                placeholder={t('fields.addressPlaceholder')}
                 required
                 disabled={isLoading}
               />
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="md:col-span-2">
-                  <Label htmlFor="city">Ciudad</Label>
+                  <Label htmlFor="city">{t('fields.city')}</Label>
                   <Input
                     id="city"
                     value={formData.city || ''}
                     onChange={(e) => updateField('city', e.target.value)}
-                    placeholder="Ciudad"
+                    placeholder={t('placeholders.city')}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="state">Estado</Label>
+                  <Label htmlFor="state">{t('fields.state')}</Label>
                   <Input
                     id="state"
                     value={formData.state || ''}
                     onChange={(e) => updateField('state', e.target.value)}
-                    placeholder="CA"
+                    placeholder={t('placeholders.state')}
                     maxLength={2}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="zipcode">Código Postal</Label>
+                  <Label htmlFor="zipcode">{t('fields.zipCode')}</Label>
                   <Input
                     id="zipcode"
                     value={formData.zipCode || ''}
                     onChange={(e) => updateField('zipCode', e.target.value)}
-                    placeholder="90210"
+                    placeholder={t('placeholders.zipCode')}
                     disabled={isLoading}
                   />
                 </div>
@@ -612,32 +926,32 @@ export function AgencyRegistrationForm({
             </CardContent>
           </Card>
 
-          {/* Información Legal - Solo para Law Firms */}
+          {/* Legal Info - Law Firms only */}
           {formData.agencyType === 'law_firm' && (
             <Card>
               <CardHeader>
-                <CardTitle>Información Legal</CardTitle>
+                <CardTitle>{t('sections.legalInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firm-registration">Número de Registro del Bufete</Label>
+                    <Label htmlFor="firm-registration">{t('fields.firmRegistrationNumber')}</Label>
                     <Input
                       id="firm-registration"
                       value={formData.firmRegistrationNumber || ''}
                       onChange={(e) => updateField('firmRegistrationNumber', e.target.value)}
-                      placeholder="Ej: 123456789"
+                      placeholder={t('placeholders.firmRegistration')}
                       disabled={isLoading}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="registration-state">Estado de Registro</Label>
+                    <Label htmlFor="registration-state">{t('fields.registrationState')}</Label>
                     <Input
                       id="registration-state"
                       value={formData.firmRegistrationState || ''}
                       onChange={(e) => updateField('firmRegistrationState', e.target.value)}
-                      placeholder="CA"
+                      placeholder={t('placeholders.registrationState')}
                       maxLength={2}
                       disabled={isLoading}
                     />
@@ -645,12 +959,12 @@ export function AgencyRegistrationForm({
                 </div>
 
                 <div>
-                  <Label htmlFor="business-license">Número de Licencia Comercial</Label>
+                  <Label htmlFor="business-license">{t('fields.businessLicense')}</Label>
                   <Input
                     id="business-license"
                     value={formData.businessLicenseNumber || ''}
                     onChange={(e) => updateField('businessLicenseNumber', e.target.value)}
-                    placeholder="Ej: BL-2024-001234"
+                    placeholder={t('placeholders.businessLicense')}
                     disabled={isLoading}
                   />
                 </div>
@@ -658,34 +972,34 @@ export function AgencyRegistrationForm({
             </Card>
           )}
 
-          {/* Información del Propietario */}
+          {/* Owner Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Información del Propietario</CardTitle>
+              <CardTitle>{t('sections.owner')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="owner-name">
-                    Nombre Completo
+                    {t('fields.ownerFullName')}
                     <span className="text-red-500 ml-1">*</span>
                   </Label>
                   <Input
                     id="owner-name"
                     value={formData.ownerFullName || ''}
                     onChange={(e) => updateField('ownerFullName', e.target.value)}
-                    placeholder="Nombre completo del propietario"
+                    placeholder={t('placeholders.ownerName')}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="owner-position">Posición/Título</Label>
+                  <Label htmlFor="owner-position">{t('fields.ownerPosition')}</Label>
                   <Input
                     id="owner-position"
                     value={formData.ownerPosition || ''}
                     onChange={(e) => updateField('ownerPosition', e.target.value)}
-                    placeholder="CEO, Managing Partner, etc."
+                    placeholder={t('placeholders.ownerPosition')}
                     disabled={isLoading}
                   />
                 </div>
@@ -693,16 +1007,16 @@ export function AgencyRegistrationForm({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <EmailInput
-                  label="Email del Propietario"
+                  label={t('fields.ownerEmail')}
                   value={formData.ownerEmail || ''}
                   onChange={(value) => updateField('ownerEmail', value)}
                   required
                   disabled={isLoading}
-                  description="Para comunicaciones importantes y cambios de configuración"
+                  description={t('descriptions.ownerEmail')}
                 />
 
                 <PhoneInput
-                  label="Teléfono del Propietario"
+                  label={t('fields.ownerPhone')}
                   value={formData.ownerPhone || ''}
                   onChange={(value) => updateField('ownerPhone', value)}
                   disabled={isLoading}
@@ -711,12 +1025,12 @@ export function AgencyRegistrationForm({
             </CardContent>
           </Card>
 
-          {/* Disclaimer - Solo para immigration_services */}
+          {/* Disclaimer - immigration_services only */}
           {formData.agencyType === 'immigration_services' && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <span>Declaración Legal</span>
+                  <span>{t('sections.disclaimer')}</span>
                   <span className="text-red-500">*</span>
                 </CardTitle>
               </CardHeader>
@@ -742,10 +1056,10 @@ export function AgencyRegistrationForm({
             showDetails={true}
           />
 
-          {/* Acciones */}
+          {/* Actions */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Acciones</CardTitle>
+              <CardTitle className="text-lg">{t('actions.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {onSave && (
@@ -756,7 +1070,7 @@ export function AgencyRegistrationForm({
                   className="w-full"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                  {isSaving ? t('actions.saving') : t('actions.save')}
                 </Button>
               )}
 
@@ -766,7 +1080,7 @@ export function AgencyRegistrationForm({
                 className="w-full"
               >
                 <Send className="h-4 w-4 mr-2" />
-                {mode === 'register' ? 'Registrar Agencia' : 'Actualizar Información'}
+                {mode === 'register' ? t('actions.register') : t('actions.update')}
               </Button>
 
               {!canSubmit() && (
@@ -775,12 +1089,12 @@ export function AgencyRegistrationForm({
                     <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-amber-800">
-                        Campos pendientes
+                        {t('actions.pendingTitle')}
                       </p>
                       <p className="text-xs text-amber-700 mt-1">
                         {formData.agencyType === 'immigration_services' && !disclaimerAccepted
-                          ? 'Debes aceptar la declaración legal para continuar.'
-                          : 'Completa los campos obligatorios marcados con * para continuar.'
+                          ? t('actions.disclaimerRequired')
+                          : t('actions.requiredFieldsMessage')
                         }
                       </p>
                     </div>
@@ -790,26 +1104,26 @@ export function AgencyRegistrationForm({
             </CardContent>
           </Card>
 
-          {/* Información de ayuda */}
+          {/* Help */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <Info className="h-4 w-4" />
-                <span>¿Necesitas ayuda?</span>
+                <span>{t('help.title')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-gray-600 space-y-2">
               <p>
-                • Los campos con <span className="text-red-500">*</span> son obligatorios
+                • {t('help.required')}
               </p>
               <p>
-                • Tu progreso se guarda automáticamente cada 2 segundos
+                • {t('help.autosave')}
               </p>
               <p>
-                • Puedes completar el registro en múltiples sesiones
+                • {t('help.multipleSessions')}
               </p>
               <p>
-                • Contáctanos si necesitas asistencia: <a href="mailto:support@ezmig.com" className="text-violet-600 hover:underline">support@ezmig.com</a>
+                • {t('help.contact')} <a href="mailto:support@ezmig.com" className="text-violet-600 hover:underline">support@ezmig.com</a>
               </p>
             </CardContent>
           </Card>

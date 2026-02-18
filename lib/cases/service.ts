@@ -13,6 +13,9 @@ import type { Case } from '@/lib/db/schema';
 import { eq, and, desc, sql, like, or, isNull, asc } from 'drizzle-orm';
 import { logActivity, detectChanges } from '@/lib/activity';
 import { TRACKABLE_CASE_FIELDS } from '@/lib/activity/constants';
+import { formFieldAutosaves } from '@/lib/db/schema';
+import { calculateFormProgress, mergeAutosavedFields } from '@/lib/forms/service';
+import type { FormSchema } from '@/lib/forms/service';
 
 // Types
 export interface CreateCaseInput {
@@ -158,10 +161,47 @@ export async function getCaseWithDetails(caseId: number, teamId: number) {
     .innerJoin(formTypes, eq(caseForms.formTypeId, formTypes.id))
     .where(eq(caseForms.caseId, caseId));
 
-  const forms = formsData.map((f) => ({
-    ...f.caseForm,
-    formType: f.formType,
-  }));
+  // Calculate real progress for each form from autosaved fields + formData
+  const forms = await Promise.all(
+    formsData.map(async (f) => {
+      const caseForm = f.caseForm;
+      const schema = f.formType.formSchema as unknown as FormSchema;
+
+      // If progress is already set and form is completed/submitted, trust it
+      if (caseForm.progressPercentage > 0 && (caseForm.status === 'completed' || caseForm.status === 'submitted')) {
+        return { ...caseForm, formType: f.formType };
+      }
+
+      // Get autosaved fields and merge with stored formData
+      const autosaved = await db
+        .select({ fieldPath: formFieldAutosaves.fieldPath, fieldValue: formFieldAutosaves.fieldValue })
+        .from(formFieldAutosaves)
+        .where(eq(formFieldAutosaves.caseFormId, caseForm.id));
+
+      const autosaveMap: Record<string, string | null> = {};
+      for (const row of autosaved) {
+        autosaveMap[row.fieldPath] = row.fieldValue;
+      }
+
+      const mergedData = mergeAutosavedFields(
+        (caseForm.formData as Record<string, unknown>) ?? {},
+        autosaveMap
+      );
+
+      const computed = schema?.parts ? calculateFormProgress(schema, mergedData) : 0;
+
+      // Persist if different (fire-and-forget)
+      if (computed !== caseForm.progressPercentage) {
+        db.update(caseForms)
+          .set({ progressPercentage: computed, updatedAt: new Date() })
+          .where(eq(caseForms.id, caseForm.id))
+          .execute()
+          .catch(() => {});
+      }
+
+      return { ...caseForm, progressPercentage: computed, formType: f.formType };
+    })
+  );
 
   // Get evidences for this case with uploader info
   const uploadedByUser = alias(users, 'uploaded_by_user');

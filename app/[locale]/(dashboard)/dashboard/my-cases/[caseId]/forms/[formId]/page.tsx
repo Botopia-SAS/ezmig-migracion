@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { FormRenderer, type FormSchema } from '@/components/forms/form-renderer';
 import { useHeaderActions } from '@/components/dashboard/header-actions-context';
+import type { FormContext } from '@/lib/relationships/service';
 
 interface CaseFormData {
   id: number;
@@ -29,6 +30,7 @@ interface CaseFormData {
     id: number;
     caseNumber: string;
   };
+  formContext?: FormContext | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -70,7 +72,7 @@ export default function ClientFormPage({
 
   // Inject header actions (back button, form name, progress)
   useEffect(() => {
-    if (caseForm) {
+    if (caseForm && caseForm.formType) {
       setActions(
         <div className="flex items-center gap-3">
           <Link
@@ -157,6 +159,29 @@ export default function ClientFormPage({
     );
   }
 
+  // Additional safety checks for nested properties
+  if (!caseForm.formType) {
+    return (
+      <section className="flex-1">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Form type data is missing</AlertDescription>
+        </Alert>
+      </section>
+    );
+  }
+
+  if (!caseForm.formType.formSchema) {
+    return (
+      <section className="flex-1">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{t('invalidFormSchema')}</AlertDescription>
+        </Alert>
+      </section>
+    );
+  }
+
   const formSchema = caseForm.formType.formSchema;
   const isSubmitted = caseForm.status === 'submitted';
 
@@ -182,6 +207,7 @@ export default function ClientFormPage({
           onSave={handleSave}
           readOnly={isSubmitted}
           onProgressChange={handleProgressChange}
+          formContext={caseForm.formContext}
         />
       ) : (
         <Alert variant="destructive">

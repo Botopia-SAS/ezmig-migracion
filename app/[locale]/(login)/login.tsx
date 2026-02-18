@@ -5,12 +5,19 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle, ArrowLeft, Eye, EyeOff, X, Mail, KeyRound, RefreshCw } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, Eye, EyeOff, X, Mail, KeyRound, RefreshCw, Users } from 'lucide-react';
 import { signIn, signUp } from './actions';
 import { ActionState } from '@/lib/auth/middleware';
 import { Link } from '@/i18n/routing';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useLocale, useTranslations } from 'next-intl';
+
+interface InvitationData {
+  email: string;
+  teamName: string;
+  role: string;
+  inviterName: string;
+}
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const t = useTranslations('auth');
@@ -23,6 +30,16 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
     mode === 'signin' ? signIn : signUp,
     { error: '' }
   );
+
+  const isInvite = !!(inviteId && mode === 'signup');
+
+  // Invitation state
+  const [invitation, setInvitation] = useState<InvitationData | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(isInvite);
+  const [inviteError, setInviteError] = useState('');
+
+  // Confirm password state (for invite sign-up)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -75,6 +92,27 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
     }
   }, [resendCooldown]);
 
+  // Fetch invitation data when inviteId is present
+  useEffect(() => {
+    if (!isInvite || !inviteId) return;
+
+    fetch(`/api/invitations/${inviteId}/public`)
+      .then(async (res) => {
+        if (!res.ok) {
+          setInviteError(t('invitationExpired'));
+          return;
+        }
+        const data = await res.json();
+        setInvitation(data);
+      })
+      .catch(() => {
+        setInviteError(t('invitationExpired'));
+      })
+      .finally(() => {
+        setInviteLoading(false);
+      });
+  }, [isInvite, inviteId, t]);
+
   return (
     <div className="min-h-screen flex">
       {/* Left side - Form */}
@@ -101,22 +139,73 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                {mode === 'signin' ? t('welcomeBack') : t('createAccount')}
-              </h1>
-              <p className="text-gray-500 mt-2">
-                {mode === 'signin'
-                  ? t('signInSubtitle')
-                  : t('signUpSubtitle')}
-              </p>
+              {isInvite && invitation ? (
+                <>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium mb-4">
+                    <Users className="w-4 h-4" />
+                    {invitation.teamName}
+                  </div>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    {t('invitedToTeam')} {invitation.teamName}
+                  </h1>
+                  <p className="text-gray-500 mt-2">
+                    {t('setYourPassword')}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    {mode === 'signin' ? t('welcomeBack') : t('createAccount')}
+                  </h1>
+                  <p className="text-gray-500 mt-2">
+                    {mode === 'signin'
+                      ? t('signInSubtitle')
+                      : t('signUpSubtitle')}
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Form */}
+            {/* Loading state for invitation */}
+            {inviteLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="animate-spin h-6 w-6 text-indigo-600 mr-2" />
+                <span className="text-gray-500">{t('loadingInvitation')}</span>
+              </div>
+            )}
+
+            {/* Invitation expired/invalid error */}
+            {inviteError && !inviteLoading && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+                {inviteError}
+              </div>
+            )}
+
+            {/* Form — hidden while loading invitation */}
+            {!inviteLoading && !inviteError && (
             <form className="space-y-5" action={formAction}>
               <input type="hidden" name="redirect" value={redirect || ''} />
               <input type="hidden" name="priceId" value={priceId || ''} />
               <input type="hidden" name="inviteId" value={inviteId || ''} />
               <input type="hidden" name="locale" value={locale} />
+
+              {mode === 'signup' && (
+                <div>
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                    {t('name')}
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    defaultValue={state.name}
+                    required
+                    className="mt-1.5 h-12 rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900"
+                    placeholder={t('namePlaceholder')}
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -127,9 +216,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  defaultValue={state.email}
+                  {...(invitation
+                    ? { value: invitation.email, readOnly: true }
+                    : { defaultValue: state.email })}
                   required
-                  className="mt-1.5 h-12 rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900"
+                  className={`mt-1.5 h-12 rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900 ${invitation ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
                   placeholder={t('emailPlaceholder')}
                 />
               </div>
@@ -148,7 +239,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                     required
                     minLength={8}
                     className="mt-1.5 h-12 rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900 pr-12"
-                    placeholder={t('passwordPlaceholder')}
+                    placeholder={isInvite ? t('minCharacters') : t('passwordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -163,6 +254,38 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   </button>
                 </div>
               </div>
+
+              {/* Confirm password — only for invitation sign-up */}
+              {isInvite && (
+                <div>
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                    {t('confirmPassword')}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      className="mt-1.5 h-12 rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900 pr-12"
+                      placeholder={t('confirmYourPassword')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {state?.error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -180,6 +303,8 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                     <Loader2 className="animate-spin mr-2 h-4 w-4" />
                     {t('loading')}
                   </>
+                ) : isInvite ? (
+                  t('joinTeam')
                 ) : mode === 'signin' ? (
                   t('signIn')
                 ) : (
@@ -187,6 +312,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 )}
               </Button>
             </form>
+            )}
 
             {mode === 'signin' && (
               <div className="mt-4 text-center">
@@ -200,7 +326,8 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               </div>
             )}
 
-            {/* Footer link */}
+            {/* Footer link — hidden for invitation sign-up */}
+            {!isInvite && (
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -228,6 +355,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 </Link>
               </div>
             </div>
+            )}
 
             <p className="mt-8 text-center text-xs text-gray-500">
               {t('termsText')}{' '}

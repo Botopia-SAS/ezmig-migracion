@@ -1,5 +1,5 @@
 import type { ZodSchema } from 'zod';
-import { badRequestResponse, validationErrorResponse } from './response';
+import { badRequestResponse, errorResponse, validationErrorResponse } from './response';
 
 /**
  * Parse a string parameter as an integer.
@@ -40,4 +40,39 @@ export function validateBody<T>(
     return [null, validationErrorResponse(result.error)];
   }
   return [result.data, null];
+}
+
+/**
+ * Parse request body with size limit.
+ * Returns [body, null] or [null, errorResponse].
+ */
+export async function parseBodyWithLimit(
+  req: Request,
+  maxSizeBytes: number = 1024 * 1024
+): Promise<[unknown, null] | [null, ReturnType<typeof errorResponse>]> {
+  const contentLength = req.headers.get('content-length');
+  if (contentLength && Number.parseInt(contentLength, 10) > maxSizeBytes) {
+    return [null, errorResponse('Request body too large', 413)];
+  }
+  try {
+    const body = await req.json();
+    return [body, null];
+  } catch {
+    return [null, badRequestResponse('Invalid JSON body')];
+  }
+}
+
+/**
+ * Strip HTML tags from string fields as an extra XSS prevention layer.
+ */
+export function sanitizeStrings<T extends Record<string, unknown>>(obj: T): T {
+  const sanitized = { ...obj };
+  for (const [key, value] of Object.entries(sanitized)) {
+    if (typeof value === 'string') {
+      (sanitized as Record<string, unknown>)[key] = value
+        .replaceAll(/<[^>]*>/g, '')
+        .trim();
+    }
+  }
+  return sanitized;
 }

@@ -6,6 +6,8 @@ import {
   useReferralLinkForRegistration,
 } from '@/lib/referrals/service';
 import { notifyClientRegistered } from '@/lib/notifications/service';
+import { checkRateLimit, rateLimitResponse, getClientIp, RATE_LIMITS } from '@/lib/api/rate-limit';
+import { securityLog } from '@/lib/api/logger';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -25,6 +27,13 @@ const registerSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = getClientIp(request.headers);
+    const rl = checkRateLimit(RATE_LIMITS.auth, `ip:${ip}`);
+    if (!rl.allowed) {
+      securityLog({ level: 'warn', event: 'rate_limit_hit', ip, endpoint: '/api/auth/register-with-referral' });
+      return rateLimitResponse(rl.retryAfterMs);
+    }
     const body = await request.json();
     const validationResult = registerSchema.safeParse(body);
 

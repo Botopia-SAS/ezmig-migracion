@@ -66,7 +66,7 @@ interface ReferralLink {
   caseId: number | null;
   isActive: boolean;
   expiresAt: string | null;
-  maxUses: number;
+  maxUses: number | null;
   currentUses: number;
   createdAt: string;
   url: string;
@@ -101,23 +101,27 @@ function ReferralsTableSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead><Skeleton className="h-4 w-20" /></TableHead>
               <TableHead><Skeleton className="h-4 w-32" /></TableHead>
+              <TableHead><Skeleton className="h-4 w-24" /></TableHead>
               <TableHead><Skeleton className="h-4 w-24" /></TableHead>
               <TableHead><Skeleton className="h-4 w-16" /></TableHead>
               <TableHead><Skeleton className="h-4 w-20" /></TableHead>
-              <TableHead><Skeleton className="h-4 w-8" /></TableHead>
+              <TableHead><Skeleton className="h-4 w-20" /></TableHead>
+              <TableHead><Skeleton className="h-4 w-20" /></TableHead>
+              <TableHead><Skeleton className="h-4 w-24" /></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[...Array(5)].map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-6 w-16" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-8 w-20" /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -149,7 +153,7 @@ function EmptyState({ t }: { t: (key: string) => string }) {
 
 function StatusBadge({ link, t }: { link: ReferralLink; t: (key: string) => string }) {
   const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date();
-  const isMaxReached = link.maxUses > 0 && link.currentUses >= link.maxUses;
+  const isMaxReached = link.maxUses !== null && link.maxUses > 0 && link.currentUses >= link.maxUses;
 
   if (!link.isActive) {
     return (
@@ -307,25 +311,28 @@ export default function ReferralsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t('table.code')}</TableHead>
+                      <TableHead>{t('table.name')}</TableHead>
                       <TableHead>{t('table.formTypes')}</TableHead>
                       <TableHead>{t('table.case')}</TableHead>
                       <TableHead>{t('table.status')}</TableHead>
                       <TableHead>{t('table.uses')}</TableHead>
                       <TableHead>{t('table.expiresAt')}</TableHead>
                       <TableHead>{t('table.createdAt')}</TableHead>
-                      <TableHead className="w-[50px]">{t('table.actions')}</TableHead>
+                      <TableHead className="w-[100px]">{t('table.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredLinks.map((link) => (
                       <TableRow key={link.id}>
-                        <TableCell className="font-mono text-sm">
+                        <TableCell className="font-medium">
                           <Link
                             href={`/dashboard/referrals/${link.id}`}
                             className="hover:text-violet-600 hover:underline"
                           >
-                            {link.code}
+                            {link.formTypes?.length > 0
+                              ? link.formTypes.map(ft => ft.name).join(', ')
+                              : link.code
+                            }
                           </Link>
                         </TableCell>
                         <TableCell>
@@ -361,7 +368,7 @@ export default function ReferralsPage() {
                         </TableCell>
                         <TableCell>
                           <span className="text-sm">
-                            {link.currentUses} / {link.maxUses || '∞'}
+                            {link.maxUses === null ? link.currentUses : `${link.currentUses} / ${link.maxUses}`}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -371,36 +378,43 @@ export default function ReferralsPage() {
                         </TableCell>
                         <TableCell>{formatDate(link.createdAt)}</TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-900 hover:bg-gray-100">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild>
-                                <Link href={`/dashboard/referrals/${link.id}`}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  {t('actions.view')}
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => copyToClipboard(link.url)}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                {t('actions.copy')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onClick={() => {
-                                  setLinkToDelete(link);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {t('actions.delete')}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyToClipboard(link.url)}
+                              className="h-8 px-2"
+                            >
+                              <Copy className="h-3 w-3 mr-1" />
+                              {t('actions.copy')}
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/dashboard/referrals/${link.id}`}>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    {t('actions.view')}
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="text-red-600 focus:text-red-600"
+                                  onClick={() => {
+                                    setLinkToDelete(link);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  {t('actions.delete')}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

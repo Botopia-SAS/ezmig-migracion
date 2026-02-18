@@ -16,6 +16,7 @@ import {
 import { hashPassword } from '@/lib/auth/session';
 import crypto from 'crypto';
 import { eq } from 'drizzle-orm';
+import { createDefaultReferralLinks } from '@/lib/referrals/service';
 
 function generateRandomPassword(length = 16): string {
   return crypto.randomBytes(length).toString('base64url').slice(0, length);
@@ -130,7 +131,12 @@ export async function registerAgency(
     }
   }
 
-  // 6. Log de actividad
+  // 6. Create default referral links (one per form type)
+  if (userId) {
+    await createDefaultReferralLinks(createdTeam.id, userId);
+  }
+
+  // 7. Log de actividad
   if (userId) {
     const activityData: NewActivityLog = {
       teamId: createdTeam.id,

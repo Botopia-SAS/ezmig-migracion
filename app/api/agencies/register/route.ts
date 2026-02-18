@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { registerAgency } from '@/lib/agencies/service';
 import type { AgencyRegistrationData } from '@/lib/db/schema';
+import { checkRateLimit, rateLimitResponse, getClientIp, RATE_LIMITS } from '@/lib/api/rate-limit';
+import { securityLog } from '@/lib/api/logger';
+import { handlePreflight, setCorsHeaders } from '@/lib/api/cors';
 
 // Schema de validación para el registro de agencia
 // Filosofía: PERMISIVO - solo agencyType es obligatorio, disclaimer solo para immigration_services
@@ -55,6 +58,14 @@ const registerAgencySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = getClientIp(request.headers);
+    const rl = checkRateLimit(RATE_LIMITS.auth, `ip:${ip}`);
+    if (!rl.allowed) {
+      securityLog({ level: 'warn', event: 'rate_limit_hit', ip, endpoint: '/api/agencies/register' });
+      return rateLimitResponse(rl.retryAfterMs);
+    }
+
     const body = await request.json();
 
     // Validar datos de entrada
@@ -125,14 +136,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Opciones de CORS si es necesario
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+export async function OPTIONS(req: NextRequest) {
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
+  return new NextResponse(null, { status: 200 });
 }

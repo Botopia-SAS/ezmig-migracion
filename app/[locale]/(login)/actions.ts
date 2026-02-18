@@ -8,6 +8,7 @@ import {
   users,
   teams,
   teamMembers,
+  teamMembersProfiles,
   activityLogs,
   type NewUser,
   type NewTeam,
@@ -29,6 +30,13 @@ import {
 import { getTranslations } from 'next-intl/server';
 import { defaultLocale, locales, type Locale } from '@/i18n/config';
 import { createHash } from 'node:crypto';
+import {
+  sendInvitationEmail,
+  sendSignUpWelcomeEmail,
+  sendPasswordChangedNotification,
+  sendTeamMemberRemovedNotification,
+  sendAccountDeletedNotification,
+} from '@/lib/email/service';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -150,13 +158,20 @@ export const signIn = validatedActionWithLocale(signInSchema, async (data, formD
 });
 
 const signUpSchema = z.object({
+  name: z.string().min(1).max(100),
   email: z.string().email(),
   password: z.string().min(8),
+  confirmPassword: z.string().optional(),
   inviteId: z.string().optional()
 });
 
 export const signUp = validatedActionWithLocale(signUpSchema, async (data, formData, locale, t) => {
-  const { email, password, inviteId } = data;
+  const { name, email, password, confirmPassword, inviteId } = data;
+
+  // Validate password confirmation when provided (invitation flow)
+  if (confirmPassword && password !== confirmPassword) {
+    return { error: t('passwordsDoNotMatch'), email, password };
+  }
 
   const existingUser = await db
     .select()
@@ -175,6 +190,7 @@ export const signUp = validatedActionWithLocale(signUpSchema, async (data, formD
   const passwordHash = await hashPassword(password);
 
   const newUser: NewUser = {
+    name,
     email,
     passwordHash,
     role: 'attorney' // Default global role for new users
@@ -231,6 +247,8 @@ export const signUp = validatedActionWithLocale(signUpSchema, async (data, formD
     // Don't create a team automatically - redirect to onboarding
     // This allows the user to choose their profile type
     await setSession(createdUser);
+    sendSignUpWelcomeEmail({ email: createdUser.email, name: createdUser.name || undefined })
+      .catch(err => console.error('Failed to send welcome email:', err));
     redirect(`/${locale}/onboarding`);
   }
 
@@ -244,7 +262,16 @@ export const signUp = validatedActionWithLocale(signUpSchema, async (data, formD
   await Promise.all([
     db.insert(teamMembers).values(newTeamMember),
     logActivity(teamId!, createdUser.id, ActivityType.SIGN_UP),
-    setSession(createdUser)
+    setSession(createdUser),
+    // Set profileType and create team member profile for invited users
+    db.update(users).set({ profileType: 'team_member' }).where(eq(users.id, createdUser.id)),
+    db.insert(teamMembersProfiles).values({
+      userId: createdUser.id,
+      agencyId: teamId!,
+      fullName: name,
+      email,
+      role: 'other',
+    }),
   ]);
 
   const redirectTo = formData.get('redirect') as string | null;
@@ -397,6 +424,9 @@ export const updatePassword = validatedActionWithUser(
       logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_PASSWORD)
     ]);
 
+    sendPasswordChangedNotification({ email: user.email, name: user.name || undefined })
+      .catch(err => console.error('Failed to send password changed email:', err));
+
     return {
       success: 'Password updated successfully.'
     };
@@ -530,7 +560,109 @@ export const removeTeamMember = validatedActionWithUser(
       ActivityType.REMOVE_TEAM_MEMBER
     );
 
+    // Notify removed member via email
+    try {
+      const [removedUser] = await db.select({ email: users.email }).from(users)
+        .where(eq(users.id, targetMember!.userId)).limit(1);
+      const [team] = await db.select({ name: teams.name }).from(teams)
+        .where(eq(teams.id, userWithTeam.teamId)).limit(1);
+      if (removedUser) {
+        sendTeamMemberRemovedNotification({ email: removedUser.email, teamName: team?.name || '' })
+          .catch(err => console.error('Failed to send removal email:', err));
+      }
+    } catch (err) {
+      console.error('Failed to send removal email:', err);
+    }
+
     return { success: 'Team member removed successfully' };
+  }
+);
+
+const deleteTeamMemberAccountSchema = z.object({
+  memberId: z.number(),
+});
+
+export const deleteTeamMemberAccount = validatedActionWithUser(
+  deleteTeamMemberAccountSchema,
+  async (data, _, user) => {
+    const { memberId } = data;
+    const userWithTeam = await getUserWithTeam(user.id);
+
+    if (!userWithTeam?.teamId) {
+      return { error: 'User is not part of a team' };
+    }
+
+    // Verify caller is team owner
+    const [membership] = await db
+      .select({ role: teamMembers.role })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.userId, user.id),
+          eq(teamMembers.teamId, userWithTeam.teamId)
+        )
+      )
+      .limit(1);
+
+    if (!membership || membership.role !== 'owner') {
+      return { error: 'Only team owners can delete member accounts' };
+    }
+
+    // Get the target member
+    const [targetMember] = await db
+      .select({ userId: teamMembers.userId, role: teamMembers.role })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.id, memberId),
+          eq(teamMembers.teamId, userWithTeam.teamId)
+        )
+      )
+      .limit(1);
+
+    if (!targetMember) {
+      return { error: 'Member not found in this team' };
+    }
+
+    if (targetMember.role === 'owner') {
+      return { error: 'Cannot delete an owner account' };
+    }
+
+    if (targetMember.userId === user.id) {
+      return { error: 'Cannot delete your own account via this action' };
+    }
+
+    // Capture email before deletion for notification
+    const [targetUser] = await db
+      .select({ email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, targetMember.userId))
+      .limit(1);
+
+    // Hard delete via service
+    const { hardDeleteUserAccount } = await import('@/lib/users/deletion-service');
+    await hardDeleteUserAccount(targetMember.userId);
+
+    // Log activity (references the owner who performed the action)
+    await logActivity(
+      userWithTeam.teamId,
+      user.id,
+      ActivityType.DELETE_TEAM_MEMBER_ACCOUNT
+    );
+
+    // Send notification email (fire-and-forget)
+    if (targetUser) {
+      try {
+        const [team] = await db.select({ name: teams.name }).from(teams)
+          .where(eq(teams.id, userWithTeam.teamId)).limit(1);
+        sendAccountDeletedNotification({ email: targetUser.email, teamName: team?.name || '' })
+          .catch(err => console.error('Failed to send account deletion email:', err));
+      } catch (err) {
+        console.error('Failed to send account deletion email:', err);
+      }
+    }
+
+    return { success: 'Team member account deleted successfully' };
   }
 );
 
@@ -596,13 +728,13 @@ export const inviteTeamMember = validatedActionWithUser(
     }
 
     // Create a new invitation
-    await db.insert(invitations).values({
+    const [newInvitation] = await db.insert(invitations).values({
       teamId: userWithTeam.teamId,
       email,
       role,
       invitedBy: user.id,
       status: 'pending'
-    });
+    }).returning();
 
     await logActivity(
       userWithTeam.teamId,
@@ -610,8 +742,20 @@ export const inviteTeamMember = validatedActionWithUser(
       ActivityType.INVITE_TEAM_MEMBER
     );
 
-    // TODO: Send invitation email and include ?inviteId={id} to sign-up URL
-    // await sendInvitationEmail(email, userWithTeam.team.name, role)
+    // Send invitation email
+    try {
+      const [team] = await db.select({ name: teams.name }).from(teams)
+        .where(eq(teams.id, userWithTeam.teamId)).limit(1);
+      sendInvitationEmail({
+        email,
+        teamName: team?.name || 'Your Team',
+        role,
+        inviterName: user.name || user.email,
+        inviteId: newInvitation.id,
+      }).catch(err => console.error('Failed to send invitation email:', err));
+    } catch (err) {
+      console.error('Failed to send invitation email:', err);
+    }
 
     return { success: 'Invitation sent successfully' };
   }

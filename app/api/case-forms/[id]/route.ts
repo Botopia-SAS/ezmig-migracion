@@ -7,6 +7,8 @@ import {
   deleteCaseForm,
   getAutosavedFields,
 } from '@/lib/forms/service';
+import { notifyFormCompleted, notifyFormSubmitted } from '@/lib/notifications/service';
+import { generatePdf } from '@/lib/pdf/generation-service';
 import { z } from 'zod';
 
 const updateCaseFormSchema = z.object({
@@ -46,6 +48,29 @@ export const PUT = withAuth(async (request, { user, teamId }, params) => {
     if (validationError) return validationError;
 
     const updatedForm = await updateCaseForm(caseFormId, teamId, user.id, data);
+
+    // Send notifications for status changes (fire-and-forget)
+    if (data.status === 'completed' || data.status === 'submitted') {
+      const caseForm = await getCaseFormById(caseFormId, teamId);
+      if (caseForm) {
+        const clientName = caseForm.client
+          ? `${caseForm.client.firstName || ''} ${caseForm.client.lastName || ''}`.trim() || 'Client'
+          : 'Client';
+        const caseNumber = caseForm.case.caseNumber || String(caseForm.case.id);
+
+        if (data.status === 'completed') {
+          notifyFormCompleted(teamId, caseForm.case.id, caseForm.formType.code, clientName, caseNumber)
+            .catch(err => console.error('Failed to notify form completed:', err));
+
+          // Auto-generate PDF on form completion (fire-and-forget)
+          generatePdf(caseFormId, teamId, user.id)
+            .catch(err => console.error('Failed to auto-generate PDF:', err));
+        } else {
+          notifyFormSubmitted(teamId, caseForm.case.id, caseForm.formType.code, clientName, caseForm.client?.email || '', caseNumber)
+            .catch(err => console.error('Failed to notify form submitted:', err));
+        }
+      }
+    }
 
     return successResponse(updatedForm);
   } catch (error) {

@@ -59,7 +59,7 @@ export default function NewReferralPage() {
   const [caseId, setCaseId] = useState<string>('');
   const [selectedFormTypeIds, setSelectedFormTypeIds] = useState<number[]>([]);
   const [expiresAt, setExpiresAt] = useState<string>('');
-  const [maxUses, setMaxUses] = useState<string>('1');
+  const [maxUses, setMaxUses] = useState<string>('unlimited');
 
   // Fetch cases and form types for selection
   const { data: casesData } = useSWR<{ cases: Case[] }>('/api/cases', fetcher);
@@ -110,7 +110,7 @@ export default function NewReferralPage() {
 
       if (caseId) payload.caseId = parseInt(caseId, 10);
       if (expiresAt) payload.expiresAt = new Date(expiresAt).toISOString();
-      if (maxUses) payload.maxUses = parseInt(maxUses, 10);
+      payload.maxUses = maxUses === 'unlimited' ? null : Number.parseInt(maxUses, 10);
 
       const response = await fetch('/api/referrals', {
         method: 'POST',
@@ -187,7 +187,7 @@ export default function NewReferralPage() {
                     setCaseId('');
                     setSelectedFormTypeIds([]);
                     setExpiresAt('');
-                    setMaxUses('1');
+                    setMaxUses('unlimited');
                   }}
                 >
                   Create Another
@@ -313,12 +313,13 @@ export default function NewReferralPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 use</SelectItem>
-                        <SelectItem value="5">5 uses</SelectItem>
-                        <SelectItem value="10">10 uses</SelectItem>
-                        <SelectItem value="25">25 uses</SelectItem>
-                        <SelectItem value="50">50 uses</SelectItem>
-                        <SelectItem value="100">100 uses</SelectItem>
+                        <SelectItem value="unlimited">{t('form.unlimited')}</SelectItem>
+                        <SelectItem value="1">1 {t('form.use')}</SelectItem>
+                        <SelectItem value="5">5 {t('form.uses')}</SelectItem>
+                        <SelectItem value="10">10 {t('form.uses')}</SelectItem>
+                        <SelectItem value="25">25 {t('form.uses')}</SelectItem>
+                        <SelectItem value="50">50 {t('form.uses')}</SelectItem>
+                        <SelectItem value="100">100 {t('form.uses')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

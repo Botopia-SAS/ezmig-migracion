@@ -127,6 +127,28 @@ export async function getClientById(
 }
 
 /**
+ * Get a client by their linked userId and teamId
+ */
+export async function getClientByUserId(
+  userId: number,
+  teamId: number
+): Promise<Client | null> {
+  const [client] = await db
+    .select()
+    .from(clients)
+    .where(
+      and(
+        eq(clients.userId, userId),
+        eq(clients.teamId, teamId),
+        isNull(clients.deletedAt)
+      )
+    )
+    .limit(1);
+
+  return client || null;
+}
+
+/**
  * Get a client with their cases
  */
 export async function getClientWithCases(
