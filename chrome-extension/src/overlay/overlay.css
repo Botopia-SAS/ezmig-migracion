@@ -1,0 +1,6 @@
+/*
+ * This file is copied to dist/overlay/ during build.
+ * However, the actual styles are injected inline via Shadow DOM
+ * in uscis-filler.ts to avoid CSS conflicts with USCIS pages.
+ * This file serves as a reference/backup.
+ */
