@@ -15,7 +15,7 @@ import {
 const updateReferralLinkSchema = z.object({
   isActive: z.boolean().optional(),
   expiresAt: z.string().datetime().nullable().optional(),
-  maxUses: z.number().min(1).max(100).optional(),
+  maxUses: z.number().min(1).nullable().optional(),
   formTypeIds: z.array(z.number()).min(1).optional(),
   allowedSections: z.array(z.string()).nullable().optional(),
 });

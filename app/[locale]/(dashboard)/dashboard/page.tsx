@@ -11,15 +11,16 @@ import {
 import { customerPortalAction } from '@/lib/payments/actions';
 import { useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { removeTeamMember, inviteTeamMember } from '@/app/[locale]/(login)/actions';
+import { deleteTeamMemberAccount, inviteTeamMember } from '@/app/[locale]/(login)/actions';
 import useSWR from 'swr';
 import { Suspense, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Loader2, PlusCircle, Copy, Check, Clock } from 'lucide-react';
+import { Loader2, PlusCircle, Copy, Check, Clock, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 
 type ActionState = {
   error?: string;
@@ -73,11 +74,13 @@ function TeamMembersSkeleton() {
 function TeamMembers() {
   const t = useTranslations('dashboard.team.members');
   const { data: user } = useSWR<User>('/api/user', fetcher);
-  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
-  const [removeState, removeAction, isRemovePending] = useActionState<
+  const { data: teamData, mutate: mutateTeam } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
+  const [deleteState, deleteAction, isDeletePending] = useActionState<
     ActionState,
     FormData
-  >(removeTeamMember, {});
+  >(deleteTeamMemberAccount, {});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
 
   const getUserDisplayName = (user: Pick<User, 'id' | 'name' | 'email'>) => {
     return user.name || user.email || 'Unknown User';
@@ -89,9 +92,20 @@ function TeamMembers() {
   );
   const isOwner = currentUserMember?.role === 'owner';
 
-  // Can remove a member if: current user is owner, member is not owner, and member is not self
-  const canRemoveMember = (member: NonNullable<typeof teamData>['teamMembers'][0]) => {
+  // Can delete a member if: current user is owner, member is not owner, and member is not self
+  const canDeleteMember = (member: NonNullable<typeof teamData>['teamMembers'][0]) => {
     return isOwner && member.role !== 'owner' && member.user.id !== user?.id;
+  };
+
+  const handleDeleteConfirm = () => {
+    if (memberToDelete === null) return;
+    const formData = new FormData();
+    formData.append('memberId', String(memberToDelete));
+    deleteAction(formData);
+    setDeleteDialogOpen(false);
+    setMemberToDelete(null);
+    // Refresh team data after a short delay to allow the action to complete
+    setTimeout(() => mutateTeam(), 1000);
   };
 
   if (!teamData?.teamMembers?.length) {
@@ -134,25 +148,37 @@ function TeamMembers() {
                   </p>
                 </div>
               </div>
-              {canRemoveMember(member) && (
-                <form action={removeAction}>
-                  <input type="hidden" name="memberId" value={member.id} />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    size="sm"
-                    disabled={isRemovePending}
-                  >
-                    {isRemovePending ? '...' : t('remove')}
-                  </Button>
-                </form>
+              {canDeleteMember(member) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-500 hover:text-red-600"
+                  disabled={isDeletePending}
+                  onClick={() => {
+                    setMemberToDelete(member.id);
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  {isDeletePending && memberToDelete === member.id ? '...' : t('delete')}
+                </Button>
               )}
             </li>
           ))}
         </ul>
-        {removeState?.error && (
-          <p className="text-red-500 mt-4">{removeState.error}</p>
+        {deleteState?.error && (
+          <p className="text-red-500 mt-4">{deleteState.error}</p>
         )}
+        <ConfirmDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title={t('deleteAccountTitle')}
+          description={t('deleteAccountDescription')}
+          confirmLabel={t('deleteAccountConfirm')}
+          cancelLabel={t('cancel')}
+          variant="destructive"
+          onConfirm={handleDeleteConfirm}
+          isLoading={isDeletePending}
+        />
       </CardContent>
     </Card>
   );
@@ -274,11 +300,14 @@ function PendingInvitationsSkeleton() {
 
 function PendingInvitations() {
   const t = useTranslations('dashboard.team.pendingInvitations');
-  const { data } = useSWR<{ invitations: Invitation[] }>(
+  const { data, mutate: mutateInvitations } = useSWR<{ invitations: Invitation[] }>(
     '/api/invitations',
     fetcher
   );
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [invitationToRevoke, setInvitationToRevoke] = useState<number | null>(null);
+  const [isRevoking, setIsRevoking] = useState(false);
 
   const copyInviteLink = async (invitationId: number) => {
     const baseUrl = window.location.origin;
@@ -290,6 +319,23 @@ function PendingInvitations() {
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleRevokeConfirm = async () => {
+    if (invitationToRevoke === null) return;
+    setIsRevoking(true);
+    try {
+      const res = await fetch(`/api/invitations/${invitationToRevoke}`, { method: 'DELETE' });
+      if (res.ok) {
+        mutateInvitations();
+      }
+    } catch (err) {
+      console.error('Failed to revoke invitation:', err);
+    } finally {
+      setIsRevoking(false);
+      setRevokeDialogOpen(false);
+      setInvitationToRevoke(null);
     }
   };
 
@@ -337,21 +383,45 @@ function PendingInvitations() {
                   </div>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => copyInviteLink(invitation.id)}
-                className="gap-2"
-              >
-                {copiedId === invitation.id ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyInviteLink(invitation.id)}
+                  className="gap-2"
+                >
+                  {copiedId === invitation.id ? (
+                    <Check className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setInvitationToRevoke(invitation.id);
+                    setRevokeDialogOpen(true);
+                  }}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
+        <ConfirmDialog
+          open={revokeDialogOpen}
+          onOpenChange={setRevokeDialogOpen}
+          title={t('revokeTitle')}
+          description={t('revokeDescription')}
+          confirmLabel={t('revokeConfirm')}
+          cancelLabel={t('cancel')}
+          variant="destructive"
+          onConfirm={handleRevokeConfirm}
+          isLoading={isRevoking}
+        />
       </CardContent>
     </Card>
   );

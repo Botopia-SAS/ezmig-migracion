@@ -56,13 +56,14 @@ export function serviceErrorResponse(error: ServiceError) {
 }
 
 /**
- * Handles unknown errors safely, logging and returning a generic 500
+ * Handles unknown errors safely, logging and returning a generic 500.
+ * Never leaks internal error details to the client.
  */
 export function handleRouteError(error: unknown, fallbackMessage: string) {
   if (error instanceof ServiceError) {
     return serviceErrorResponse(error);
   }
-  console.error(`${fallbackMessage}:`, error);
-  const message = error instanceof Error ? error.message : fallbackMessage;
-  return errorResponse(message, 500);
+  const correlationId = crypto.randomUUID();
+  console.error(`[${correlationId}] ${fallbackMessage}:`, error);
+  return errorResponse(fallbackMessage, 500, { correlationId });
 }

@@ -52,7 +52,7 @@ interface ReferralLink {
   caseId: number | null;
   isActive: boolean;
   expiresAt: string | null;
-  maxUses: number;
+  maxUses: number | null;
   currentUses: number;
   createdAt: string;
   url: string;
@@ -112,7 +112,7 @@ function DetailSkeleton() {
 
 function StatusBadge({ link, t }: { link: ReferralLink; t: (key: string) => string }) {
   const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date();
-  const isMaxReached = link.maxUses > 0 && link.currentUses >= link.maxUses;
+  const isMaxReached = link.maxUses !== null && link.maxUses > 0 && link.currentUses >= link.maxUses;
 
   if (!link.isActive) {
     return (
@@ -330,7 +330,9 @@ export default function ReferralDetailPage({
                   <div>
                     <p className="text-sm font-medium text-gray-500">Usage</p>
                     <p className="text-gray-900">
-                      {link.currentUses} / {link.maxUses || '∞'} uses
+                      {link.maxUses === null
+                        ? `${link.currentUses} (${t('form.unlimited')})`
+                        : `${link.currentUses} / ${link.maxUses}`} {t('detail.usesLabel')}
                     </p>
                   </div>
                 </div>

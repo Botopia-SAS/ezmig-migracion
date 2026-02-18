@@ -16,7 +16,7 @@ const createReferralLinkSchema = z.object({
   caseId: z.number().optional(),
   formTypeIds: z.array(z.number()).min(1, 'At least one form type is required'),
   expiresAt: z.string().datetime().optional(),
-  maxUses: z.number().min(1).max(100).optional(),
+  maxUses: z.number().min(1).nullable().optional(),
   allowedSections: z.array(z.string()).optional(),
 });
 

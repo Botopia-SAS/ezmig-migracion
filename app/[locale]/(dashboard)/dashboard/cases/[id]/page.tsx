@@ -30,6 +30,8 @@ import {
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { DemoEFilingButton } from '@/components/e-filing/demo-efiling-button';
+import { EFilingProgressPanel } from '@/components/e-filing/efiling-progress-panel';
 import {
   Card,
   CardContent,
@@ -60,6 +62,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { RelationshipSetupBanner } from '@/components/cases/relationship-setup-banner';
 
 interface FormType {
   id: number;
@@ -316,6 +319,56 @@ function FormStatusBadge({ status }: { status: string }) {
   );
 }
 
+function PdfDownloadButton({ caseFormId, formCode }: { caseFormId: number; formCode: string }) {
+  const [loading, setLoading] = useState(false);
+  const t = useTranslations('dashboard.forms');
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      // Check if PDF already exists
+      const infoRes = await fetch(`/api/case-forms/${caseFormId}/pdf`);
+      const info = await infoRes.json();
+
+      if (info.hasPdf && info.latestVersion?.fileUrl) {
+        // Handle both Cloudinary URLs and local URLs
+        const url = info.latestVersion.fileUrl.startsWith('http')
+          ? info.latestVersion.fileUrl
+          : `${window.location.origin}${info.latestVersion.fileUrl}`;
+        window.open(url, '_blank');
+      } else {
+        // Generate PDF
+        const genRes = await fetch(`/api/case-forms/${caseFormId}/pdf`, { method: 'POST' });
+        if (!genRes.ok) throw new Error('Failed to generate PDF');
+        const result = await genRes.json();
+        // Handle both Cloudinary URLs and local URLs
+        const url = result.fileUrl.startsWith('http')
+          ? result.fileUrl
+          : `${window.location.origin}${result.fileUrl}`;
+        window.open(url, '_blank');
+      }
+    } catch (error) {
+      console.error('PDF error:', error);
+      toast.error(t('pdf.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleClick}
+      disabled={loading}
+      className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+      <span className="ml-1">PDF</span>
+    </Button>
+  );
+}
+
 function ValidationStatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-700',
@@ -409,6 +462,15 @@ export default function CaseDetailPage({
   // USCIS status state
   const [isCheckingUSCIS, setIsCheckingUSCIS] = useState(false);
 
+  // E-Filing demo state
+  const [efilingPanelOpen, setEfilingPanelOpen] = useState(false);
+  const [efilingFormId, setEfilingFormId] = useState<number | null>(null);
+  const [efilingEmail, setEfilingEmail] = useState<string | undefined>();
+  const [efilingPassword, setEfilingPassword] = useState<string | undefined>();
+
+  // Relationships state
+  const [hasValidRelationships, setHasValidRelationships] = useState<boolean | null>(null);
+
   const {
     data: caseData,
     error,
@@ -444,6 +506,22 @@ export default function CaseDetailPage({
     caseData?.uscisReceiptNumber ? `/api/uscis/check-status?caseId=${id}` : null,
     fetcher
   );
+
+  // Check if case has valid relationships configured
+  useEffect(() => {
+    if (caseData?.id) {
+      fetch(`/api/cases/${caseData.id}/relationships`)
+        .then(res => res.json())
+        .then(data => {
+          // Check if there are relationships with actual beneficiary data
+          const validRelationships = data.relationships?.some((rel: any) =>
+            rel.beneficiaryId && rel.relationshipType !== 'self'
+          );
+          setHasValidRelationships(validRelationships || false);
+        })
+        .catch(() => setHasValidRelationships(false));
+    }
+  }, [caseData?.id]);
 
   const handleCheckUSCISStatus = async () => {
     if (!caseData?.uscisReceiptNumber) {
@@ -1011,6 +1089,17 @@ export default function CaseDetailPage({
               </Dialog>
             </CardHeader>
             <CardContent>
+              {/* Relationship setup banner - show if relationships are not properly configured */}
+              {hasValidRelationships === false && (
+                <div className="mb-4">
+                  <RelationshipSetupBanner
+                    caseId={caseData.id}
+                    hasRelationships={hasValidRelationships}
+                    onSetupComplete={() => setHasValidRelationships(null)} // Force re-check
+                  />
+                </div>
+              )}
+
               {caseData.forms?.length ? (
                 <div className="space-y-4">
                   {caseData.forms.map((form) => (
@@ -1032,6 +1121,17 @@ export default function CaseDetailPage({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        <PdfDownloadButton caseFormId={form.id} formCode={form.formType?.code || ''} />
+                        <DemoEFilingButton
+                          caseFormId={form.id}
+                          formCode={form.formType?.code || ''}
+                          onStart={(cfId, email, password) => {
+                            setEfilingFormId(cfId);
+                            setEfilingEmail(email);
+                            setEfilingPassword(password);
+                            setEfilingPanelOpen(true);
+                          }}
+                        />
                         <Button variant="outline" size="sm" asChild>
                           <Link href={`/dashboard/cases/${id}/forms/${form.id}`}>
                             {form.status === 'not_started' ? tForms('actions.fill') :
@@ -1313,6 +1413,22 @@ export default function CaseDetailPage({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* E-Filing Demo Panel */}
+      {efilingFormId && (
+        <EFilingProgressPanel
+          open={efilingPanelOpen}
+          onClose={() => {
+            setEfilingPanelOpen(false);
+            setEfilingFormId(null);
+            setEfilingEmail(undefined);
+            setEfilingPassword(undefined);
+          }}
+          caseFormId={efilingFormId}
+          email={efilingEmail}
+          password={efilingPassword}
+        />
+      )}
     </section>
   );
 }

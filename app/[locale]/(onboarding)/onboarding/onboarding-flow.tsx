@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { FreelancerForm } from '@/components/freelancers/freelancer-form';
@@ -84,7 +84,7 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
       }
 
       toast.success(t('toasts.profileCreated'));
-      router.push(`/${locale}/dashboard`);
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error saving agency:', error);
       toast.error(error instanceof Error ? error.message : t('toasts.profileError'));
@@ -111,7 +111,7 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
       }
 
       toast.success(t('toasts.profileCreated'));
-      router.push(`/${locale}/dashboard`);
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error saving freelancer:', error);
       toast.error(error instanceof Error ? error.message : t('toasts.profileError'));
@@ -125,24 +125,28 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
       {/* Left side - Form (scrollable) */}
       <div className="w-full lg:w-[42%] xl:w-[38%] flex flex-col px-4 sm:px-6 lg:px-16 xl:px-20 overflow-y-auto">
         {/* Back navigation */}
-        <div className="pt-8">
-          {currentStep !== 'select-type' ? (
-            <button
-              onClick={handleBack}
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t('back')}
-            </button>
-          ) : (
-            <Link
-              href={`/${locale}/dashboard`}
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t('skipSetup')}
-            </Link>
-          )}
+        <div className="pt-8 flex justify-between items-center">
+          <div>
+            {currentStep !== 'select-type' ? (
+              <button
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t('back')}
+              </button>
+            ) : (
+              <div></div>
+            )}
+          </div>
+
+          {/* Skip button - always visible */}
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+          >
+            {t('skipSetup')}
+          </Link>
         </div>
 
         {/* Content */}
@@ -259,14 +263,26 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
                   ))}
                 </div>
 
-                {selectedProfileType && (
-                  <Button
-                    onClick={() => handleProfileTypeSelect(selectedProfileType)}
-                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium"
-                  >
-                    {t('continue')}
-                  </Button>
-                )}
+                <div className="space-y-3">
+                  {selectedProfileType && (
+                    <Button
+                      onClick={() => handleProfileTypeSelect(selectedProfileType)}
+                      className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium"
+                    >
+                      {t('continue')}
+                    </Button>
+                  )}
+
+                  {/* Prominent Skip Button */}
+                  <Link href="/dashboard">
+                    <Button
+                      variant="outline"
+                      className="w-full h-12 border-gray-300 text-gray-600 hover:bg-gray-50 rounded-lg font-medium"
+                    >
+                      {t('skipSetup')} →
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -280,6 +296,11 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
                   <p className="text-gray-500 mt-2">
                     {t('agencyForm.subtitle')}
                   </p>
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      💡 Puedes completar estos datos más tarde desde tu dashboard.
+                    </p>
+                  </div>
                 </div>
 
                 <AgencyRegistrationForm
@@ -288,6 +309,18 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
                   isLoading={isLoading}
                   compact
                 />
+
+                {/* Skip option for agency form */}
+                <div className="pt-4 border-t border-gray-200">
+                  <Link href="/dashboard">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-gray-500 hover:text-gray-700"
+                    >
+                      {t('skipSetup')} - Completar más tarde
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -301,6 +334,11 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
                   <p className="text-gray-500 mt-2">
                     {t('freelancerForm.subtitle')}
                   </p>
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      💡 Puedes completar estos datos más tarde desde tu dashboard.
+                    </p>
+                  </div>
                 </div>
 
                 <FreelancerForm
@@ -310,6 +348,18 @@ export function OnboardingFlow({ userId, userEmail, locale }: OnboardingFlowProp
                   isLoading={isLoading}
                   showDisclaimerValidation={true}
                 />
+
+                {/* Skip option for freelancer form */}
+                <div className="pt-4 border-t border-gray-200">
+                  <Link href="/dashboard">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-gray-500 hover:text-gray-700"
+                    >
+                      {t('skipSetup')} - Completar más tarde
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
           </div>

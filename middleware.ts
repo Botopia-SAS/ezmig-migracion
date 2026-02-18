@@ -16,6 +16,7 @@ const adminRoutes = ['/admin'];
 const clientAllowedRoutes = [
   '/dashboard/my-cases',
   '/dashboard/security',
+  '/dashboard/general',
 ];
 
 // Routes that end_user (client) role CANNOT access (staff/owner only)
@@ -24,7 +25,6 @@ const staffOnlyRoutes = [
   '/dashboard/cases',
   '/dashboard/referrals',
   '/dashboard/billing',
-  '/dashboard/general',
   '/dashboard/activity',
 ];
 
@@ -69,6 +69,11 @@ function getLocaleFromPath(pathname: string): string {
 }
 
 export async function middleware(request: NextRequest) {
+  // CVE-2025-29927: Block middleware bypass via x-middleware-subrequest header
+  if (request.headers.get('x-middleware-subrequest')) {
+    return new NextResponse(null, { status: 403 });
+  }
+
   const { pathname } = request.nextUrl;
 
   // Skip middleware for API routes and static files
