@@ -17,7 +17,6 @@ export const GET = withUser(async () => {
       name: ft.name,
       description: ft.description,
       category: ft.category,
-      tokenCost: ft.tokenCost,
       estimatedTimeMinutes: ft.estimatedTimeMinutes,
       uscisEdition: ft.uscisEdition,
     }));

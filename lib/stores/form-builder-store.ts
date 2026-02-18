@@ -11,6 +11,21 @@ export interface SelectedNode {
   fieldId?: string;
 }
 
+export interface AddPartData {
+  title: string;
+  translations?: { es?: { title: string }; pt?: { title: string } };
+}
+
+export interface AddSectionData {
+  title: string;
+  translations?: { es?: { title: string }; pt?: { title: string } };
+}
+
+export interface AddFieldData {
+  label: string;
+  translations?: { es?: { label: string }; pt?: { label: string } };
+}
+
 export interface FormBuilderState {
   // Data
   schema: FormSchema;
@@ -28,19 +43,19 @@ export interface FormBuilderState {
   selectNode: (node: SelectedNode | null) => void;
 
   // Part actions
-  addPart: () => void;
+  addPart: (data?: AddPartData) => void;
   updatePart: (partId: string, data: Partial<Pick<FormPart, 'title' | 'translations'>>) => void;
   removePart: (partId: string) => void;
   reorderParts: (fromIndex: number, toIndex: number) => void;
 
   // Section actions
-  addSection: (partId: string) => void;
+  addSection: (partId: string, data?: AddSectionData) => void;
   updateSection: (partId: string, sectionId: string, data: Partial<Pick<FormSection, 'title' | 'description' | 'translations'>>) => void;
   removeSection: (partId: string, sectionId: string) => void;
   reorderSections: (partId: string, fromIndex: number, toIndex: number) => void;
 
   // Field actions
-  addField: (partId: string, sectionId: string, type: FormField['type']) => void;
+  addField: (partId: string, sectionId: string, type: FormField['type'], data?: AddFieldData) => void;
   updateField: (partId: string, sectionId: string, fieldId: string, data: Partial<FormField>) => void;
   removeField: (partId: string, sectionId: string, fieldId: string) => void;
   reorderFields: (partId: string, sectionId: string, fromIndex: number, toIndex: number) => void;
@@ -94,14 +109,14 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
       // ---- Part actions ----
 
-      addPart: () =>
+      addPart: (data) =>
         set((state) => {
           const existingIds = state.schema.parts.map((p) => p.id);
           const id = generateId('part', existingIds);
           const newPart: FormPart = {
             id,
-            title: `Part ${state.schema.parts.length + 1}`,
-            translations: {
+            title: data?.title || `Part ${state.schema.parts.length + 1}`,
+            translations: data?.translations || {
               es: { title: '' },
               pt: { title: '' },
             },
@@ -147,7 +162,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
       // ---- Section actions ----
 
-      addSection: (partId) =>
+      addSection: (partId, data) =>
         set((state) => {
           const parts = state.schema.parts.map((p) => {
             if (p.id !== partId) return p;
@@ -155,8 +170,8 @@ export const useFormBuilderStore = create<FormBuilderState>()(
             const id = generateId('section', existingIds);
             const newSection: FormSection = {
               id,
-              title: `Section ${p.sections.length + 1}`,
-              translations: {
+              title: data?.title || `Section ${p.sections.length + 1}`,
+              translations: data?.translations || {
                 es: { title: '' },
                 pt: { title: '' },
               },
@@ -224,7 +239,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
       // ---- Field actions ----
 
-      addField: (partId, sectionId, type) =>
+      addField: (partId, sectionId, type, data) =>
         set((state) => {
           const parts = state.schema.parts.map((p) => {
             if (p.id !== partId) return p;
@@ -235,21 +250,23 @@ export const useFormBuilderStore = create<FormBuilderState>()(
                 const existingIds = s.fields.map((f) => f.id);
                 const id = generateId('field', existingIds);
                 const needsOptions = ['select', 'radio', 'checkbox_group'].includes(type);
+                const esLabel = data?.translations?.es?.label || '';
+                const ptLabel = data?.translations?.pt?.label || '';
                 const newField: FormField = {
                   id,
                   type,
-                  label: `New ${type} field`,
+                  label: data?.label || `New ${type} field`,
                   required: false,
                   translations: {
-                    es: { label: '' },
-                    pt: { label: '' },
+                    es: { label: esLabel },
+                    pt: { label: ptLabel },
                   },
                   ...(needsOptions
                     ? {
                         options: [{ value: 'option1', label: 'Option 1' }],
                         translations: {
-                          es: { label: '', options: { option1: '' } },
-                          pt: { label: '', options: { option1: '' } },
+                          es: { label: esLabel, options: { option1: '' } },
+                          pt: { label: ptLabel, options: { option1: '' } },
                         },
                       }
                     : {}),

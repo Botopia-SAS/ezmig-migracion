@@ -10,13 +10,10 @@ import {
   Pencil,
   Blocks,
   Eye,
-  Copy,
-  Trash2,
-  ToggleLeft,
-  ToggleRight,
 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { getAllFormTypes } from '@/lib/admin/form-types-service';
+import { DeleteFormTypeButton } from './delete-form-type-button';
 
 export default async function FormsPage() {
   const t = await getTranslations('admin.forms');
@@ -68,9 +65,6 @@ export default async function FormsPage() {
                   {t('columns.edition')}
                 </th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider py-3 px-4">
-                  {t('columns.tokenCost')}
-                </th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider py-3 px-4">
                   {t('columns.status')}
                 </th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider py-3 px-4">
@@ -103,7 +97,6 @@ export default async function FormsPage() {
                   <td className="py-3 px-4 text-sm text-gray-500">
                     {ft.uscisEdition || '—'}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-900">{ft.tokenCost}</td>
                   <td className="py-3 px-4">
                     <Badge variant={ft.isActive ? 'success' : 'secondary'}>
                       {ft.isActive ? t('status.active') : t('status.inactive')}
@@ -129,6 +122,11 @@ export default async function FormsPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
+                      <DeleteFormTypeButton
+                        formTypeId={ft.id}
+                        formCode={ft.code}
+                        caseFormCount={ft.caseFormCount}
+                      />
                     </div>
                   </td>
                 </tr>

@@ -19,6 +19,8 @@ import { FieldCheckboxGroup } from './field-checkbox-group';
 import { FieldAttachments } from './field-attachments';
 import { useFieldEvidences } from '@/hooks/use-field-evidences';
 import { ChatWidget } from '@/components/ai-assistant';
+import { interpolateField, interpolateText } from '@/lib/forms/name-interpolation';
+import type { FormContext } from '@/lib/relationships/service';
 
 // Types
 export interface FormSchema {
@@ -82,6 +84,7 @@ interface FormRendererProps {
   onSave: (data: Record<string, unknown>) => Promise<void>;
   readOnly?: boolean;
   onProgressChange?: (progress: number) => void;
+  formContext?: FormContext | null; // Add form context for name interpolation
 }
 
 // Get nested value from object using path like "part1.section1.field1"
@@ -194,6 +197,7 @@ export function FormRenderer({
   onSave,
   readOnly = false,
   onProgressChange,
+  formContext = null,
 }: FormRendererProps) {
   const t = useTranslations('dashboard.forms.renderer');
   const tForms = useTranslations('forms');
@@ -210,43 +214,119 @@ export function FormRenderer({
     [formKey, tForms]
   );
 
-  // Translate a part title
+  // Translate a part title with interpolation support
   const translatePartTitle = useCallback(
     (part: FormPart): string => {
       const schemaTitle = part.translations?.[locale]?.title;
+      const defaultTitle = part.title;
+      const fallbackTitle = (part as any).fallbackTitle;
+
+      // Try schema translation with interpolation first
+      if (schemaTitle && formContext && schemaTitle.includes('{{')) {
+        const interpolated = interpolateText(schemaTitle, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Try default title with interpolation
+      if (defaultTitle && formContext && defaultTitle.includes('{{')) {
+        const interpolated = interpolateText(defaultTitle, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Fall back to schema translation without interpolation
       if (schemaTitle) return schemaTitle;
-      return tf(`${part.id}.title`, part.title);
+
+      // Try message file translation
+      const messageTranslation = tf(`${part.id}.title`, defaultTitle);
+      if (messageTranslation !== defaultTitle) return messageTranslation;
+
+      // Final fallbacks
+      return fallbackTitle || defaultTitle;
     },
-    [locale, tf]
+    [locale, tf, formContext]
   );
 
-  // Translate a section title/description
+  // Translate a section title with interpolation support
   const translateSectionTitle = useCallback(
     (partId: string, section: FormSection): string => {
       const schemaTitle = section.translations?.[locale]?.title;
+      const defaultTitle = section.title;
+      const fallbackTitle = (section as any).fallbackTitle;
+
+      // Try schema translation with interpolation first
+      if (schemaTitle && formContext && schemaTitle.includes('{{')) {
+        const interpolated = interpolateText(schemaTitle, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Try default title with interpolation
+      if (defaultTitle && formContext && defaultTitle.includes('{{')) {
+        const interpolated = interpolateText(defaultTitle, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Fall back to schema translation without interpolation
       if (schemaTitle) return schemaTitle;
-      return tf(`${partId}.${section.id}.title`, section.title);
+
+      // Try message file translation
+      const messageTranslation = tf(`${partId}.${section.id}.title`, defaultTitle);
+      if (messageTranslation !== defaultTitle) return messageTranslation;
+
+      // Final fallbacks
+      return fallbackTitle || defaultTitle;
     },
-    [locale, tf]
+    [locale, tf, formContext]
   );
 
   const translateSectionDescription = useCallback(
     (partId: string, section: FormSection): string | undefined => {
-      const schemaDesc = section.translations?.[locale]?.description;
-      if (schemaDesc) return schemaDesc;
-      return section.description ? tf(`${partId}.${section.id}.description`, section.description) : undefined;
+      if (!section.description) return undefined;
+
+      // Priority: schema translations with interpolation → schema default with interpolation → message files → fallback
+      const schemaTranslation = section.translations?.[locale]?.description;
+      const schemaDefault = section.description;
+      const fallbackDescription = (section as any).fallbackDescription;
+
+      // Try schema translation first (highest priority)
+      if (schemaTranslation && formContext && schemaTranslation.includes('{{')) {
+        const interpolated = interpolateText(schemaTranslation, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Try schema default with interpolation
+      if (schemaDefault && formContext && schemaDefault.includes('{{')) {
+        const interpolated = interpolateText(schemaDefault, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Fall back to schema translation without interpolation
+      if (schemaTranslation) return schemaTranslation;
+
+      // Fall back to fallback description with interpolation
+      if (fallbackDescription && formContext && fallbackDescription.includes('{{')) {
+        const interpolated = interpolateText(fallbackDescription, formContext, locale);
+        if (interpolated !== null) return interpolated;
+      }
+
+      // Try message file translation
+      const messageTranslation = tf(`${partId}.${section.id}.description`, schemaDefault);
+      if (messageTranslation !== schemaDefault) return messageTranslation;
+
+      // Final fallbacks
+      return fallbackDescription || schemaDefault;
     },
-    [locale, tf]
+    [locale, tf, formContext]
   );
 
   // Translate a field object before passing to child components
-  // Priority: schema translations[locale] → message files → field default
+  // Priority: name interpolation → schema translations[locale] → message files → field default
   const translateField = useCallback(
     (field: FormField, partId: string, sectionId: string): FormField => {
       const base = `${partId}.${sectionId}.${field.id}`;
       const ft = field.translations?.[locale];
 
-      return {
+      // First, apply standard translations
+      const standardTranslated = {
         ...field,
         label: ft?.label || tf(`${base}.label`, field.label),
         helpText: ft?.helpText || (field.helpText ? tf(`${base}.helpText`, field.helpText) : undefined),
@@ -257,8 +337,13 @@ export function FormRenderer({
           return { ...opt, label: translatedLabel };
         }) as FormField['options'],
       };
+
+      // Then, apply name interpolation if form context is available
+      const interpolated = interpolateField(standardTranslated, formContext, locale);
+
+      return interpolated;
     },
-    [locale, tf]
+    [locale, tf, formContext]
   );
 
   const [formData, setFormData] = useState<Record<string, unknown>>(initialData);
@@ -448,7 +533,7 @@ export function FormRenderer({
     return (
       <div key={field.id}>
         {fieldElement}
-        {hasEvidences && (
+        {hasEvidences && field.allowEvidences && (
           <FieldAttachments
             caseId={caseId}
             caseFormId={caseFormId}
@@ -464,7 +549,7 @@ export function FormRenderer({
   };
 
   // Preparar contexto para el asistente IA
-  const formContext = {
+  const aiFormContext = {
     formCode: formSchema.formCode,
     currentPart: currentPart ? {
       id: currentPart.id,
@@ -704,7 +789,7 @@ export function FormRenderer({
       {/* AI Assistant Chat Widget */}
       {!readOnly && (
         <ChatWidget
-          formContext={formContext}
+          formContext={aiFormContext}
         />
       )}
     </div>

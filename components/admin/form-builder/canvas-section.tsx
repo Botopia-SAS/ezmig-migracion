@@ -1,10 +1,11 @@
 'use client';
 
 import { useFormBuilderStore } from '@/lib/stores/form-builder-store';
+import { useAddElementDialogContext } from './add-element-dialog-provider';
 import { CanvasField } from './canvas-field';
 import { FieldTypePicker } from './field-type-picker';
 import { cn } from '@/lib/utils';
-import type { FormSection, FormField } from '@/lib/forms/service';
+import type { FormSection } from '@/lib/forms/service';
 
 interface Props {
   section: FormSection;
@@ -14,7 +15,7 @@ interface Props {
 export function CanvasSection({ section, partId }: Props) {
   const selectedNode = useFormBuilderStore((s) => s.selectedNode);
   const selectNode = useFormBuilderStore((s) => s.selectNode);
-  const addField = useFormBuilderStore((s) => s.addField);
+  const { requestAddField } = useAddElementDialogContext();
 
   const isSelected =
     selectedNode?.type === 'section' &&
@@ -59,7 +60,7 @@ export function CanvasSection({ section, partId }: Props) {
 
       <div className="mt-2">
         <FieldTypePicker
-          onSelect={(type) => addField(partId, section.id, type)}
+          onSelect={(type) => requestAddField(partId, section.id, type)}
         />
       </div>
     </div>

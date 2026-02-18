@@ -20,7 +20,6 @@ const updateSchema = z.object({
   description: z.string().optional(),
   category: z.string().max(50).optional(),
   uscisEdition: z.string().max(50).optional(),
-  tokenCost: z.number().int().min(0).optional(),
   estimatedTimeMinutes: z.number().int().min(0).optional(),
   formSchema: z.any().optional(),
   isActive: z.boolean().optional(),
