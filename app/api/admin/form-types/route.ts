@@ -9,8 +9,8 @@ const createSchema = z.object({
   description: z.string().optional(),
   category: z.string().max(50).optional(),
   uscisEdition: z.string().max(50).optional(),
-  tokenCost: z.number().int().min(0).default(1),
   estimatedTimeMinutes: z.number().int().min(0).optional(),
+  formSchema: z.any().optional(),
 });
 
 export const GET = withAdmin(async () => {

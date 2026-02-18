@@ -46,7 +46,6 @@ export const I130_SCHEMA = {
               fallbackLabel: 'I am filing this petition for my...',
               nameInterpolation: true,
               required: true,
-              allowEvidences: true,
               options: [
                 { value: 'spouse', label: 'Spouse' },
                 { value: 'parent', label: 'Parent' },
@@ -544,7 +543,6 @@ export const I130_SCHEMA = {
               type: 'date',
               label: 'Date of Birth',
               required: true,
-              allowEvidences: true,
               pdfField: 'Pt2Line8_DateOfBirth',
             },
             {
@@ -552,7 +550,6 @@ export const I130_SCHEMA = {
               type: 'text',
               label: 'City/Town/Village of Birth',
               required: true,
-              allowEvidences: true,
               maxLength: 20,
               pdfField: 'Pt2Line9_CityOfBirth',
             },
@@ -561,7 +558,6 @@ export const I130_SCHEMA = {
               type: 'text',
               label: 'Country of Birth',
               required: true,
-              allowEvidences: true,
               pdfField: 'Pt2Line10_CountryOfBirth',
             },
             {
@@ -569,7 +565,6 @@ export const I130_SCHEMA = {
               type: 'text',
               label: 'Country of Citizenship or Nationality',
               required: true,
-              allowEvidences: true,
               pdfField: 'Pt2Line11_Citizenship',
             },
             {
@@ -1023,7 +1018,6 @@ export const I130_SCHEMA = {
               type: 'date',
               label: 'Date of Birth',
               required: true,
-              allowEvidences: true,
               pdfField: 'Pt4Line9_DateOfBirth',
             },
             {
@@ -1031,7 +1025,6 @@ export const I130_SCHEMA = {
               type: 'text',
               label: 'City/Town/Village of Birth',
               required: true,
-              allowEvidences: true,
               maxLength: 20,
               pdfField: 'Pt4Line10_CityOfBirth',
             },
@@ -1040,7 +1033,6 @@ export const I130_SCHEMA = {
               type: 'text',
               label: 'Country of Birth',
               required: true,
-              allowEvidences: true,
               pdfField: 'Pt4Line11_CountryOfBirth',
             },
             {

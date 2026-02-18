@@ -1,6 +1,6 @@
 import { db } from '@/lib/db/drizzle';
 import { formTypes, caseForms } from '@/lib/db/schema';
-import { eq, sql, count } from 'drizzle-orm';
+import { eq, count } from 'drizzle-orm';
 import type { FormSchema } from '@/lib/forms/service';
 
 export interface CreateFormTypeInput {
@@ -9,7 +9,6 @@ export interface CreateFormTypeInput {
   description?: string;
   category?: string;
   uscisEdition?: string;
-  tokenCost?: number;
   estimatedTimeMinutes?: number;
   formSchema?: FormSchema;
 }
@@ -19,7 +18,6 @@ export interface UpdateFormTypeInput {
   description?: string;
   category?: string;
   uscisEdition?: string;
-  tokenCost?: number;
   estimatedTimeMinutes?: number;
   formSchema?: FormSchema;
   isActive?: boolean;
@@ -63,7 +61,6 @@ export async function createFormType(input: CreateFormTypeInput) {
       description: input.description ?? null,
       category: input.category ?? null,
       uscisEdition: input.uscisEdition ?? null,
-      tokenCost: input.tokenCost ?? 1,
       estimatedTimeMinutes: input.estimatedTimeMinutes ?? null,
       formSchema: input.formSchema ?? { formCode: input.code.toUpperCase(), parts: [] },
       isActive: true,
@@ -82,7 +79,6 @@ export async function updateFormType(id: number, data: UpdateFormTypeInput) {
   if (data.description !== undefined) updateData.description = data.description;
   if (data.category !== undefined) updateData.category = data.category;
   if (data.uscisEdition !== undefined) updateData.uscisEdition = data.uscisEdition;
-  if (data.tokenCost !== undefined) updateData.tokenCost = data.tokenCost;
   if (data.estimatedTimeMinutes !== undefined) updateData.estimatedTimeMinutes = data.estimatedTimeMinutes;
   if (data.formSchema !== undefined) updateData.formSchema = data.formSchema;
   if (data.isActive !== undefined) updateData.isActive = data.isActive;
@@ -136,7 +132,6 @@ export async function duplicateFormType(id: number) {
     description: original.description ?? undefined,
     category: original.category ?? undefined,
     uscisEdition: original.uscisEdition ?? undefined,
-    tokenCost: original.tokenCost,
     estimatedTimeMinutes: original.estimatedTimeMinutes ?? undefined,
     formSchema: newSchema,
   });

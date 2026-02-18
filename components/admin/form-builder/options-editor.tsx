@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AddOptionDialog } from './add-option-dialog';
 import {
   DndContext,
   closestCenter,
@@ -38,25 +39,27 @@ export function OptionsEditor({ options, onChange, translations, onTranslationsC
   const t = useTranslations('admin.formBuilder.properties.options');
   const [showBulk, setShowBulk] = useState(false);
   const [bulkText, setBulkText] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  function handleAdd() {
-    const num = options.length + 1;
-    const newValue = `option${num}`;
-    onChange([...options, { value: newValue, label: `Option ${num}` }]);
-    // Add empty translation entries for the new option
-    if (onTranslationsChange && translations) {
-      const updated = { ...translations };
-      for (const locale of ['es', 'pt']) {
-        updated[locale] = {
-          ...updated[locale],
-          options: { ...updated[locale]?.options, [newValue]: '' },
-        };
-      }
-      onTranslationsChange(updated);
+  function handleAddFromDialog(data: { value: string; labels: { en: string; es: string; pt: string } }) {
+    onChange([...options, { value: data.value, label: data.labels.en }]);
+    if (onTranslationsChange) {
+      const current = translations || {};
+      onTranslationsChange({
+        ...current,
+        es: {
+          ...current.es,
+          options: { ...current.es?.options, [data.value]: data.labels.es },
+        },
+        pt: {
+          ...current.pt,
+          options: { ...current.pt?.options, [data.value]: data.labels.pt },
+        },
+      });
     }
   }
 
@@ -127,30 +130,47 @@ export function OptionsEditor({ options, onChange, translations, onTranslationsC
 
   function handleBulkAdd() {
     const lines = bulkText.trim().split('\n').filter(Boolean);
-    const newOptions = lines.map((line) => {
+    const newOptions: OptionItem[] = [];
+    const esEntries: Record<string, string> = {};
+    const ptEntries: Record<string, string> = {};
+
+    for (const line of lines) {
       const parts = line.split('|');
-      if (parts.length >= 2) {
-        return { value: parts[0].trim(), label: parts[1].trim() };
+      if (parts.length >= 4) {
+        // value|EN|ES|PT format
+        const value = parts[0].trim();
+        newOptions.push({ value, label: parts[1].trim() });
+        esEntries[value] = parts[2].trim();
+        ptEntries[value] = parts[3].trim();
+      } else if (parts.length >= 2) {
+        // value|label (EN only, backward compatible)
+        const value = parts[0].trim();
+        newOptions.push({ value, label: parts[1].trim() });
+        esEntries[value] = '';
+        ptEntries[value] = '';
+      } else {
+        const label = parts[0].trim();
+        const value = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+        newOptions.push({ value, label });
+        esEntries[value] = '';
+        ptEntries[value] = '';
       }
-      const label = parts[0].trim();
-      const value = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
-      return { value, label };
-    });
+    }
+
     onChange([...options, ...newOptions]);
-    // Add empty translations for new options
-    if (onTranslationsChange && translations) {
-      const updated = { ...translations };
-      for (const locale of ['es', 'pt']) {
-        const newEntries: Record<string, string> = {};
-        for (const opt of newOptions) {
-          newEntries[opt.value] = '';
-        }
-        updated[locale] = {
-          ...updated[locale],
-          options: { ...updated[locale]?.options, ...newEntries },
-        };
-      }
-      onTranslationsChange(updated);
+    if (onTranslationsChange) {
+      const current = translations || {};
+      onTranslationsChange({
+        ...current,
+        es: {
+          ...current.es,
+          options: { ...current.es?.options, ...esEntries },
+        },
+        pt: {
+          ...current.pt,
+          options: { ...current.pt?.options, ...ptEntries },
+        },
+      });
     }
     setBulkText('');
     setShowBulk(false);
@@ -183,7 +203,7 @@ export function OptionsEditor({ options, onChange, translations, onTranslationsC
       )}
 
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={handleAdd} className="flex-1 text-xs">
+        <Button variant="outline" size="sm" onClick={() => setShowAddDialog(true)} className="flex-1 text-xs">
           <Plus className="h-3 w-3 mr-1" />
           {t('addOption')}
         </Button>
@@ -200,13 +220,20 @@ export function OptionsEditor({ options, onChange, translations, onTranslationsC
             onChange={(e) => setBulkText(e.target.value)}
             rows={4}
             className="text-xs font-mono"
-            placeholder="value|Label&#10;another_value|Another Label"
+            placeholder="value|EN|ES|PT&#10;another_value|Label|Etiqueta|Rótulo"
           />
           <Button size="sm" onClick={handleBulkAdd} disabled={!bulkText.trim()} className="text-xs">
             {t('addOption')}
           </Button>
         </div>
       )}
+
+      <AddOptionDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onConfirm={handleAddFromDialog}
+        existingValues={options.map((o) => o.value)}
+      />
     </div>
   );
 }

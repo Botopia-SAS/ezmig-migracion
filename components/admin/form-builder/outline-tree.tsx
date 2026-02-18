@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useFormBuilderStore, type SelectedNode } from '@/lib/stores/form-builder-store';
+import { useAddElementDialogContext } from './add-element-dialog-provider';
 import {
   ChevronDown,
   ChevronRight,
   Plus,
   GripVertical,
-  Trash2,
   GitBranch,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -38,9 +38,8 @@ export function OutlineTree() {
   const schema = useFormBuilderStore((s) => s.schema);
   const selectedNode = useFormBuilderStore((s) => s.selectedNode);
   const selectNode = useFormBuilderStore((s) => s.selectNode);
-  const addPart = useFormBuilderStore((s) => s.addPart);
-  const removePart = useFormBuilderStore((s) => s.removePart);
   const reorderParts = useFormBuilderStore((s) => s.reorderParts);
+  const { requestAddPart } = useAddElementDialogContext();
 
   const [expandedParts, setExpandedParts] = useState<Set<string>>(new Set(schema.parts.map((p) => p.id)));
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -120,7 +119,7 @@ export function OutlineTree() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={addPart}
+          onClick={requestAddPart}
           className="w-full text-xs text-gray-500 hover:text-violet-600"
         >
           <Plus className="h-3.5 w-3.5 mr-1" />
@@ -145,9 +144,9 @@ interface PartNodeProps {
 
 function PartNode({ part, isExpanded, expandedSections, onToggle, onToggleSection, isSelected, selectNode }: PartNodeProps) {
   const t = useTranslations('admin.formBuilder.outline');
-  const addSection = useFormBuilderStore((s) => s.addSection);
   const removePart = useFormBuilderStore((s) => s.removePart);
   const reorderSections = useFormBuilderStore((s) => s.reorderSections);
+  const { requestAddSection } = useAddElementDialogContext();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -191,7 +190,7 @@ function PartNode({ part, isExpanded, expandedSections, onToggle, onToggleSectio
         </button>
         <button
           type="button"
-          onClick={() => addSection(part.id)}
+          onClick={() => requestAddSection(part.id)}
           className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-violet-600 shrink-0"
           title={t('addSection')}
         >

@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { db } from './drizzle';
 import { formTypes, evidenceRules } from './schema';
 import { I130_SCHEMA } from './schemas/i-130';
+import { I131_SCHEMA } from './schemas/i-131';
 
 const I485_SCHEMA = {
   formCode: 'I-485',
@@ -71,34 +72,7 @@ const I765_SCHEMA = {
   ],
 };
 
-const I131_SCHEMA = {
-  formCode: 'I-131',
-  parts: [
-    {
-      id: 'part1',
-      title: 'Information About You',
-      sections: [
-        {
-          id: 'applicationType',
-          title: 'Application Type',
-          fields: [
-            {
-              id: 'documentType',
-              type: 'radio',
-              label: 'I am applying for',
-              required: true,
-              options: [
-                { value: 'reentryPermit', label: 'Reentry Permit' },
-                { value: 'refugeeTravelDocument', label: 'Refugee Travel Document' },
-                { value: 'advanceParole', label: 'Advance Parole Document' },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+// I131_SCHEMA imported from ./schemas/i-131
 
 // Form types to seed
 const formTypesData = [
@@ -116,7 +90,6 @@ const formTypesData = [
         },
       ],
     },
-    tokenCost: 1,
     estimatedTimeMinutes: 60,
     category: 'family',
     uscisEdition: '03/22/2023',
@@ -129,7 +102,6 @@ const formTypesData = [
     description: 'Used to apply for lawful permanent resident status (Green Card) while in the United States.',
     formSchema: I485_SCHEMA,
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 90,
     category: 'family',
     uscisEdition: '07/01/2024',
@@ -142,7 +114,6 @@ const formTypesData = [
     description: 'Used to request an Employment Authorization Document (EAD).',
     formSchema: I765_SCHEMA,
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 45,
     category: 'employment',
     uscisEdition: '02/14/2022',
@@ -155,7 +126,6 @@ const formTypesData = [
     description: 'Used to apply for a reentry permit, refugee travel document, or advance parole.',
     formSchema: I131_SCHEMA,
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 30,
     category: 'travel',
     uscisEdition: '11/14/2023',
@@ -168,7 +138,6 @@ const formTypesData = [
     description: 'Used to show that an immigrant has adequate means of financial support.',
     formSchema: { formCode: 'I-864', parts: [] },
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 45,
     category: 'family',
     uscisEdition: '03/06/2024',
@@ -181,7 +150,6 @@ const formTypesData = [
     description: 'Used to apply for U.S. citizenship (naturalization).',
     formSchema: { formCode: 'N-400', parts: [] },
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 90,
     category: 'naturalization',
     uscisEdition: '04/01/2024',
@@ -194,7 +162,6 @@ const formTypesData = [
     description: 'Used to apply for asylum in the United States and for withholding of removal.',
     formSchema: { formCode: 'I-589', parts: [] },
     validationRules: { rules: [] },
-    tokenCost: 1,
     estimatedTimeMinutes: 120,
     category: 'humanitarian',
     uscisEdition: '10/31/2023',
@@ -236,7 +203,6 @@ export async function seedFormTypes() {
           description: formType.description,
           formSchema: formType.formSchema,
           validationRules: formType.validationRules,
-          tokenCost: formType.tokenCost,
           estimatedTimeMinutes: formType.estimatedTimeMinutes,
           category: formType.category,
           uscisEdition: formType.uscisEdition,

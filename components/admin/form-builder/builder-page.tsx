@@ -8,6 +8,7 @@ import { BuilderHeaderPortal } from './builder-header-portal';
 import { OutlineTree } from './outline-tree';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
+import { AddElementDialogProvider } from './add-element-dialog-provider';
 import type { FormSchema } from '@/lib/forms/service';
 
 interface Props {
@@ -112,7 +113,7 @@ export function BuilderPage({ formTypeId, formCode, initialSchema }: Props) {
   }, []);
 
   return (
-    <>
+    <AddElementDialogProvider>
       <BuilderHeaderPortal
         formTypeId={formTypeId}
         formCode={formCode}
@@ -125,6 +126,6 @@ export function BuilderPage({ formTypeId, formCode, initialSchema }: Props) {
           <PropertiesPanel />
         </div>
       </div>
-    </>
+    </AddElementDialogProvider>
   );
 }

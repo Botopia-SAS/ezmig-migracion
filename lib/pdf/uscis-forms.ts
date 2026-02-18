@@ -1,5 +1,5 @@
-import { PDFDocument, PDFForm, PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup } from 'pdf-lib';
-import { readFile, writeFile } from 'fs/promises';
+import { PDFDocument, PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup } from 'pdf-lib';
+import { readFile } from 'node:fs/promises';
 import path from 'path';
 
 export interface FormFieldValue {
@@ -16,33 +16,75 @@ export interface FilledPDFResult {
 }
 
 /**
- * Fill a USCIS PDF form with provided data
- * @param templatePath - Path to the PDF template or URL
+ * Load PDF bytes from a source (URL, file path, or ArrayBuffer)
+ */
+async function loadPdfBytes(source: string | ArrayBuffer): Promise<ArrayBuffer> {
+  if (source instanceof ArrayBuffer) {
+    return source;
+  }
+  if (source.startsWith('http')) {
+    const response = await fetch(source);
+    return response.arrayBuffer();
+  }
+  const buffer = await readFile(source);
+  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+}
+
+/**
+ * Fill a USCIS PDF form with provided data.
+ * USCIS PDFs are encrypted, so we use ignoreEncryption: true.
+ * @param templateSource - Path, URL, or ArrayBuffer of the PDF template
  * @param formData - Record of field names to values
  * @returns Filled PDF as Uint8Array
  */
 export async function fillUSCISForm(
-  templatePath: string,
+  templateSource: string | ArrayBuffer,
   formData: Record<string, string | boolean>
 ): Promise<FilledPDFResult> {
-  // Load the PDF
-  let pdfBytes: ArrayBuffer;
+  const pdfBytes = await loadPdfBytes(templateSource);
 
-  if (templatePath.startsWith('http')) {
-    const response = await fetch(templatePath);
-    pdfBytes = await response.arrayBuffer();
-  } else {
-    const buffer = await readFile(templatePath);
-    pdfBytes = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  if (!pdfBytes || pdfBytes.byteLength === 0) {
+    throw new Error('Failed to load PDF template: empty or invalid buffer');
   }
 
-  const pdfDoc = await PDFDocument.load(pdfBytes);
-  const form = pdfDoc.getForm();
+  let pdfDoc;
+  try {
+    pdfDoc = await PDFDocument.load(pdfBytes, {
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+      updateMetadata: false
+    });
+  } catch (error) {
+    console.error('Failed to load PDF document:', error);
+    // Try loading with a different approach for problematic PDFs
+    try {
+      console.log('Attempting to load PDF with minimal parsing...');
+      pdfDoc = await PDFDocument.load(new Uint8Array(pdfBytes), {
+        ignoreEncryption: true,
+        throwOnInvalidObject: false,
+        updateMetadata: false
+      });
+    } catch (retryError) {
+      console.error('Second attempt to load PDF also failed:', retryError);
+      throw new Error(`Failed to load PDF document: ${error instanceof Error ? error.message : 'unknown error'}`);
+    }
+  }
+
+  if (!pdfDoc) {
+    throw new Error('PDF document is undefined after loading');
+  }
+
+  let form;
+  try {
+    form = pdfDoc.getForm();
+  } catch (formError) {
+    console.error('Failed to get PDF form:', formError);
+    throw new Error(`Failed to access PDF form fields: ${formError instanceof Error ? formError.message : 'unknown error'}`);
+  }
 
   let fieldsFilled = 0;
   const fieldsSkipped: string[] = [];
 
-  // Fill the form fields
   for (const [fieldName, value] of Object.entries(formData)) {
     try {
       const field = form.getField(fieldName);
@@ -57,10 +99,7 @@ export async function fillUSCISForm(
           field.uncheck();
         }
         fieldsFilled++;
-      } else if (field instanceof PDFDropdown) {
-        field.select(String(value));
-        fieldsFilled++;
-      } else if (field instanceof PDFRadioGroup) {
+      } else if (field instanceof PDFDropdown || field instanceof PDFRadioGroup) {
         field.select(String(value));
         fieldsFilled++;
       }
@@ -69,14 +108,33 @@ export async function fillUSCISForm(
     }
   }
 
-  // Flatten the form (make it non-editable) - optional
-  // form.flatten();
+  // Skip appearance updates — USCIS AcroForm templates contain rich-text
+  // fields that cause pdf-lib to throw when regenerating appearances.
+  let filledPdfBytes;
+  try {
+    filledPdfBytes = await pdfDoc.save({
+      updateFieldAppearances: false,
+      useObjectStreams: false  // Disable object streams for better compatibility
+    });
+  } catch (saveError) {
+    console.error('Failed to save PDF:', saveError);
+    // Try saving without any options as a last resort
+    try {
+      console.log('Attempting to save PDF with minimal options...');
+      filledPdfBytes = await pdfDoc.save();
+    } catch (retrySaveError) {
+      console.error('Second attempt to save PDF also failed:', retrySaveError);
+      throw new Error(`Failed to save PDF: ${saveError instanceof Error ? saveError.message : 'unknown error'}`);
+    }
+  }
 
-  const filledPdfBytes = await pdfDoc.save();
+  if (!filledPdfBytes || filledPdfBytes.length === 0) {
+    throw new Error('PDF save produced empty or invalid output');
+  }
 
   return {
     buffer: filledPdfBytes,
-    fileName: path.basename(templatePath),
+    fileName: typeof templateSource === 'string' ? path.basename(templateSource) : 'filled-form.pdf',
     fieldsFilled,
     fieldsSkipped,
   };
@@ -84,26 +142,17 @@ export async function fillUSCISForm(
 
 /**
  * Get all field names from a PDF form
- * @param templatePath - Path to the PDF template
+ * @param templateSource - Path, URL, or ArrayBuffer of the PDF template
  * @returns Array of field information
  */
-export async function getFormFields(templatePath: string): Promise<Array<{
+export async function getFormFields(templateSource: string | ArrayBuffer): Promise<Array<{
   name: string;
   type: string;
   isReadOnly: boolean;
   isRequired: boolean;
 }>> {
-  let pdfBytes: ArrayBuffer;
-
-  if (templatePath.startsWith('http')) {
-    const response = await fetch(templatePath);
-    pdfBytes = await response.arrayBuffer();
-  } else {
-    const buffer = await readFile(templatePath);
-    pdfBytes = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-  }
-
-  const pdfDoc = await PDFDocument.load(pdfBytes);
+  const pdfBytes = await loadPdfBytes(templateSource);
+  const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const form = pdfDoc.getForm();
   const fields = form.getFields();
 

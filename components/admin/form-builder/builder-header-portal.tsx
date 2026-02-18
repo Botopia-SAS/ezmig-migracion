@@ -5,9 +5,10 @@ import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { useFormBuilderStore } from '@/lib/stores/form-builder-store';
 import { useTemporalStore } from '@/lib/stores/form-builder-store-temporal';
-import { Undo2, Redo2, Save, Loader2, Eye, Download } from 'lucide-react';
+import { Undo2, Redo2, Save, Loader2, Eye, Download, Code2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { JsonEditorDialog } from './json-editor-dialog';
 
 interface Props {
   formTypeId: number;
@@ -26,6 +27,7 @@ export function BuilderHeaderPortal({ formTypeId, formCode, onSave }: Props) {
   const canRedo = futureStates.length > 0;
 
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  const [jsonEditorOpen, setJsonEditorOpen] = useState(false);
 
   useEffect(() => {
     setPortalTarget(document.getElementById('admin-header-portal'));
@@ -41,11 +43,15 @@ export function BuilderHeaderPortal({ formTypeId, formCode, onSave }: Props) {
     URL.revokeObjectURL(url);
   }
 
-  if (!portalTarget) return null;
+  if (!portalTarget) return (
+    <JsonEditorDialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen} />
+  );
 
-  return createPortal(
+  return (
     <>
-      <span className="font-semibold text-gray-900 text-sm">{formCode}</span>
+      {createPortal(
+        <>
+          <span className="font-semibold text-gray-900 text-sm">{formCode}</span>
       <div className="flex items-center gap-0.5">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => undo()} disabled={!canUndo} title={t('undo')}>
           <Undo2 className="h-4 w-4" />
@@ -57,6 +63,10 @@ export function BuilderHeaderPortal({ formTypeId, formCode, onSave }: Props) {
 
       <div className="flex-1" />
 
+      <Button variant="ghost" size="sm" className="h-8" onClick={() => setJsonEditorOpen(true)} title={t('editJson')}>
+        <Code2 className="h-4 w-4 mr-1.5" />
+        JSON
+      </Button>
       <Button variant="ghost" size="sm" className="h-8" onClick={handleExport} title={t('export')}>
         <Download className="h-4 w-4 mr-1.5" />
         {t('export')}
@@ -75,7 +85,10 @@ export function BuilderHeaderPortal({ formTypeId, formCode, onSave }: Props) {
         )}
         {isSaving ? t('saving') : isDirty ? t('save') : t('saved')}
       </Button>
-    </>,
-    portalTarget,
+        </>,
+        portalTarget,
+      )}
+      <JsonEditorDialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen} />
+    </>
   );
 }

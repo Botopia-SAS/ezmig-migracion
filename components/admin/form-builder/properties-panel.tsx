@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,55 +18,8 @@ import { useFormBuilderStore } from '@/lib/stores/form-builder-store';
 import { useTranslations } from 'next-intl';
 import { OptionsEditor } from './options-editor';
 import { ConditionalEditor } from './conditional-editor';
+import { TranslatableInput } from './translatable-input';
 import type { FormField, FormPart, FormSection } from '@/lib/forms/service';
-
-const LOCALES = ['en', 'es', 'pt'] as const;
-const LOCALE_LABELS: Record<string, string> = { en: 'EN', es: 'ES', pt: 'PT' };
-
-// ---- Translatable Input (3 rows: EN / ES / PT) ----
-
-function TranslatableInput({
-  label: fieldLabel,
-  values,
-  onChange,
-  component = 'input',
-  rows = 2,
-}: {
-  label: string;
-  values: { en: string; es: string; pt: string };
-  onChange: (locale: string, value: string) => void;
-  component?: 'input' | 'textarea';
-  rows?: number;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs">{fieldLabel}</Label>
-      <div className="space-y-1">
-        {LOCALES.map((loc) => (
-          <div key={loc} className="flex items-start gap-1.5">
-            <span className="text-[10px] font-bold text-gray-400 w-5 shrink-0 mt-1.5 text-center">
-              {LOCALE_LABELS[loc]}
-            </span>
-            {component === 'textarea' ? (
-              <Textarea
-                value={values[loc]}
-                onChange={(e) => onChange(loc, e.target.value)}
-                className="text-xs min-h-0"
-                rows={rows}
-              />
-            ) : (
-              <Input
-                value={values[loc]}
-                onChange={(e) => onChange(loc, e.target.value)}
-                className="text-xs h-7"
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ---- Main Panel ----
 
@@ -422,6 +374,14 @@ function FieldProperties({
             <Switch
               checked={field.required || false}
               onCheckedChange={(v) => update({ required: v })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">{t('allowEvidences')}</Label>
+            <Switch
+              checked={field.allowEvidences || false}
+              onCheckedChange={(v) => update({ allowEvidences: v })}
             />
           </div>
 

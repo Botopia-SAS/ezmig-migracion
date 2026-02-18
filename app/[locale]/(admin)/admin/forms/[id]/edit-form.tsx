@@ -36,7 +36,6 @@ export function FormTypeEditForm({ formType }: Props) {
       description: (formData.get('description') as string) || undefined,
       category: (formData.get('category') as string) || undefined,
       uscisEdition: (formData.get('uscisEdition') as string) || undefined,
-      tokenCost: parseInt(formData.get('tokenCost') as string) || 1,
       estimatedTimeMinutes: parseInt(formData.get('estimatedTimeMinutes') as string) || undefined,
     };
 
@@ -119,16 +118,6 @@ export function FormTypeEditForm({ formType }: Props) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="tokenCost">{t('fields.tokenCost')}</Label>
-          <Input
-            id="tokenCost"
-            name="tokenCost"
-            type="number"
-            min={0}
-            defaultValue={formType.tokenCost}
-          />
-        </div>
         <div className="space-y-2">
           <Label htmlFor="estimatedTimeMinutes">{t('fields.estimatedTime')}</Label>
           <Input

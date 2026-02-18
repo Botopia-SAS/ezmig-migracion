@@ -1,6 +1,7 @@
 'use client';
 
 import { useFormBuilderStore } from '@/lib/stores/form-builder-store';
+import { useAddElementDialogContext } from './add-element-dialog-provider';
 import { CanvasSection } from './canvas-section';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -16,7 +17,7 @@ export function CanvasPart({ part }: Props) {
   const t = useTranslations('admin.formBuilder.outline');
   const selectedNode = useFormBuilderStore((s) => s.selectedNode);
   const selectNode = useFormBuilderStore((s) => s.selectNode);
-  const addSection = useFormBuilderStore((s) => s.addSection);
+  const { requestAddSection } = useAddElementDialogContext();
 
   const isSelected =
     selectedNode?.type === 'part' && selectedNode.partId === part.id;
@@ -58,7 +59,7 @@ export function CanvasPart({ part }: Props) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => addSection(part.id)}
+        onClick={() => requestAddSection(part.id)}
         className="w-full mt-3 text-xs text-gray-500 hover:text-violet-600 border border-dashed border-gray-300 hover:border-violet-400"
       >
         <Plus className="h-3.5 w-3.5 mr-1" />

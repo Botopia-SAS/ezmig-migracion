@@ -4,10 +4,12 @@ import {
   caseForms,
   formFieldAutosaves,
   cases,
+  clients,
   ActivityType,
 } from '@/lib/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { logActivity } from '@/lib/activity/service';
+import { getFormContext } from '@/lib/relationships/service';
 
 // Types
 export interface FormSchema {
@@ -48,6 +50,7 @@ export interface FormField {
   helpText?: string;
   options?: { value: string; label: string }[];
   pdfField?: string;
+  allowEvidences?: boolean;
   translations?: Record<string, FieldTranslation>;
   conditionalDisplay?: {
     field: string;
@@ -72,6 +75,90 @@ export interface UpdateCaseFormInput {
   formData?: Record<string, unknown>;
   status?: 'not_started' | 'in_progress' | 'completed' | 'submitted';
   progressPercentage?: number;
+}
+
+/**
+ * Calculate form completion progress server-side.
+ * Mirrors the client-side logic in form-renderer.
+ */
+export function calculateFormProgress(
+  formSchema: FormSchema,
+  formData: Record<string, unknown>
+): number {
+  let totalRequired = 0;
+  let filledRequired = 0;
+
+  for (const part of formSchema.parts) {
+    for (const section of part.sections) {
+      for (const field of section.fields) {
+        if (!field.required) continue;
+        if (!isFieldVisibleServer(field, formData)) continue;
+        totalRequired++;
+        const value = getNestedValueServer(formData, `${part.id}.${section.id}.${field.id}`);
+        if (value !== undefined && value !== null && value !== '') {
+          filledRequired++;
+        }
+      }
+    }
+  }
+
+  if (totalRequired === 0) return 100;
+  return Math.round((filledRequired / totalRequired) * 100);
+}
+
+function getNestedValueServer(obj: Record<string, unknown>, path: string): unknown {
+  const keys = path.split('.');
+  let current: unknown = obj;
+  for (const key of keys) {
+    if (current === null || current === undefined) return undefined;
+    if (typeof current !== 'object') return undefined;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+function isFieldVisibleServer(
+  field: FormField,
+  formData: Record<string, unknown>
+): boolean {
+  if (!field.conditionalDisplay) return true;
+  const { field: depPath, value: expected, operator = 'equals' } = field.conditionalDisplay;
+  const actual = getNestedValueServer(formData, depPath);
+  switch (operator) {
+    case 'equals':
+      return actual === expected;
+    case 'notEquals':
+      return actual !== expected;
+    case 'in':
+      return Array.isArray(expected) && expected.includes(actual as string);
+    case 'notIn':
+      return Array.isArray(expected) && !expected.includes(actual as string);
+    default:
+      return actual === expected;
+  }
+}
+
+/**
+ * Merge flat autosaved fields (dot-path keys) into a nested object.
+ */
+export function mergeAutosavedFields(
+  baseData: Record<string, unknown>,
+  autosaved: Record<string, string | null>
+): Record<string, unknown> {
+  const result = JSON.parse(JSON.stringify(baseData));
+  for (const [path, value] of Object.entries(autosaved)) {
+    if (value === null) continue;
+    const keys = path.split('.');
+    let current: Record<string, unknown> = result;
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!(keys[i] in current) || typeof current[keys[i]] !== 'object') {
+        current[keys[i]] = {};
+      }
+      current = current[keys[i]] as Record<string, unknown>;
+    }
+    current[keys[keys.length - 1]] = value;
+  }
+  return result;
 }
 
 // Get all active form types
@@ -166,25 +253,36 @@ export async function createCaseForm(
   return newCaseForm;
 }
 
-// Get case form by ID
+// Get case form by ID (includes client data for notifications and form context)
 export async function getCaseFormById(caseFormId: number, teamId: number) {
   const [result] = await db
     .select({
       caseForm: caseForms,
       formType: formTypes,
       case: cases,
+      client: {
+        firstName: clients.firstName,
+        lastName: clients.lastName,
+        email: clients.email,
+      },
     })
     .from(caseForms)
     .innerJoin(formTypes, eq(caseForms.formTypeId, formTypes.id))
     .innerJoin(cases, eq(caseForms.caseId, cases.id))
+    .leftJoin(clients, eq(cases.clientId, clients.id))
     .where(and(eq(caseForms.id, caseFormId), eq(cases.teamId, teamId)));
 
   if (!result) return null;
+
+  // Get form context for name interpolation
+  const formContext = await getFormContext(result.case.id);
 
   return {
     ...result.caseForm,
     formType: result.formType,
     case: result.case,
+    client: result.client,
+    formContext, // Add the form context with petitioner/beneficiary names
   };
 }
 
