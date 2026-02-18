@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "EZMig USCIS E-Filing Assistant",
+  "version": "1.0.0",
+  "description": "Auto-fill USCIS forms from EZMig case data",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://myaccount.uscis.gov/*",
+    "https://my.uscis.gov/*",
+    "http://localhost:3000/*",
+    "https://*.ezmig.com/*"
+  ],
+  "background": {
+    "service_worker": "dist/background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:3000/*", "https://*.ezmig.com/*"],
+      "js": ["dist/content/ezmig-bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://myaccount.uscis.gov/*", "https://my.uscis.gov/*"],
+      "js": ["dist/content/uscis-filler.js"],
+      "css": ["dist/overlay/overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "dist/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
